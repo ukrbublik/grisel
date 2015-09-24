@@ -4,7 +4,7 @@
 Extended multi-select
 
 <h3>Screenshot:</h3>
-<img src='http://i60.tinypic.com/2hx12jd.png'  />
+<img src='http://i62.tinypic.com/108fo8i.png'  />
 
 <h3>Demo:</h3>
 See demo.html
