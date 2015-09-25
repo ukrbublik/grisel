@@ -70,7 +70,7 @@ height: 55px;
 .dp2ems-head .dp2ems-search {
 float: left;
 width: 400px;
-height: 28px;
+height: 30px;
 border: 1px solid #D9D7D7;
 border-radius: 4px;
 padding: 1px 10px;
@@ -124,25 +124,136 @@ margin-bottom: 15px;
 
 /* popup body */
 .dp2ems-body {
-display: flex;
-flex-direction: column;
 }
-.dp2ems-body .prettyCheckbox {
-width:31% !important;
-}
-.dp2ems-body label.inline {
-margin: 0 10px 12px 0;
-width: 142px;
+.dp2ems-body label.prettyCheckbox {
 font-size: 13px;
 color: #808080;
+display: table;
+margin:0;
 }
-.dp2ems-body label.inline.checked {
+.prettyCheckboxText {
+display: table-cell;
+vertical-align: middle;
+line-height: 14px;
+}
+.dp2ems-body label.prettyCheckbox.checked {
 color: #000000;
 }
-.dp2ems-body label.inline:hover {
+.dp2ems-body label.prettyCheckbox:hover {
 color: #000000;
 cursor: pointer;
 }
+
+/* margins between elements */
+.dp2ems-checkbox-any {}
+.dp2ems-label-any {}
+.dp2ems-el {
+padding: 5px;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+}
+.dp2ems-body {
+margin: -5px;
+}
+
+/* horizontal direction */
+.dp2ems-body-dir-horz {
+display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
+-webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
+}
+.dp2ems-row {
+display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
+-webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
+}
+.dp2ems-row .dp2ems-el {
+-webkit-box-flex: 1;
+-moz-box-flex: 1;
+-webkit-flex: 1;
+-ms-flex: 1;
+flex: 1;
+}
+.dp2ems-body-cols-1 .dp2ems-row .dp2ems-el {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+width: 100%;
+}
+.dp2ems-body-cols-2 .dp2ems-row .dp2ems-el {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+width: 50%;
+}
+.dp2ems-body-cols-3 .dp2ems-row .dp2ems-el {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+width: 33.333%;
+}
+.dp2ems-body-cols-4 .dp2ems-row .dp2ems-el {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+width: 25%;
+}
+.dp2ems-body-cols-5 .dp2ems-row .dp2ems-el {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+width: 20%;
+}
+
+/* vertical direction */
+.dp2ems-body-dir-vert {
+display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
+-webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
+}
+.dp2ems-col {
+display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
+-webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
+}
+.dp2ems-col .dp2ems-el {
+-webkit-box-flex: 1;
+-moz-box-flex: 1;
+-webkit-flex: 1;
+-ms-flex: 1;
+flex: 1;
+}
+
+.dp2ems-body-cols-1 .dp2ems-col {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+width: 100%;
+}
+.dp2ems-body-cols-2 .dp2ems-col {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+width: 50%;
+}
+.dp2ems-body-cols-3 .dp2ems-col {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+width: 33.333%;
+}
+.dp2ems-body-cols-4 .dp2ems-col {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+width: 25%;
+}
+.dp2ems-body-cols-5 .dp2ems-col {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+width: 20%;
+}
+
+/* не работает? (пример: фильтр по Г, "Героев Сталинграда просп"), workaround - см. useRowsStyleForVerticalDirection */
+.dp2ems-body-rows-1 .dp2ems-col .dp2ems-el {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+height: 100%;
+}
+.dp2ems-body-rows-2 .dp2ems-col .dp2ems-el {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+height: 50%;
+}
+.dp2ems-body-rows-3 .dp2ems-col .dp2ems-el {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+height: 33.333%;
+}
+.dp2ems-body-rows-4 .dp2ems-col .dp2ems-el {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+height: 25%;
+}
+.dp2ems-body-rows-5 .dp2ems-col .dp2ems-el {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+height: 20%;
+}
+
 
 /* popup controls */
 .dp2ems-ctrls {

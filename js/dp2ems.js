@@ -1,9 +1,11 @@
 /**
  * TODO:
- * 1) более гибкий css (flex)
  * 2) показ popup по hover/click
  * 3) проверить первые буквы A-Z А-Я
- * 4) размеры select/popup в options
+ * 4) размеры select/popup в options, передача кастомных классов popup и select в options
+ * 5) single-select вариант
+ * 6) показывать номера страниц
+ * 7) вариант с перелистываением, но без поиска?
  */
 
 //
@@ -89,13 +91,17 @@ function dp2ems(s, options) {
 dp2ems.defaultOptions = {
 	'anyVal': 'a-n-y',
 	'hideAny': false,
-	'hideShowSelection': false,
+	'hideShowSelectionControl': false,
 	'flushSearchStringAfterSelection': false,
 	'showSelectedItemsBeforeSearched': false,
 	'gridRows': 5,
 	'gridColumns': 3,
 	'maxSelectionLimit': 3*5,
-	'isWide': 0,
+	'isWide': false,
+	//1 - заполнять список слева направо, 0 - сверху вниз
+	'gridDirectionHorizontal': true,
+	//1 - чтобы все элементы в одной строке были на одном уровне по горизонтали при заполнении сверху вниз
+	'useRowsStyleForVerticalDirection': true,
 	
 	//
 	//strings:
@@ -453,33 +459,94 @@ dp2ems.prototype.getPageHtml = function(page) {
 	} else if(!this.canGoToPage(page)) {
 		msg = "Error! Wrong page " + page;
 	} else if(rng !== false) {
-		var j = 0;
-		for(var i = rng[0] ; i <= rng[1] ; i++) {
-			var opt = this.getVisibleOpt(i);
-			//var realInd = opt[3];
-			var realInd = this.getVisibleOptInd(i);
-			var id = this.selId + '_item_' + realInd;
+		var indStart = rng[0];
+		var indEnd = rng[1];
+		var cnt = indEnd - indStart + 1;
+		
+		var renderEl = function(self, html, ind) {
+			var html = '';
+			var opt = self.getVisibleOpt(ind);
+			var realInd = self.getVisibleOptInd(ind);
+			var id = self.selId + '_item_' + realInd;
 			var text = opt[0];
-			var checked = opt[2] ? this.areAllSelected : opt[1];
-			if(j % this.options.gridColumns == 0)
-				html += "<div id='select-area-row-"+(parseInt(j / this.options.gridColumns))+"'>";
-			html += "<input type='checkbox' class='" + (opt[2] ? "checkbox_any" : "") + "' realInd='" + realInd + "' name='" + id + "' id='" + id + "' " + (checked ? " checked" : "") + ">";
-			html += "<label for='" + id + "' class='" + (opt[2] ? "label_any" : "") + "'>" + text + "</label>";
-			j++;
-			if(j % this.options.gridColumns == 0 || i == rng[1])
-				html += "</div>";
+			var checked = opt[2] ? self.areAllSelected : opt[1];
+			html += "<div class='dp2ems-el'>";
+				html += "<input type='checkbox' class='" + (opt[2] ? "dp2ems-checkbox-any" : "") + "' realInd='" + realInd + "' name='" + id + "' id='" + id + "' " + (checked ? " checked" : "") + ">";
+				html += "<label for='" + id + "' class='" + (opt[2] ? "dp2ems-label-any" : "") + "'><span class='prettyCheckboxText'>" + text + "</span></label>";
+			html += "</div>";
+			return html;
+		};
+		
+		var renderColStart = function(self, html, c) {
+			var html = "<div class='dp2ems-col' id='dp2ems-col-" + c + "'>";
+			return html;
+		};
+		var renderColEnd = function(self, html, c) {
+			var html = "</div>";
+			return html;
+		};
+		
+		var renderRowStart = function(self, html, r) {
+			var html = "<div class='dp2ems-row dp2ems-body-rows-" + self.options.gridRows + "' id='dp2ems-row-" + r + "'>";
+			return html;
+		};
+		var renderRowEnd = function(self, html, r) {
+			var html = "</div>";
+			return html;
+		};
+		
+		if(this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection) {
+			for(var r = 0 ; r < this.options.gridRows ; r++) {
+				for(var c = 0 ; c < this.options.gridColumns ; c++) {
+					var i;
+					if(this.options.gridDirectionHorizontal)
+						i = r * this.options.gridColumns + c;
+					else
+						i = c * this.options.gridRows + r;
+					var ind = indStart + i;
+					if(ind > indEnd) {
+						if(c > 0)
+							html += renderRowEnd(this, html, r);
+						break;
+					}
+					if(c == 0)
+						html += renderRowStart(this, html, r);
+					html += renderEl(this, html, ind);
+					if(c == (this.options.gridColumns - 1) || ind == indEnd)
+						html += renderRowEnd(this, html, r);
+				}
+			}
+		} else {
+			for(var c = 0 ; c < this.options.gridColumns ; c++) {
+				for(var r = 0 ; r < this.options.gridRows ; r++) {
+					var i = c * this.options.gridRows + r;
+					var ind = indStart + i;
+					if(ind > indEnd)
+						break;
+					if(r == 0)
+						html += renderColStart(this, html, c);
+					html += renderEl(this, html, ind);
+					if(r == (this.options.gridRows - 1) || ind == indEnd)
+						html += renderColEnd(this, html, c);
+				}
+			}
 		}
+		
 		html += "<div style='clear:both'></div>";
 	}
 	return {html: html, msg: msg};
 };
 
+//Если на новой странице элементов меньше, чем на старой, то высота popup-а уменьшится, что может быть проблемой
 dp2ems.prototype.fixCheckboxesWrapperHeight = function() {
-	var $divToRender = this.$divAreaPopup.find(".dp2ems-body");
-	var h = parseInt($divToRender.height());
-	var minh = parseInt($divToRender.css('min-height'));
-	if(!minh || h > minh)
-		$divToRender.css('min-height', h+'px');
+	var self = this;
+	setTimeout(function() {
+		var $divToRender = self.$divAreaPopup.find(".dp2ems-body");
+		var h = parseInt($divToRender.height());
+		var minh = parseInt($divToRender.css('min-height'));
+		if(!minh || h > minh)
+			$divToRender.css('min-height', h+'px');
+	}, 1);
 };
 
 dp2ems.prototype.renderPage = function(page) {
@@ -854,12 +921,12 @@ dp2ems.prototype.prepareHtml = function() {
 			divAreaPopupHtml += "<div class='dp2ems-btn-left'></div><div class='dp2ems-btn-right'></div>";
 		divAreaPopupHtml += "</div>";
 		divAreaPopupHtml += "<div class='dp2ems-msg'><span></span></div>";
-		divAreaPopupHtml += "<div class='dp2ems-body'>";
+		divAreaPopupHtml += "<div class='dp2ems-body " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'dp2ems-body-dir-horz' : 'dp2ems-body-dir-vert') + " dp2ems-body-cols-" + this.options.gridColumns + " dp2ems-body-rows-" + this.options.gridRows + "'>";
 			//... look at this.renderPage(page)
 		divAreaPopupHtml += "</div>";
 		divAreaPopupHtml += "<div class='dp2ems-ctrls'>";
 			divAreaPopupHtml += "<div class='dp2ems-ctrl-left dp2ems-ctrl-clear-all'>" + textClearAll + "</div>";
-			if(!this.options.hideShowSelection)
+			if(!this.options.hideShowSelectionControl)
 				divAreaPopupHtml += "<div class='dp2ems-ctrl-left dp2ems-ctrl-show-selection'>" + textShowSelection + "</div>";
 			divAreaPopupHtml += "<div class='dp2ems-ctrl-right dp2ems-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
 		divAreaPopupHtml += "</div>";
