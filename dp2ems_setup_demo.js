@@ -6,6 +6,7 @@ dp2ems.optionsBySelId = {
 		'cntNames': ['улица', 'улицы', 'улиц'],
 		'allStr': 'Все улицы Киева',
 		'isWide': 0,
+		'isCompact': 1,
 		'maxCntYoShowFullVal': 2,
 		'inputPlaceholder': 'Введите название улицы Киева',
 		'noResultsMsg': 'Данной улицы Киева нет в списке, измените, пожалуйста, параметры поиска',

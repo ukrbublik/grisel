@@ -1,18 +1,23 @@
 /**
  * TODO:
- * 2) показ popup по hover/click
- * 3) проверить первые буквы A-Z А-Я
- * 4) размеры select/popup в options, передача кастомных классов popup и select в options
- * 5) single-select вариант
- * 6) показывать номера страниц
- * 7) вариант с перелистываением, но без поиска?
+ * - размеры select/popup в options, передача кастомных классов popup и select в options
+ * - показ popup по hover/click
+ * - single-select вариант
+ * - показывать номера страниц (в виде точек); перелистывать страницы с анимацией
+ 
+ * .. глянуть showSelectedItemsBeforeSearched - если фигня, написать что это legacy для dp2.ua
+ *   проверить, что вертик. направление работает вместе с отображением выбранных
+ * .. -wide сделать в настройках как кстомный класс, в .css мне он нах не нужен
+ * .. iscompact - определять по кол-ву страниц до 3 (options) или жестко, 
  */
 
 //
 // Class dp2ems
 //
-
 function dp2ems(s, options) {
+	/**
+	 * Vars
+	 */
 	this.$sel = jQuery();
 	this.$divSel = jQuery();
 	this.$divAreaPopup = jQuery();
@@ -38,7 +43,11 @@ function dp2ems(s, options) {
 	this.fitlerBySel = false;
 	this.allStr = '';
 	
+	/**
+	 * Ctor
+	 */
 	this.ctor = function(s, _options) {
+		//Get original <select>
 		if(typeof s === 'string') {
 			this.selId = s;
 			this.$sel = jQuery('#'+this.selId);
@@ -63,6 +72,7 @@ function dp2ems(s, options) {
 		if(dp2ems.isInited(this.$sel))
 			return dp2ems.getInstance(this.selId);
 		
+		//Build options
 		this.options = jQuery.extend({}, dp2ems.defaultOptions);
 		if(typeof dp2ems.optionsBySelClass[this.selId] != 'undefined') {
 			for(var i = 0 ; i < selClasses.length ; i++)
@@ -73,12 +83,8 @@ function dp2ems(s, options) {
 		if(_options)
 			this.options = jQuery.extend(this.options, _options);
 		
-		this.syncFromSelect();
-		this.prepareHtml();
-		this.setNoFilter();
-		this.applyFilterAndRender0();
-		this.renderFirstChars();
-		this.renderValStr();
+		//Init
+		this.initOnce();
 		
 		dp2ems._instances[this.selId] = this;
 		
@@ -87,6 +93,8 @@ function dp2ems(s, options) {
 	
 	return this.ctor(s, options);
 }
+
+// ------------------------ Options
 
 dp2ems.defaultOptions = {
 	'anyVal': 'a-n-y',
@@ -98,6 +106,7 @@ dp2ems.defaultOptions = {
 	'gridColumns': 3,
 	'maxSelectionLimit': 3*5,
 	'isWide': false,
+	'isCompact': false,
 	//1 - заполнять список слева направо, 0 - сверху вниз
 	'gridDirectionHorizontal': true,
 	//1 - чтобы все элементы в одной строке были на одном уровне по горизонтали при заполнении сверху вниз
@@ -129,6 +138,8 @@ dp2ems.optionsBySelClass = {
 dp2ems.optionsBySelId = {
 };
 
+// ------------------------ Static stuff
+
 dp2ems._instances = {};
 
 dp2ems.getInstance = function(selId) {
@@ -151,20 +162,44 @@ dp2ems.isInited = function($sel) {
 	return is;
 };
 
-//obsolete
-dp2ems.prototype.getSelectedItemsFromSelect = function() {
-	var arr = [];
-	var areAll = false;
-	var $selOptions = this.$sel.find("option[selected=selected]");
-	$selOptions.each(function(ind, el) {
-		if(jQuery(el).attr('value') == this.options.anyVal) {
-			areAll = true;
-		}
-		arr.push(jQuery(el).text());
-	});
-	return {'items': arr, 'areAll': areAll};
+dp2ems.localizeCntName = function(cnt, cnt_names) {
+	var i;
+	if(cnt > 10 && cnt < 20)
+		i = 2;
+	else if(cnt % 10 == 1)
+		i = 0;
+	else if(cnt % 10 == 2 || cnt % 10 == 3 || cnt % 10 == 4)
+		i = 1;
+	else
+		i = 2;
+	return cnt_names[i];
 };
 
+dp2ems.fCharToGroup = function(fChar) {
+	var gr = fChar;
+	var chLC = fChar.toLowerCase();
+	if(fChar >= '0' && fChar <= '9')
+		gr = '0-9';
+	else if(!(chLC >= "а" && chLC <= "я" || chLC >= "a" && chLC <= "z"))
+		gr = '*';
+	return gr;
+};
+
+dp2ems.isFCharInGroup = function(fChar, gr) {
+	var chLC = fChar.toLowerCase();
+	if(gr == '0-9')
+		return (fChar >= '0' && fChar <= '9');
+	else if(gr == '*')
+		return (!(chLC >= "а" && chLC <= "я" || chLC >= "a" && chLC <= "z"));
+	else
+		return fChar == gr;
+};
+
+// ------------------------ Model - sync
+
+/**
+ * Build human string representing current selection
+ */
 dp2ems.prototype.selectedItemsToStr = function(arr, areAll) {
 	var val = '';
 	if(arr.length == 0 || areAll)
@@ -176,6 +211,9 @@ dp2ems.prototype.selectedItemsToStr = function(arr, areAll) {
 	return val;
 };
 
+/**
+ * Load model from original <select>
+ */
 dp2ems.prototype.getOptsFromSelect = function() {
 	var opts = [];
 	var $optns = this.$sel.find("option");
@@ -207,19 +245,9 @@ dp2ems.prototype.getOptsFromSelect = function() {
 	return {'opts': opts, 'areAll': areAll};
 };
 
-dp2ems.localizeCntName = function(cnt, cnt_names) {
-	var i;
-	if(cnt > 10 && cnt < 20)
-		i = 2;
-	else if(cnt % 10 == 1)
-		i = 0;
-	else if(cnt % 10 == 2 || cnt % 10 == 3 || cnt % 10 == 4)
-		i = 1;
-	else
-		i = 2;
-	return cnt_names[i];
-};
-
+/**
+ * Sync model from original <select>
+ */
 dp2ems.prototype.syncFromSelect = function() {
 	//sync items
 	var tmp = this.getOptsFromSelect();
@@ -257,25 +285,11 @@ dp2ems.prototype.syncFromSelect = function() {
 	this.valStr = this.selectedItemsToStr(this.selectedItems, this.areAllSelected);
 };
 
-dp2ems.fCharToGroup = function(fChar) {
-	var gr = fChar;
-	if(fChar >= '0' && fChar <= '9')
-		gr = '0-9';
-	else if(!(fChar >= "А" && fChar <= "Я" || fChar >= "а" && fChar <= "я"))
-		gr = '*';
-	return gr;
-};
-
-dp2ems.isFCharInGroup = function(fChar, gr) {
-	if(gr == '0-9')
-		return (fChar >= '0' && fChar <= '9');
-	else if(gr == '*')
-		return (!(fChar >= "А" && fChar <= "Я" || fChar >= "а" && fChar <= "я"));
-	else
-		return fChar == gr;
-};
-
-//lite == 1 - сверять только флаги selected, lite == 0 - сверять также все элементы и их порядок
+/**
+ * Sync model to original <select>
+ *
+ * lite == 1 - сверять только флаги selected, lite == 0 - сверять также все элементы и их порядок
+ */
 dp2ems.prototype.syncToSelect = function(lite) {
 	//tmp (will be reversed)
 	if(this.options.hideAny) {
@@ -401,6 +415,213 @@ dp2ems.prototype.syncToSelect = function(lite) {
 	this.$sel.trigger('change');
 };
 
+// ------------------------ Model - filtering
+
+dp2ems.prototype.filterItemsBySearchString = function(str) {
+	if(str == '') {
+		this.visibleItemsInds = false;
+		this.visibleItems = false;
+		this.selectedAndFilteredItems = false;
+		this.selectedAndFilteredItemsInds = false;
+	} else {
+		this.visibleItemsInds = [];
+		this.visibleItems = [];
+		this.selectedAndFilteredItems = [];
+		this.selectedAndFilteredItemsInds = [];
+		if(this.options.showSelectedItemsBeforeSearched) {
+			this.sortSelectedItems();
+			for(var i = 0 ; i < this.selectedItemsInds.length ; i++) {
+				var ind = this.selectedItemsInds[i];
+				var it = this.selectedItems[i];
+				this.visibleItemsInds.push(ind);
+				this.visibleItems.push(it);
+			}
+		}
+		for(var i = 0 ; i < this.items.length ; i++) {
+			var it = this.items[i];
+			if(i != this.anyItemInd && it.match(new RegExp('(^| )'+str, 'i'))) {
+				if(this.options.showSelectedItemsBeforeSearched) {
+					if(this.selectedItemsInds.indexOf(i) == -1) {
+						this.visibleItemsInds.push(i);
+						this.visibleItems.push(it);
+					} else {
+						this.selectedAndFilteredItemsInds.push(i);
+						this.selectedAndFilteredItems.push(it);
+					}
+				} else {
+					this.visibleItemsInds.push(i);
+					this.visibleItems.push(it);
+				}
+			}
+		}
+	}
+};
+
+dp2ems.prototype.filterItemsByFirstChar = function(gr) {
+	if(gr == '') {
+		this.visibleItemsInds = false;
+		this.visibleItems = false;
+		this.selectedAndFilteredItems = false;
+		this.selectedAndFilteredItemsInds = false;
+	} else {
+		this.visibleItemsInds = [];
+		this.visibleItems = [];
+		this.selectedAndFilteredItems = false;
+		this.selectedAndFilteredItemsInds = false;
+		for(var i = 0 ; i < this.items.length ; i++) {
+			var it = this.items[i];
+			if(it.length > 0) {
+				var fChar = it[0];
+				if(dp2ems.isFCharInGroup(fChar, gr)) {
+					this.visibleItemsInds.push(i);
+					this.visibleItems.push(it);
+				}
+			}
+		}
+	}
+};
+
+dp2ems.prototype.filterItemsBySelected = function() {
+	//copy selectedItems to visibleItems
+	this.visibleItemsInds = [];
+	this.visibleItems = [];
+	if(this.areAllSelected && !this.options.hideAny) {
+		this.visibleItemsInds.push(this.anyItemInd);
+		this.visibleItems.push(this.items[this.anyItemInd]);
+	}
+	for(var i = 0 ; i < this.selectedItemsInds.length ; i++) {
+		var ind = this.selectedItemsInds[i];
+		var it = this.selectedItems[i];
+		this.visibleItemsInds.push(ind);
+		this.visibleItems.push(it);
+	}
+	this.selectedAndFilteredItems = false;
+	this.selectedAndFilteredItemsInds = false;
+};
+
+dp2ems.prototype.filterItemsByNone = function() {
+	this.visibleItemsInds = false;
+	this.visibleItems = false;
+	this.selectedAndFilteredItems = false;
+	this.selectedAndFilteredItemsInds = false;
+};
+dp2ems.prototype.setFilterByFirstChar = function(gr) {
+	this.filterFChar = gr;
+	this.filterStr = '';
+	this.fitlerBySel = false;
+};
+dp2ems.prototype.setFilterBySelected = function(sel) {
+	this.filterFChar = '';
+	this.filterStr = '';
+	this.fitlerBySel = sel;
+};
+dp2ems.prototype.setFilterBySearchString = function(str) {
+	this.filterFChar = '';
+	this.filterStr = str;
+	this.fitlerBySel = false;
+};
+dp2ems.prototype.setNoFilter = function() {
+	this.filterFChar = '';
+	this.filterStr = '';
+	this.fitlerBySel = false;
+};
+dp2ems.prototype.getFilterMode = function() {
+	var mode = '';
+	if(this.fitlerBySel) {
+		mode = 'sel';
+	} else if(this.filterFChar) {
+		mode = 'fchar';
+	} else if(this.filterStr) {
+		mode = 'search';
+	} else {
+		mode = '';
+	}
+	return mode;
+};
+dp2ems.prototype.isNoFilter = function() {
+	return this.getFilterMode() == '';
+};
+
+dp2ems.prototype.sortSelectedItems = function() {
+	this.selectedItems.sort();
+	var self = this;
+	this.selectedItemsInds.sort(function(ind1, ind2) {
+		var it1 = self.items[ind1];
+		var it2 = self.items[ind2];
+		return (it1 < it2 ? -1 : (it1 > it2 ? 1 : 0));
+	});
+};
+
+// ------------------------ Model - changings
+
+dp2ems.prototype.selectItem = function(ind, text, isSel) {
+	var changed = false;
+	var oldAreAllSelected = this.areAllSelected;
+	if(ind == this.anyItemInd) {
+		if(!isSel && this.selectedItems.length == 0)
+			isSel = true; //если ничего не выбрано, значит выбрано все
+		this.areAllSelected = isSel;
+		changed = (oldAreAllSelected != this.areAllSelected);
+	} else {
+		this.areAllSelected = false;
+		if(!isSel) {
+			var tmp = this.selectedItemsInds.indexOf(ind);
+			if(tmp != -1) {
+				this.selectedItemsInds.splice(tmp, 1);
+				this.selectedItems.splice(tmp, 1);
+				this.opts[ind][1] = false;
+				changed = true;
+			}
+		} else {
+			var tmp = this.selectedItemsInds.indexOf(ind);
+			if(tmp == -1) {
+				this.selectedItemsInds.push(ind);
+				this.selectedItems.push(this.items[ind]);
+				this.opts[ind][1] = true;
+				changed = true;
+			}
+		}
+	}
+	changed = changed || (oldAreAllSelected != this.areAllSelected);
+	if(changed)
+		this.updAreAllSelected();
+	
+	var ch_stat = 0;
+	if(oldAreAllSelected != this.areAllSelected || ind == this.anyItemInd) //если кликнул на 'Все', надо вернуть отметку, т.к. убирать ее не надо
+		ch_stat = 2; 
+	else if(changed)
+		ch_stat = 1;
+	return ch_stat;
+};
+
+dp2ems.prototype.updAreAllSelected = function() {
+	var tmp = true; //флаг - выбраны ли все элементы по отдельности (а не галочкой 'Все')
+	var tmp2 = false; //флаг - выбран ли хоть один
+	if(!this.areAllSelected) {
+		for(var i = 0 ; i < this.opts.length ; i++) {
+			var opt = this.opts[i];
+			if(!opt[2] && !opt[1])
+				tmp = false;
+			if(!opt[2] && opt[1])
+				tmp2 = true;
+		}
+	}
+	this.areAllSelected = this.areAllSelected || tmp || !tmp2;
+	if(this.areAllSelected && this.selectedItems.length) {
+		this.selectedItems = [];
+		this.selectedItemsInds = [];
+		for(var i = 0 ; i < this.opts.length ; i++) {
+			var opt = this.opts[i];
+			if(opt[2])
+				opt[1] = true;
+			else
+				opt[1] = false;
+		}
+	}
+};
+
+// ------------------------ Model - getting slices
+
 dp2ems.prototype.getVisibleItems = function() {
 	return this.visibleItems !== false ?  this.visibleItems : this.items;
 };
@@ -412,7 +633,6 @@ dp2ems.prototype.getVisibleOptInd = function(i) {
 };
 
 dp2ems.prototype.getPages = function() {
-	
 	return Math.ceil( 1.0 * this.getVisibleItems().length / (this.options.gridRows * this.options.gridColumns) );
 };
 
@@ -439,6 +659,115 @@ dp2ems.prototype.getItemsRangeForPage = function(page) {
 dp2ems.prototype.getSearchedCnt = function() {
 	return this.getFilterMode() == 'search' ? this.getVisibleItems().length - this.selectedItems.length + this.selectedAndFilteredItems.length : -1;
 };
+
+// ------------------------ View
+
+dp2ems.prototype.isExtView = function() {
+	return this.getTotalPages() > 1;
+};
+dp2ems.prototype.isCompactExtView = function() {
+	return this.options.isCompact && this.isExtView();
+};
+dp2ems.prototype.isFullExtView = function() {
+	return !this.options.isCompact && this.isExtView();
+};
+dp2ems.prototype.isWideView = function() {
+	return this.options.isWide;
+};
+
+/**
+ * Если на новой странице элементов меньше, чем на старой, то высота popup-а уменьшится, что может быть проблемой
+ */
+dp2ems.prototype.fixCheckboxesWrapperHeight = function() {
+	var self = this;
+	setTimeout(function() {
+		var $divToRender = self.$divAreaPopup.find(".dp2ems-body");
+		var h = parseInt($divToRender.height());
+		var minh = parseInt($divToRender.css('min-height'));
+		if(!minh || h > minh)
+			$divToRender.css('min-height', h+'px');
+	}, 1);
+};
+
+dp2ems.prototype.updHtmlAfterFilterChange = function() {
+	var self = this;
+	this.$divAreaPopup.find('.dp2ems-ctrl-show-selection').toggleClass('selected', this.fitlerBySel);
+	this.$divAreaPopup.find(".dp2ems-index .dp2ems-char").each(function(ind, el) {
+		var ch = jQuery(el).attr('fChar');
+		jQuery(el).toggleClass('selected', (ch == '' ? self.isNoFilter() : self.filterFChar == ch));
+	});
+	if(this.$divAreaPopup.find('.dp2ems-search').val() != this.filterStr)
+		this.$divAreaPopup.find('.dp2ems-search').val(this.filterStr);
+};
+
+dp2ems.prototype.updHtmlAfterAllSelectedChanged = function() {
+	if(this.areAllSelected) {
+		//если не выбрано ни одного элемента, поставить только 1 галку 'Все'
+		this.$divAreaPopup.find(".dp2ems-body label:not(.dp2ems-label-any).checked").removeClass("checked");
+		this.$divAreaPopup.find(".dp2ems-body input:not(.dp2ems-checkbox-any):checked").prop('checked', false);
+		this.$divAreaPopup.find(".dp2ems-body label.dp2ems-label-any").addClass("checked");
+		this.$divAreaPopup.find(".dp2ems-body input.dp2ems-checkbox-any").prop('checked', true);
+	} else {
+		//если выбран хоть 1 элемент, снять галку с 'Все'
+		this.$divAreaPopup.find(".dp2ems-body label.dp2ems-label-any").removeClass("checked");
+		this.$divAreaPopup.find(".dp2ems-body input.dp2ems-checkbox-any").prop('checked', false);
+	}
+};
+
+dp2ems.prototype.updHtmlAfterUpdateItems = function() {
+	var classAreaPopup = (this.isFullExtView() ? 'dp2ems-popup-ext' : (this.isCompactExtView() ? 'dp2ems-popup-comp' : 'dp2ems-popup-norm'));
+	var classAreaPopup2 = (this.isWideView() ? 'dp2ems-popup-wide' : '');
+	this.$divAreaPopup.removeClass('dp2ems-popup-ext');
+	this.$divAreaPopup.removeClass('dp2ems-popup-comp');
+	this.$divAreaPopup.removeClass('dp2ems-popup-norm');
+	this.$divAreaPopup.removeClass('dp2ems-popup-wide');
+	this.$divAreaPopup.addClass(classAreaPopup);
+	if(classAreaPopup2)
+		this.$divAreaPopup.addClass(classAreaPopup2);
+}
+
+// ------------------------ View - rendering
+
+dp2ems.prototype.getSelHtml = function(page) {
+	var divSelHtml = "<div class='dp2ems-select'><span>" + this.valStr + "</span><div class='cuselFrameRight'></div></div>";
+	return divSelHtml;
+};
+
+dp2ems.prototype.getPopupHtml = function(page) {
+	var classAreaPopup = (this.isFullExtView() ? 'dp2ems-popup-ext' : (this.isCompactExtView() ? 'dp2ems-popup-comp' : 'dp2ems-popup-norm'));
+	var classAreaPopup2 = (this.isWideView() ? 'dp2ems-popup-wide' : '');
+	var textClearAll = "Сбросить все";
+	var textShowSelection = "Показать выбранные";
+	var textSaveSelection = "Сохранить";
+	var divAreaPopupHtml = '';
+	divAreaPopupHtml += "<div class='dp2ems-popup " + classAreaPopup + " " + classAreaPopup2 + "'>";
+		divAreaPopupHtml += "<div class='dp2ems-head'>";
+			divAreaPopupHtml += "<input class='dp2ems-search' type='text' placeholder='" + this.options.inputPlaceholder + "'/>";
+			divAreaPopupHtml += "<div class='dp2ems-btn dp2ems-btn-left'></div>";
+			divAreaPopupHtml += "<div class='dp2ems-btn dp2ems-btn-right'></div>";
+		divAreaPopupHtml += "</div>";
+		divAreaPopupHtml += "<div class='dp2ems-msg'><span></span></div>";
+		divAreaPopupHtml += "<div class='dp2ems-body " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'dp2ems-body-dir-horz' : 'dp2ems-body-dir-vert') + " dp2ems-body-cols-" + this.options.gridColumns + " dp2ems-body-rows-" + this.options.gridRows + "'>";
+			//... look at this.renderPage(page)
+		divAreaPopupHtml += "</div>";
+		divAreaPopupHtml += "<div class='dp2ems-ctrls'>";
+			divAreaPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrls-pag'>";
+				divAreaPopupHtml += "<div class='dp2ems-btn dp2ems-btn-left'></div>";
+				divAreaPopupHtml += "<div class='dp2ems-btn dp2ems-btn-right'></div>";
+				divAreaPopupHtml += "<div class='dp2ems-clr'></div>";
+			divAreaPopupHtml += "</div>";
+			divAreaPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-clear-all'>" + textClearAll + "</div>";
+			if(!this.options.hideShowSelectionControl)
+				divAreaPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-show-selection'>" + textShowSelection + "</div>";
+			divAreaPopupHtml += "<div class='dp2ems-ctrl-space'></div>";
+			divAreaPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
+		divAreaPopupHtml += "</div>";
+		divAreaPopupHtml += "<div class='dp2ems-index'" + ">";
+			//... look at this.renderFirstChars()
+		divAreaPopupHtml += "</div>";
+	divAreaPopupHtml += "</div>";
+	return divAreaPopupHtml;
+}
 
 dp2ems.prototype.getPageHtml = function(page) {
 	var msg = '';
@@ -537,18 +866,118 @@ dp2ems.prototype.getPageHtml = function(page) {
 	return {html: html, msg: msg};
 };
 
-//Если на новой странице элементов меньше, чем на старой, то высота popup-а уменьшится, что может быть проблемой
-dp2ems.prototype.fixCheckboxesWrapperHeight = function() {
-	var self = this;
-	setTimeout(function() {
-		var $divToRender = self.$divAreaPopup.find(".dp2ems-body");
-		var h = parseInt($divToRender.height());
-		var minh = parseInt($divToRender.css('min-height'));
-		if(!minh || h > minh)
-			$divToRender.css('min-height', h+'px');
-	}, 1);
+dp2ems.prototype.getFirstCharsHtml = function() {
+	var html = '';
+	
+	var cntAll = this.items.length;
+	var fCharAll = '';
+	var allName = 'Все';
+	html += "<div class='dp2ems-char' fChar='" + fCharAll + "' fCharCnt='" + cntAll + "'>" + allName + "</div>";
+	
+	for(var fChar in this.firstChars) if (this.firstChars.hasOwnProperty(fChar)) {
+		var cnt = this.firstChars[fChar];
+		html += "<div class='dp2ems-char' fChar='" + fChar + "' fCharCnt='" + cnt + "'>" + fChar + "</div>";
+	}
+	return html;
 };
 
+// ------------------------ Controller
+
+//init
+dp2ems.prototype.initOnce = function() {
+	if(dp2ems.isInited(this.$sel))
+		return false;
+	
+	this.syncFromSelect();
+	
+	this.prepareHtmlOnce();
+	
+	this.doSetNoFilter();
+	this.applyFilterAndRender0();
+	this.renderFirstChars();
+	this.renderValStr();
+};
+
+dp2ems.prototype.prepareHtmlOnce = function() {
+	if(dp2ems.isInited(this.$sel))
+		return false;
+	
+	//replace original <select> with new sel & popup divs
+	this.$sel.hide();
+	this.$divSel = jQuery(this.getSelHtml());
+	this.$divAreaPopup = jQuery(this.getPopupHtml());
+	this.$divSel.insertAfter(this.$sel);
+	this.$divAreaPopup.insertAfter(this.$divSel);
+	
+	//attach events
+	var self = this;
+	this.$divSel.mouseenter(function(){
+		self.openPopup();
+	});
+	this.$divAreaPopup.mouseleave(function(){
+		self.closePopup();
+	});
+	this.$divAreaPopup.find('.dp2ems-search').bind('input', function(e) {
+		var text = e.target.value;
+		self.doSetFilterBySearchString(text);
+		self.applyFilterAndRender0();
+	});
+	this.$divAreaPopup.find('.dp2ems-ctrl-clear-all').click(function() {
+		self.doUnselectAllItems();
+		//self.doSetNoFilter(); //нет в ТЗ, но было бы логично
+		self.applyFilterAndRender0();
+	});
+	this.$divAreaPopup.find('.dp2ems-ctrl-show-selection').click(function() {
+		self.doSetFilterBySelected(! self.fitlerBySel);
+		self.applyFilterAndRender0();
+	});
+	this.$divAreaPopup.find('.dp2ems-ctrl-save-selection').click(function() {
+		self.closePopup();
+	});
+	this.$divAreaPopup.find('.dp2ems-btn-left').click(function() {
+		if(self.canGoToPage(self.currPage - 1))
+			self.renderPage(self.currPage - 1);
+	});
+	this.$divAreaPopup.find('.dp2ems-btn-right').click(function() {
+		if(self.canGoToPage(self.currPage + 1))
+			self.renderPage(self.currPage + 1);
+	});
+	
+	return true;	
+};
+
+//sync from original <select> if has been updated
+dp2ems.prototype.doUpdateItems = function() {
+	this.syncFromSelect();
+	
+	this.updHtmlAfterUpdateItems();
+	
+	this.doSetNoFilter();
+	this.applyFilterAndRender0();
+	this.renderFirstChars();
+	this.renderValStr();
+};
+
+//open, close
+dp2ems.prototype.openPopup = function(page) {
+	dp2ems.closeAppPopups();
+	this.$divAreaPopup.css('display', 'block');
+	this.fixCheckboxesWrapperHeight();
+};
+dp2ems.prototype.closePopup = function(page) {
+	this.$divAreaPopup.css('display', 'none');
+};
+dp2ems.prototype.isPopupOpened = function(page) {
+	return this.$divAreaPopup.is(':visible');
+};
+dp2ems.closeAppPopups = function(page) {
+	for(var selId in dp2ems._instances) if (dp2ems._instances.hasOwnProperty(selId)) {
+		var inst = dp2ems._instances[selId];
+		inst.closePopup();
+	}
+};
+
+//render
 dp2ems.prototype.renderPage = function(page) {
 	var $divToRender = this.$divAreaPopup.find(".dp2ems-body");
 	var $divToRenderMsg = this.$divAreaPopup.find(".dp2ems-msg");
@@ -574,26 +1003,11 @@ dp2ems.prototype.renderPage = function(page) {
 			var text = jQuery(this).next('label').text();
 			var ind = parseInt(jQuery(this).attr('realInd'));
 			var isSel = jQuery(this).is(':checked');
-			var isAny = jQuery(this).is('.checkbox_any');
+			var isAny = jQuery(this).is('.dp2ems-checkbox-any');
 			
 			self.onSelectItem(ind, text, isSel);			
 		});
 	});
-};
-
-dp2ems.prototype.getFirstCharsHtml = function() {
-	var html = '';
-	
-	var cntAll = this.items.length;
-	var fCharAll = '';
-	var allName = 'Все';
-	html += "<div class='dp2ems-char' fChar='" + fCharAll + "' fCharCnt='" + cntAll + "'>" + allName + "</div>";
-	
-	for (var fChar in this.firstChars) if (this.firstChars.hasOwnProperty(fChar)) {
-		var cnt = this.firstChars[fChar];
-		html += "<div class='dp2ems-char' fChar='" + fChar + "' fCharCnt='" + cnt + "'>" + fChar + "</div>";
-	}
-	return html;
 };
 
 dp2ems.prototype.renderValStr = function() {
@@ -605,7 +1019,7 @@ dp2ems.prototype.renderFirstChars = function() {
 	var $divToRender = this.$divAreaPopup.find(".dp2ems-index");
 	var html = '';
 	
-	if(this.isExtView()) {
+	if(this.isFullExtView()) {
 		html = this.getFirstCharsHtml();
 		$divToRender.html(html);
 		
@@ -615,161 +1029,31 @@ dp2ems.prototype.renderFirstChars = function() {
 		$fChars.each(function(ind, el) {
 			jQuery(el).click(function() {
 				var gr = jQuery(this).attr('fChar');
-				self.setFilterByFirstChar(gr);
+				self.doSetFilterByFirstChar(gr);
 				self.applyFilterAndRender0();
 			});
 		});
 		
-		this.updateHtmlByFilters();
+		this.updHtmlAfterFilterChange();
 	}
 };
 
-dp2ems.prototype.getFilterMode = function() {
-	var mode = '';
-	if(this.fitlerBySel) {
-		mode = 'sel';
-	} else if(this.filterFChar) {
-		mode = 'fchar';
-	} else if(this.filterStr) {
-		mode = 'search';
-	} else {
-		mode = '';
-	}
-	return mode;
+//filters
+dp2ems.prototype.doSetFilterByFirstChar = function(gr) {
+	this.setFilterByFirstChar(gr);
+	this.updHtmlAfterFilterChange();
 };
-dp2ems.prototype.setFilterByFirstChar = function(gr) {
-	this.filterFChar = gr;
-	this.filterStr = '';
-	this.fitlerBySel = false;
-	this.updateHtmlByFilters();
+dp2ems.prototype.doSetFilterBySelected = function(sel) {
+	this.setFilterBySelected(sel);
+	this.updHtmlAfterFilterChange();
 };
-dp2ems.prototype.setFilterBySelected = function(sel) {
-	this.filterFChar = '';
-	this.filterStr = '';
-	this.fitlerBySel = sel;
-	this.updateHtmlByFilters();
+dp2ems.prototype.doSetFilterBySearchString = function(str) {
+	this.setFilterBySearchString(str);
+	this.updHtmlAfterFilterChange();
 };
-dp2ems.prototype.setFilterBySearchString = function(str) {
-	this.filterFChar = '';
-	this.filterStr = str;
-	this.fitlerBySel = false;
-	this.updateHtmlByFilters();
-};
-dp2ems.prototype.setNoFilter = function() {
-	this.filterFChar = '';
-	this.filterStr = '';
-	this.fitlerBySel = false;
-	this.updateHtmlByFilters();
-};
-dp2ems.prototype.isNoFilter = function() {
-	return this.getFilterMode() == '';
-};
-//просто подчеркнуть текущие выбранные фильтры
-dp2ems.prototype.updateHtmlByFilters = function() {
-	var self = this;
-	this.$divAreaPopup.find('.dp2ems-ctrl-show-selection').toggleClass('selected', this.fitlerBySel);
-	this.$divAreaPopup.find(".dp2ems-index .dp2ems-char").each(function(ind, el) {
-		var ch = jQuery(el).attr('fChar');
-		jQuery(el).toggleClass('selected', (ch == '' ? self.isNoFilter() : self.filterFChar == ch));
-	});
-	if(this.$divAreaPopup.find('.dp2ems-search').val() != this.filterStr)
-		this.$divAreaPopup.find('.dp2ems-search').val(this.filterStr);
-};
-
-dp2ems.prototype.filterItemsBySearchString = function(str) {
-	if(str == '') {
-		this.visibleItemsInds = false;
-		this.visibleItems = false;
-		this.selectedAndFilteredItems = false;
-		this.selectedAndFilteredItemsInds = false;
-	} else {
-		this.visibleItemsInds = [];
-		this.visibleItems = [];
-		this.selectedAndFilteredItems = [];
-		this.selectedAndFilteredItemsInds = [];
-		if(this.options.showSelectedItemsBeforeSearched) {
-			this.sortSelectedItems();
-			for(var i = 0 ; i < this.selectedItemsInds.length ; i++) {
-				var ind = this.selectedItemsInds[i];
-				var it = this.selectedItems[i];
-				this.visibleItemsInds.push(ind);
-				this.visibleItems.push(it);
-			}
-		}
-		for(var i = 0 ; i < this.items.length ; i++) {
-			var it = this.items[i];
-			if(i != this.anyItemInd && it.match(new RegExp('(^| )'+str, 'i'))) {
-				if(this.options.showSelectedItemsBeforeSearched) {
-					if(this.selectedItemsInds.indexOf(i) == -1) {
-						this.visibleItemsInds.push(i);
-						this.visibleItems.push(it);
-					} else {
-						this.selectedAndFilteredItemsInds.push(i);
-						this.selectedAndFilteredItems.push(it);
-					}
-				} else {
-					this.visibleItemsInds.push(i);
-					this.visibleItems.push(it);
-				}
-			}
-		}
-	}
-};
-dp2ems.prototype.filterItemsByFirstChar = function(gr) {
-	if(gr == '') {
-		this.visibleItemsInds = false;
-		this.visibleItems = false;
-		this.selectedAndFilteredItems = false;
-		this.selectedAndFilteredItemsInds = false;
-	} else {
-		this.visibleItemsInds = [];
-		this.visibleItems = [];
-		this.selectedAndFilteredItems = false;
-		this.selectedAndFilteredItemsInds = false;
-		for(var i = 0 ; i < this.items.length ; i++) {
-			var it = this.items[i];
-			if(it.length > 0) {
-				var fChar = it[0];
-				if(dp2ems.isFCharInGroup(fChar, gr)) {
-					this.visibleItemsInds.push(i);
-					this.visibleItems.push(it);
-				}
-			}
-		}
-	}
-};
-dp2ems.prototype.filterItemsBySelected = function() {
-	//copy selectedItems to visibleItems
-	this.visibleItemsInds = [];
-	this.visibleItems = [];
-	if(this.areAllSelected && !this.options.hideAny) {
-		this.visibleItemsInds.push(this.anyItemInd);
-		this.visibleItems.push(this.items[this.anyItemInd]);
-	}
-	for(var i = 0 ; i < this.selectedItemsInds.length ; i++) {
-		var ind = this.selectedItemsInds[i];
-		var it = this.selectedItems[i];
-		this.visibleItemsInds.push(ind);
-		this.visibleItems.push(it);
-	}
-	this.selectedAndFilteredItems = false;
-	this.selectedAndFilteredItemsInds = false;
-};
-dp2ems.prototype.filterItemsByNone = function() {
-	this.visibleItemsInds = false;
-	this.visibleItems = false;
-	this.selectedAndFilteredItems = false;
-	this.selectedAndFilteredItemsInds = false;
-};
-
-dp2ems.prototype.sortSelectedItems = function() {
-	this.selectedItems.sort();
-	var self = this;
-	this.selectedItemsInds.sort(function(ind1, ind2) {
-		var it1 = self.items[ind1];
-		var it2 = self.items[ind2];
-		return (it1 < it2 ? -1 : (it1 > it2 ? 1 : 0));
-	});
+dp2ems.prototype.doSetNoFilter = function() {
+	this.setNoFilter();
+	this.updHtmlAfterFilterChange();
 };
 
 dp2ems.prototype.applyFilterAndRender0 = function() {
@@ -787,68 +1071,13 @@ dp2ems.prototype.applyFilterAndRender0 = function() {
 	this.renderPage(0);
 };
 
-
-dp2ems.prototype.updAreAllSelected = function() {
-	var tmp = true; //флаг - выбраны ли все элементы по отдельности (а не галочкой 'Все')
-	var tmp2 = false; //флаг - выбран ли хоть один
-	if(!this.areAllSelected) {
-		for(var i = 0 ; i < this.opts.length ; i++) {
-			var opt = this.opts[i];
-			if(!opt[2] && !opt[1])
-				tmp = false;
-			if(!opt[2] && opt[1])
-				tmp2 = true;
-		}
-	}
-	this.areAllSelected = this.areAllSelected || tmp || !tmp2;
-	if(this.areAllSelected && this.selectedItems.length) {
-		this.selectedItems = [];
-		this.selectedItemsInds = [];
-		for(var i = 0 ; i < this.opts.length ; i++) {
-			var opt = this.opts[i];
-			if(opt[2])
-				opt[1] = true;
-			else
-				opt[1] = false;
-		}
-	}
-};
-
+//selection
 dp2ems.prototype.onSelectItem = function(ind, text, isSel) {
-	var changed = false;
-	var oldAreAllSelected = this.areAllSelected;
-	if(ind == this.anyItemInd) {
-		if(!isSel && this.selectedItems.length == 0)
-			isSel = true; //если ничего не выбрано, значит выбрано все
-		this.areAllSelected = isSel;
-		changed = (oldAreAllSelected != this.areAllSelected);
-	} else {
-		this.areAllSelected = false;
-		if(!isSel) {
-			var tmp = this.selectedItemsInds.indexOf(ind);
-			if(tmp != -1) {
-				this.selectedItemsInds.splice(tmp, 1);
-				this.selectedItems.splice(tmp, 1);
-				this.opts[ind][1] = false;
-				changed = true;
-			}
-		} else {
-			var tmp = this.selectedItemsInds.indexOf(ind);
-			if(tmp == -1) {
-				this.selectedItemsInds.push(ind);
-				this.selectedItems.push(this.items[ind]);
-				this.opts[ind][1] = true;
-				changed = true;
-			}
-		}
-	}
-	changed = changed || (oldAreAllSelected != this.areAllSelected);
-	if(changed)
-		this.updAreAllSelected();
-	
-	if(oldAreAllSelected != this.areAllSelected || ind == this.anyItemInd /*если кликнул на 'Все', надо вернуть отметку, т.к. убирать ее не надо*/) {
-		this.onAreAllSelectedChanged(); //TIP: включает onSelectionChanged()
-	} else if(changed) {
+	var ch_stat = this.selectItem(ind, text, isSel);
+	if(ch_stat == 2) {
+		this.updHtmlAfterAllSelectedChanged();
+		this.onSelectionChanged();
+	} else if(ch_stat == 1) {
 		this.onSelectionChanged();
 	}
 };
@@ -873,137 +1102,20 @@ dp2ems.prototype.onSelectionChanged = function() {
 	this.syncToSelect(true);
 	
 	if(this.getFilterMode() == 'search' && this.options.flushSearchStringAfterSelection) {
-		this.setFilterBySearchString('');
+		this.doSetFilterBySearchString('');
 		this.applyFilterAndRender0();
 		this.$divAreaPopup.find('.dp2ems-search').focus();
 	}
 };
 
-dp2ems.prototype.onAreAllSelectedChanged = function() {
-	if(this.areAllSelected) {
-		//если не выбрано ни одного элемента, поставить только 1 галку 'Все'
-		this.$divAreaPopup.find(".dp2ems-body label:not(.label_any).checked").removeClass("checked");
-		this.$divAreaPopup.find(".dp2ems-body input:not(.checkbox_any):checked").prop('checked', false);
-		this.$divAreaPopup.find(".dp2ems-body label.label_any").addClass("checked");
-		this.$divAreaPopup.find(".dp2ems-body input.checkbox_any").prop('checked', true);
-	} else {
-		//если выбран хоть 1 элемент, снять галку с 'Все'
-		this.$divAreaPopup.find(".dp2ems-body label.label_any").removeClass("checked");
-		this.$divAreaPopup.find(".dp2ems-body input.checkbox_any").prop('checked', false);
-	}
-	
-	this.onSelectionChanged();
-};
-
-dp2ems.prototype.unselectAllItems = function() {
+dp2ems.prototype.doUnselectAllItems = function() {
 	var oldAreAllSelected = this.areAllSelected;
 	this.areAllSelected = true;
 	if(oldAreAllSelected != this.areAllSelected) {
 		this.updAreAllSelected();
-		this.onAreAllSelectedChanged();
+		this.updHtmlAfterAllSelectedChanged();
+		this.onSelectionChanged();
 	}
-};
-
-dp2ems.prototype.prepareHtml = function() {
-	if(dp2ems.isInited(this.$sel))
-		return false;
-	
-	var divSelHtml = "<div class='dp2ems-select'><span>" + this.valStr + "</span><div class='cuselFrameRight'></div></div>";
-	
-	var classAreaPopup = 'dp2ems-popup' + (this.isExtView() ? ' dp2ems-popup-ext' : ' dp2ems-popup-norm') + (this.isWideView() ? ' dp2ems-popup-wide' : '');
-	var textClearAll = "Сбросить все";
-	var textShowSelection = "Показать выбранные";
-	var textSaveSelection = "Сохранить";
-	var divAreaPopupHtml = '';
-	divAreaPopupHtml += "<div class='" + classAreaPopup + "'>";
-		divAreaPopupHtml += "<div class='dp2ems-head'>";
-			divAreaPopupHtml += "<input class='dp2ems-search' type='text' placeholder='" + this.options.inputPlaceholder + "'/>";
-			divAreaPopupHtml += "<div class='dp2ems-btn-left'></div><div class='dp2ems-btn-right'></div>";
-		divAreaPopupHtml += "</div>";
-		divAreaPopupHtml += "<div class='dp2ems-msg'><span></span></div>";
-		divAreaPopupHtml += "<div class='dp2ems-body " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'dp2ems-body-dir-horz' : 'dp2ems-body-dir-vert') + " dp2ems-body-cols-" + this.options.gridColumns + " dp2ems-body-rows-" + this.options.gridRows + "'>";
-			//... look at this.renderPage(page)
-		divAreaPopupHtml += "</div>";
-		divAreaPopupHtml += "<div class='dp2ems-ctrls'>";
-			divAreaPopupHtml += "<div class='dp2ems-ctrl-left dp2ems-ctrl-clear-all'>" + textClearAll + "</div>";
-			if(!this.options.hideShowSelectionControl)
-				divAreaPopupHtml += "<div class='dp2ems-ctrl-left dp2ems-ctrl-show-selection'>" + textShowSelection + "</div>";
-			divAreaPopupHtml += "<div class='dp2ems-ctrl-right dp2ems-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
-		divAreaPopupHtml += "</div>";
-		divAreaPopupHtml += "<div class='dp2ems-clr'></div>";
-		divAreaPopupHtml += "<div class='dp2ems-index'" + ">";
-			//... look at this.renderFirstChars()
-		divAreaPopupHtml += "</div>";
-	divAreaPopupHtml += "</div>";
-	
-	this.$sel.hide();
-	this.$divSel = jQuery(divSelHtml);
-	this.$divAreaPopup = jQuery(divAreaPopupHtml);
-	this.$divSel.insertAfter(this.$sel);
-	this.$divAreaPopup.insertAfter(this.$divSel);
-	
-	//attach events
-	var self = this;
-	this.$divSel.mouseenter(function(){
-		self.$divAreaPopup.css('display', 'block');
-		self.fixCheckboxesWrapperHeight();
-	});
-	this.$divAreaPopup.mouseleave(function(){
-		self.$divAreaPopup.css('display', 'none');
-	});
-	this.$divAreaPopup.find('.dp2ems-search').bind('input', function(e) {
-		var text = e.target.value;
-		self.setFilterBySearchString(text);
-		self.applyFilterAndRender0();
-	});
-	this.$divAreaPopup.find('.dp2ems-ctrl-clear-all').click(function() {
-		self.unselectAllItems();
-		//self.setNoFilter(); //нет в ТЗ, но было бы логично
-		self.applyFilterAndRender0();
-	});
-	this.$divAreaPopup.find('.dp2ems-ctrl-show-selection').click(function() {
-		self.setFilterBySelected(! self.fitlerBySel);
-		self.applyFilterAndRender0();
-	});
-	this.$divAreaPopup.find('.dp2ems-ctrl-save-selection').click(function() {
-		self.$divAreaPopup.css('display', 'none');
-	});
-	this.$divAreaPopup.find('.dp2ems-btn-left').click(function() {
-		if(self.canGoToPage(self.currPage - 1))
-			self.renderPage(self.currPage - 1);
-	});
-	this.$divAreaPopup.find('.dp2ems-btn-right').click(function() {
-		if(self.canGoToPage(self.currPage + 1))
-			self.renderPage(self.currPage + 1);
-	});
-	
-	return true;	
-};
-
-dp2ems.prototype.isExtView = function() {
-	return this.getTotalPages() > 1;
-};
-
-dp2ems.prototype.isWideView = function() {
-	return this.options.isWide;
-};
-
-dp2ems.prototype.onUpdateItems = function() {
-	this.syncFromSelect();
-	
-	var classAreaPopup = (this.isExtView() ? 'dp2ems-popup-ext' : 'dp2ems-popup-norm');
-	var classAreaPopup2 = (this.isWideView() ? 'dp2ems-popup-wide' : '');
-	this.$divAreaPopup.removeClass('dp2ems-popup-ext');
-	this.$divAreaPopup.removeClass('dp2ems-popup-norm');
-	this.$divAreaPopup.removeClass('dp2ems-popup-wide');
-	this.$divAreaPopup.addClass(classAreaPopup);
-	if(classAreaPopup2)
-		this.$divAreaPopup.addClass(classAreaPopup2);
-	
-	this.setNoFilter();
-	this.applyFilterAndRender0();
-	this.renderFirstChars();
-	this.renderValStr();
 };
 
 //----------------------
@@ -1030,7 +1142,7 @@ jQuery.fn.dp2emsUpdate = function() {
 		if(dp2ems.isInited($sel)) {
 			var ems = dp2ems.getInstance(selId);
 			if(ems)
-				ems.onUpdateItems();
+				ems.doUpdateItems();
 		}
 	}
 	return this;
