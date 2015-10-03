@@ -1,3 +1,20 @@
+/**
+ * dp2ems
+ * 
+ * Pretty looking and highly customizable multi-select (or single-select) control (over standard <select>). 
+ * Features search and filter by first letter.
+ * Useful for big list of options.
+ *
+ * Requires: browser with CSS3 support, jQuery, jQuery UI (effects, icons)
+ *
+ * @version 2.1
+ * @homepage https://github.com/ukrbublik/dp2ems
+ * @author ukrbublik
+ * @license MIT
+ *
+ * Copyright (c) 2015 Oblogin Denis <ukrbublik>
+ */
+
 /* common */
 .dp2ems-select,
 .dp2ems-popup {
@@ -25,6 +42,9 @@ background-position: right top;
 border: none;
 background: url('../images/tabs_arrow_orange_up.gif') center no-repeat !important;
 }
+.dp2ems-hidden {
+display: none !important;
+}
 
 /* wrapper */
 .dp2ems-wrapper {
@@ -46,6 +66,7 @@ display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 cursor: pointer;
 outline: 0;
+-webkit-touch-callout: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
 }
 .dp2ems-select-single {
 }
@@ -72,7 +93,7 @@ white-space: normal;
 .dp2ems-select:hover {
 background: linear-gradient(to top, #ECECEC, white);
 }
-.dp2ems-select:focus {
+.dp2ems-select:active {
 background: linear-gradient(to top, #B7B7B7, white);
 }
 
@@ -89,6 +110,7 @@ box-sizing: border-box;
 width: 540px; /*default*/
 padding: 30px;
 outline: 0;
+-webkit-touch-callout: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
 }
 .dp2ems-popup-single {
 }
@@ -105,13 +127,14 @@ display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-
 }
 .dp2ems-popup.dp2ems-concrete-height > div {
 }
-.dp2ems-popup.dp2ems-concrete-height > .dp2ems-head,
-.dp2ems-popup.dp2ems-concrete-height > .dp2ems-msg,
-.dp2ems-popup.dp2ems-concrete-height > .dp2ems-ctrls,
-.dp2ems-popup.dp2ems-concrete-height > .dp2ems-index {
+.dp2ems-popup.dp2ems-concrete-height .dp2ems-head,
+.dp2ems-popup.dp2ems-concrete-height .dp2ems-msg,
+.dp2ems-popup.dp2ems-concrete-height .dp2ems-pages-list,
+.dp2ems-popup.dp2ems-concrete-height .dp2ems-ctrls,
+.dp2ems-popup.dp2ems-concrete-height .dp2ems-index {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 }
-.dp2ems-popup.dp2ems-concrete-height > .dp2ems-body {
+.dp2ems-popup.dp2ems-concrete-height .dp2ems-body-wrapper {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 }
 .dp2ems-ctrls-pag {
@@ -137,7 +160,7 @@ display: block;
 margin-bottom: -10px;
 }
 .dp2ems-popup-single .dp2ems-ctrl-clear-all {
-/*display: none; /*todo*/
+/*display: none;*/
 }
 .dp2ems-popup-comp .dp2ems-ctrl-goto-selection {
 display: none;
@@ -186,33 +209,33 @@ border-radius: 4px;
 margin-left: 7px;
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 }
-.dp2ems-btn:hover {
-background-color: #EE4300;
+.dp2ems-btn.dp2ems-enabled:hover {
+background-color: #FFB193;
 border: 1px solid #FFF;
 }
-.dp2ems-btn:hover {
+.dp2ems-btn.dp2ems-enabled:active {
 background-color: #EE4300;
 border: 1px solid #FFF;
 }
 .dp2ems-btn-left {
 background-image: url(../images/l-btn-icon.png);
 }
-.dp2ems-btn-left:hover {
+.dp2ems-btn-left.dp2ems-enabled:hover {
 background-image: url(../images/l-btn-icon-hover.png);
 }
 .dp2ems-btn-right {
 background-image: url(../images/r-btn-icon.png);
 }
-.dp2ems-btn-right:hover {
+.dp2ems-btn-right.dp2ems-enabled:hover {
 background-image: url(../images/r-btn-icon-hover.png);
 }
-.dp2ems-btn.disabled {
-opacity:0.5;
+.dp2ems-btn.dp2ems-disabled {
+opacity:0.3;
 }
 
 /* popup message */
 .dp2ems-msg {
-display:none;
+display: none;
 }
 .dp2ems-msg.visible {
 display:block;
@@ -228,13 +251,25 @@ overflow: hidden;
 .dp2ems-body .prch2 {
 font-size: 13px;
 color: #808080;
-display: table;
-margin:0;
+display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
+-webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
+margin: 0;
+width: 100%;
+}
+.dp2ems-body .prch2 .prch2-holderWrap {
+float: none;
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+}
+.dp2ems-body .prch2 .prch2-text-wrapper {
+-webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
+display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
+-webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
+align-items: center;
 }
 .dp2ems-body .prch2 .prch2-text {
-display: table-cell;
-vertical-align: middle;
+-webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 line-height: 14px;
+word-wrap: break-word;
 }
 .dp2ems-body .prch2.checked {
 color: #000000;
@@ -261,6 +296,8 @@ margin: -5px;
 .dp2ems-body-dir-horz {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
+/* to let elements occupy all heigt */
+justify-content: space-between;
 }
 .dp2ems-row {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
@@ -269,45 +306,9 @@ display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-
 .dp2ems-row .dp2ems-el {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 }
-.dp2ems-body-cols-1 .dp2ems-row .dp2ems-el {
+.dp2ems-body-cols-x .dp2ems-row .dp2ems-el {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 100%;
-}
-.dp2ems-body-cols-2 .dp2ems-row .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 50%;
-}
-.dp2ems-body-cols-3 .dp2ems-row .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 33.333%;
-}
-.dp2ems-body-cols-4 .dp2ems-row .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 25%;
-}
-.dp2ems-body-cols-5 .dp2ems-row .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 20%;
-}
-.dp2ems-body-cols-6 .dp2ems-row .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 16.666%;
-}
-.dp2ems-body-cols-7 .dp2ems-row .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 14.2857%;
-}
-.dp2ems-body-cols-8 .dp2ems-row .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 12.5%;
-}
-.dp2ems-body-cols-9 .dp2ems-row .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 11.111%;
-}
-.dp2ems-body-cols-10 .dp2ems-row .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 10%;
+/* width: ? %; - will be added by JS dynamically, see renderPageTo() */
 }
 
 /* vertical direction */
@@ -322,90 +323,138 @@ display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-
 .dp2ems-col .dp2ems-el {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 }
-
-.dp2ems-body-cols-1 .dp2ems-col {
+.dp2ems-body-cols-x .dp2ems-col {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 100%;
-}
-.dp2ems-body-cols-2 .dp2ems-col {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 50%;
-}
-.dp2ems-body-cols-3 .dp2ems-col {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 33.333%;
-}
-.dp2ems-body-cols-4 .dp2ems-col {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 25%;
-}
-.dp2ems-body-cols-5 .dp2ems-col {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 20%;
-}
-.dp2ems-body-cols-6 .dp2ems-col {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 16.666%;
-}
-.dp2ems-body-cols-7 .dp2ems-col {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 14.2857%;
-}
-.dp2ems-body-cols-8 .dp2ems-col {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 12.5%;
-}
-.dp2ems-body-cols-9 .dp2ems-col {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 11.111%;
-}
-.dp2ems-body-cols-10 .dp2ems-col {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 10%;
+/* width: ? %; - will be added by JS dynamically, see renderPageTo() */
+/* to let elements occupy all heigt */
+justify-content: space-between;
 }
 
 /* не работает? (пример: фильтр по Г, "Героев Сталинграда просп"), workaround - см. useRowsStyleForVerticalDirection */
-.dp2ems-body-rows-1 .dp2ems-col .dp2ems-el {
+.dp2ems-body-rows-x .dp2ems-col .dp2ems-el {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-height: 100%;
-}
-.dp2ems-body-rows-2 .dp2ems-col .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-height: 50%;
-}
-.dp2ems-body-rows-3 .dp2ems-col .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-height: 33.333%;
-}
-.dp2ems-body-rows-4 .dp2ems-col .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-height: 25%;
-}
-.dp2ems-body-rows-5 .dp2ems-col .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-height: 20%;
-}
-.dp2ems-body-rows-6 .dp2ems-col .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 16.666%;
-}
-.dp2ems-body-rows-7 .dp2ems-col .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-width: 14.2857%;
-}
-.dp2ems-body-rows-8 .dp2ems-col .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-height: 12.5%;
-}
-.dp2ems-body-rows-9 .dp2ems-col .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-height: 11.111%;
-}
-.dp2ems-body-rows-10 .dp2ems-col .dp2ems-el {
--webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
-height: 10%;
+/* height: ? %; - will be added by JS dynamically, see renderPageTo() */
 }
 
+/* body ghost */
+.dp2ems-body-wrapper {
+position: relative;
+overflow: hidden;
+/* to let .dp2ems-body occupy all height of .dp2ems-body-wrapper */
+display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
+-webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
+}
+.dp2ems-body {
+padding: 1px;
+/* to let .dp2ems-body occupy all height of .dp2ems-body-wrapper */
+-webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
+}
+.dp2ems-body-ghost {
+position: absolute;
+}
+
+/* pages list */
+.dp2ems-pages-list {
+display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
+-webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
+justify-content: center;
+height: 16px;
+margin-top: 8px;
+}
+.dp2ems-pages-ctrl {
+-webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
+cursor: pointer;
+}
+.dp2ems-pages-ctrl.dp2ems-enabled:hover {
+box-shadow: 0 0 10px 1px #E2E2E2;
+}
+.dp2ems-pages-ctrl.dp2ems-enabled:active {
+box-shadow: 0 0 10px 3px #E2E2E2;
+}
+.dp2ems-pages-ctrl.dp2ems-disabled {
+opacity:0.3;
+}
+.dp2ems-pages-first {
+margin-right: 3px;
+}
+.dp2ems-pages-prev {
+margin-right: 5px;
+}
+.dp2ems-pages-next {
+margin-left: 5px;
+}
+.dp2ems-pages-last {
+margin-left: 3px;
+}
+.dp2ems-pages-dots-wrapper {
+overflow: hidden;
+position: relative;
+}
+.dp2ems-pages-dots {
+display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
+-webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
+/*margin: 0 -1px;*/
+margin-top: 4px; /* = height(.dp2ems-pages-list) - height(.dp2ems-page-dot-wrapper) / 2 */
+position: relative;
+}
+.dp2ems-pages-grad-left, .dp2ems-pages-grad-right {
+position: absolute;
+width: 20px;
+height: 16px;
+top: 0;
+z-index: 2;
+pointer-events: none;
+}
+.dp2ems-pages-grad-left {
+left: 0;
+background: linear-gradient(to left, transparent, white);
+}
+.dp2ems-pages-grad-right {
+right: 0;
+background: linear-gradient(to right, transparent, white);
+}
+.dp2ems-page-dot-wrapper {
+-webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
+min-width: 9px;
+max-width: 9px;
+width: 9px;
+margin: 0 1px;
+margin-top: -5px; /* = -1 * (14 - width)  - don't need if .dp2ems-pages-dots has 'align-items: center' and there is no .dp2ems-pages-dots-wrapper ??? */
+}
+.dp2ems-page-dot {
+position: relative;
+display: inline-block;
+height: 100%;
+width: 100%;
+}
+.dp2ems-page-dot:before {
+content: "";
+display: block;
+margin-top: 100%;
+}
+.dp2ems-page-dot .dp2ems-page-dot-inner {
+position: absolute;
+top: 0;
+left: 0;
+bottom: 0;
+right: 0;
+
+border-radius: 4px;
+background-color: white;
+border: 1px solid #DADADA;
+cursor: pointer;
+}
+.dp2ems-page-dot-current .dp2ems-page-dot-inner {
+background-color: #FF7519;
+border-color: #FF7519;
+cursor: default;
+}
+.dp2ems-page-dot-inner:hover {
+border-color: #FF7519;
+}
+.dp2ems-page-dot-current .dp2ems-page-dot-inner:hover {
+border-color: #FF7519;
+}
 
 /* popup controls */
 .dp2ems-ctrls {

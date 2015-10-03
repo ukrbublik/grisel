@@ -29,10 +29,10 @@
 			var _name = $input.attr('name');
 			var _type = $input.attr('type');
 			
-			$realLabel = $('label[for="'+_id+'"]');
+			$realLabel = $('label[for="'+_id+'"]:eq(0)');
 			
 			// Create custom labal
-			$label = $("<div class='prch2-label'><span class='prch2-holderWrap'><span class='prch2-holder'></span></span><span class='prch2-text'></span></div>").insertAfter($realLabel);
+			$label = $("<div class='prch2-label'><span class='prch2-holderWrap'><span class='prch2-holder'></span></span><span class='prch2-text-wrapper'><span class='prch2-text'></span></span></div>").insertAfter($realLabel);
 			$label.find('.prch2-text').text( $realLabel.text() );
 			if($realLabel.attr('_class'))
 				$label.addClass($realLabel.attr('_class'));
@@ -44,7 +44,12 @@
 			$label.addClass(settings.className).addClass('prch2-type-'+_type).addClass('prch2-'+settings.display);
 			
 			// Assign the dimensions to the checkbox display
-			$label.find('span.prch2-holderWrap').width(settings.checkboxWidth).height(settings.checkboxHeight);
+			$label.find('span.prch2-holderWrap').width(settings.checkboxWidth).height(settings.checkboxHeight).css({
+				'min-height': settings.checkboxHeight,
+				'max-height': settings.checkboxHeight,
+				'min-width': settings.checkboxWidth,
+				'max-width': settings.checkboxWidth,
+			});
 			$label.find('span.prch2-holder').width(settings.checkboxWidth);
 			
 			// Hide the checkbox & real label

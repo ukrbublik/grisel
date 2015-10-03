@@ -32,7 +32,7 @@
 	left: -10000px;
 }
 /* defaiult class prch2 */
-.prch2-label.prch2 span.prch2-holderWrap {
+.prch2-label.prch2 .prch2-holderWrap {
 	display: block;
 	float: left;
 	position: relative;
@@ -40,7 +40,7 @@
 	margin-right: 8px;
 	overflow: hidden;
 }
-.prch2-label.prch2 span.prch2-holder {
+.prch2-label.prch2 .prch2-holder {
 	display: block;
 	position: absolute;
 	top: 0;

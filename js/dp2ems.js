@@ -1,15 +1,33 @@
 /**
- * TODO:
+ * dp2ems
+ * 
+ * Pretty looking and highly customizable multi-select (or single-select) control (over standard <select>). 
+ * Features search and filter by first letter.
+ * Useful for big list of options.
  *
- * - анимация перелистывания страниц
- * - показывать номера страниц (в виде точек)
- * - i18n
+ * Requires: browser with CSS3 support, jQuery, jQuery UI (effects, icons)
+ *
+ * @version 2.1
+ * @homepage https://github.com/ukrbublik/dp2ems
+ * @author ukrbublik
+ * @license MIT
+ *
+ * Copyright (c) 2015 Oblogin Denis <ukrbublik>
+ */
+
+/**
+ * TODO:
+ * - pre-calc height (see 'min-height' at code) of body
+ *
+ * Maybe later:
+ * - skins with different colors?
+ * - groups?
  */
 
 //
 // Class dp2ems
 //
-function dp2ems(s, options) {
+function dp2ems(s, options, strings, lang) {
 	/**
 	 * Vars
 	 */
@@ -38,11 +56,12 @@ function dp2ems(s, options) {
 	this.fitlerBySel = false;
 	this.anyStr = '';
 	this.isMultiple = false;
+	this.lang = false;
 	
 	/**
 	 * Ctor
 	 */
-	this.ctor = function(s, _options) {
+	this.ctor = function(s, _options, _strings, _lang) {
 		//Get original <select>
 		if(typeof s === 'string') {
 			this.selId = s;
@@ -70,14 +89,28 @@ function dp2ems(s, options) {
 		
 		//Build options
 		this.options = jQuery.extend({}, dp2ems.defaultOptions);
-		if(typeof dp2ems.optionsBySelClass[this.selId] != 'undefined') {
-			for(var i = 0 ; i < selClasses.length ; i++)
+		for(var i = 0 ; i < selClasses.length ; i++) {
+			if(typeof dp2ems.optionsBySelClass[selClasses[i]] != 'undefined')
 				this.options = jQuery.extend(this.options, dp2ems.optionsBySelClass[selClasses[i]]);
 		}
 		if(typeof dp2ems.optionsBySelId[this.selId] != 'undefined')
 			this.options = jQuery.extend(this.options, dp2ems.optionsBySelId[this.selId]);
 		if(_options)
 			this.options = jQuery.extend(this.options, _options);
+		
+		//Lang
+		this.lang = _lang ? _lang : dp2ems.defaultLang;
+		
+		//Build strings
+		this.strings = jQuery.extend({}, dp2ems.defaultStrings[this.lang]);
+		for(var i = 0 ; i < selClasses.length ; i++) {
+			if(typeof dp2ems.stringsBySelClass[selClasses[i]] != 'undefined' && typeof dp2ems.stringsBySelClass[selClasses[i]][this.lang] != 'undefined')
+				this.strings = jQuery.extend(this.strings, dp2ems.stringsBySelClass[selClasses[i]][this.lang]);
+		}
+		if(typeof dp2ems.stringsBySelId[this.selId] != 'undefined' && typeof dp2ems.stringsBySelId[this.selId][this.lang] != 'undefined')
+			this.strings = jQuery.extend(this.strings, dp2ems.stringsBySelId[this.selId][this.lang]);
+		if(_strings)
+			this.strings = jQuery.extend(this.strings, _strings);
 		
 		//Init
 		this.doInitOnce();
@@ -87,8 +120,53 @@ function dp2ems(s, options) {
 		return this;
 	};
 	
-	return this.ctor(s, options);
+	return this.ctor(s, options, strings, lang);
 }
+
+// ------------------------------------------------ Strings
+
+dp2ems.defaultLang = 'ru';
+
+dp2ems.defaultStrings = {
+	'ru': {
+		'indexAll': 'Все',
+		'ctrlSaveSelection': 'Сохранить',
+		'ctrlGotoSelection': 'Перейти к выбранному',
+		'ctrlShowSelection': 'Показать выбранные',
+		'ctrlClearAll': ['Сбросить все', 'Сбросить выбор'], //[<for multiple>, <for single>]
+		'allStr': '',
+		'allStrDefault': ['Все', 'Любой'],
+		//only for hideAny == 1
+		'noSelectionMsg': 'Нет выбранных элементов',
+		'noResultsMsg': 'Не найдено, измените, пожалуйста, параметры поиска',
+		'inputPlaceholder': 'Введите название',
+		'cntFmt': '{cnt} {cnt_name}',
+		'cntNames': ['значение', 'значения', 'значений'],
+		//only for showSelectedItemsBeforeSearched==1 ("legacy")
+		'maxSelectionMsg': 'Количество выбранных Вами элементов достигло максимального значения.<br>Сохраните, пожалуйста, Ваш выбор',
+	},
+	'en': {
+		'indexAll': 'All',
+		'ctrlSaveSelection': 'Save',
+		'ctrlGotoSelection': 'Go to selected',
+		'ctrlShowSelection': 'Show selected',
+		'ctrlClearAll': ['Ckear all', 'Clear selection'],
+		'allStr': '',
+		'allStrDefault': ['All', 'Any'],
+		//only for hideAny == 1
+		'noSelectionMsg': 'No selected',
+		'noResultsMsg': 'Nothing found',
+		'inputPlaceholder': 'Enter a name',
+		'cntFmt': '{cnt} {cnt_name}',
+		'cntNames': ['value', 'values', 'values'],
+		//only for showSelectedItemsBeforeSearched==1 ("legacy")
+		'maxSelectionMsg': 'You reached max number of selected elements.<br>Please save your selection',
+	}
+};
+dp2ems.stringsBySelClass = {
+};
+dp2ems.stringsBySelId = {
+};
 
 // ------------------------------------------------ Options
 
@@ -97,21 +175,29 @@ dp2ems.defaultOptions = {
 	'gridColumns': 3,
 	'minPagesForExt': 3,
 	'isExt': -1, //-1 for auto (see minPagesForExt), 0/1 to force
-	'openOnHover': true,
 	'anyVal': 'a-n-y',
 	'hideAny': false,
 	//1 - fill items in left-to-right direction (horizontal) (in html group by rows), 0 - up-to-down direction (vertical) (in html group by cols)
 	'gridDirectionHorizontal': false,
 	//1 - force group by rows (not cols) in html for vertical direction (to make all elements in one row having equal height)
 	'useRowsStyleForVerticalDirection': true,
+	'openOnHover': false,
 	'areInnerCtrlsFocuable': false,
+	'showPagesList': true,
+	'showSearch': true,
+	'showIndex': true,
+	'showControls': true,
+	'hidePageControlsWhenThereisPegeList': true,
+	//when set to 2: for 3+ selected values text will be "X values", for 1-2 - "valA, valB", for 0 - one of allStr/anyStr/allStrDefault;
+	//when set to -1: always "X values"
+	'maxCntToShowListAsValStr': 3,
 	
 	//sizes:
 	//
 	'autoWidth': false,
 	'divSelWidth': 0,
 	'divSelHeight': 0,
-	'divSelPaddingLeft': 0,
+	'divSelPaddingLeft': 8,
 	'divSelIsMultiline': false,
 	'divSelClasses': '',
 	'divPopupWidth': 0,
@@ -120,37 +206,20 @@ dp2ems.defaultOptions = {
 	
 	//animation:
 	//
-	'animatePopupDuration': [500, 400],
+	'animatePopupDuration': [700, 400],
 	'isElasticPopupAnimation': [1, 0],
-	'animatePopupEasing': ['easeOutElastic', 'easeInCirc'],
+	'animatePopupEasing': ['easeOutElastic', 'easeInOutBack'],
+	'animatePageDuration': 150,
+	'animatePageEasing': 'swing',
 	
 	//"legacy" options (made for domplus.com.ua)
 	//
 	'hideShowSelectionControl': false,
 	'flushSearchStringAfterSelection': false,
 	'showSelectedItemsBeforeSearched': false,
+	'showSelectedItemsWhenNoFound': false,
 	//only for showSelectedItemsBeforeSearched==1
 	'maxSelectionLimit': 3*5,
-	
-	//strings:
-	//
-	'ctrlShowSelection': 'Сохранить',
-	'ctrlGotoSelection': 'Перейти к выбранному',
-	'ctrlShowSelection': 'Показать выбранные',
-	'ctrlClearAll': ['Сбросить все', 'Сбросить выбор'],
-	'allStr': '',
-	'allStrDefault': ['Все', 'Любой'],
-	//only for hideAny == 1
-	'noSelectionMsg': 'Нет выбранных элементов',
-	'noResultsMsg': 'Не найдено, измените, пожалуйста, параметры поиска',
-	'inputPlaceholder': 'Введите название',
-	'cntFmt': '{cnt} {cnt_name}',
-	'cntNames': ['значение', 'значения', 'значений'],
-	//when set to 2: for 3+ selected values text will be "X values", for 1-2 - "valA, valB", for 0 - one of allStr/anyStr/allStrDefault;
-	//when set to -1: always "X values"
-	'maxCntToShowListAsValStr': 3,
-	//only for showSelectedItemsBeforeSearched==1 ("legacy")
-	'maxSelectionMsg': 'Количество выбранных Вами элементов достигло максимального значения.<br>Сохраните, пожалуйста, Ваш выбор',
 };
 dp2ems.optionsBySelClass = {
 };
@@ -216,9 +285,9 @@ dp2ems.isFCharInGroup = function(fChar, gr) {
 dp2ems.prototype.selectedItemsToStr = function(arr, areAll) {
 	var val = '';
 	if(this.isMultiple && arr.length == 0 || areAll)
-		val = (this.options.allStr != '' ? this.options.allStr : (this.anyStr != '' ? this.anyStr : this.options.allStrDefault[this.isMultiple ? 0 : 1]));
+		val = (this.strings.allStr != '' ? this.strings.allStr : (this.anyStr != '' ? this.anyStr : this.strings.allStrDefault[this.isMultiple ? 0 : 1]));
 	else if(this.isMultiple && this.options.maxCntToShowListAsValStr >= 0 && arr.length > this.options.maxCntToShowListAsValStr)
-		val = this.options.cntFmt.replace('{cnt}', arr.length).replace('{cnt_name}', dp2ems.localizeCntName(arr.length, this.options.cntNames));
+		val = this.strings.cntFmt.replace('{cnt}', arr.length).replace('{cnt_name}', dp2ems.localizeCntName(arr.length, this.strings.cntNames));
 	else if(arr.length)
 		val = arr.join(', ');
 	else if(!this.isMultiple && arr.length == 0)
@@ -269,7 +338,7 @@ dp2ems.prototype.getOptsFromSelect = function(initial /* = false*/) {
 /**
  * Sync model from original <select>
  */
-dp2ems.prototype.syncFromSelect = function(initial /* = false*/) {
+dp2ems.prototype.mSyncFromSelect = function(initial /* = false*/) {
 	this.$sel.data('syncing_from', 1);
 	
 	//sync items
@@ -280,7 +349,7 @@ dp2ems.prototype.syncFromSelect = function(initial /* = false*/) {
 	this.items = [];
 	this.selectedItems = [];
 	this.selectedItemsInds = [];
-	//this.visibleItems = false; //TIP: will be done later in setNoFilter()
+	//this.visibleItems = false; //TIP: will be done later in mSetNoFilter()
 	//this.visibleItemsInds = false;
 	this.firstChars = [];
 	for(var i = 0 ; i < this.opts.length ; i++) {
@@ -304,7 +373,7 @@ dp2ems.prototype.syncFromSelect = function(initial /* = false*/) {
 				this.firstChars[gr]++;
 		}
 	}
-	this.updAreAllSelected();
+	this.mUpdSelection();
 	
 	this._allowZeroSelection();
 	
@@ -324,7 +393,7 @@ dp2ems.prototype._allowZeroSelection = function() {
  *
  * lite == 1 - only check "selected" flags, lite == 0 - check all options and its order
  */
-dp2ems.prototype.syncToSelect = function(lite) {
+dp2ems.prototype.mSyncToSelect = function(lite) {
 	this.$sel.data('syncing_to', 1);
 	
 	//tmp (will be reversed)
@@ -456,7 +525,7 @@ dp2ems.prototype.syncToSelect = function(lite) {
 
 // ------------------------------------------------ Model - filtering
 
-dp2ems.prototype.filterItemsBySearchString = function(str) {
+dp2ems.prototype.mFilterItemsBySearchString = function(str) {
 	if(str == '') {
 		this.visibleItemsInds = false;
 		this.visibleItems = false;
@@ -468,7 +537,7 @@ dp2ems.prototype.filterItemsBySearchString = function(str) {
 		this.selectedAndFilteredItems = [];
 		this.selectedAndFilteredItemsInds = [];
 		if(this.options.showSelectedItemsBeforeSearched) {
-			this.sortSelectedItems();
+			this.mSortSelectedItems();
 			for(var i = 0 ; i < this.selectedItemsInds.length ; i++) {
 				var ind = this.selectedItemsInds[i];
 				var it = this.selectedItems[i];
@@ -496,7 +565,7 @@ dp2ems.prototype.filterItemsBySearchString = function(str) {
 	}
 };
 
-dp2ems.prototype.filterItemsByFirstChar = function(gr) {
+dp2ems.prototype.mFilterItemsByFirstChar = function(gr) {
 	if(gr == '') {
 		this.visibleItemsInds = false;
 		this.visibleItems = false;
@@ -520,11 +589,11 @@ dp2ems.prototype.filterItemsByFirstChar = function(gr) {
 	}
 };
 
-dp2ems.prototype.filterItemsBySelected = function() {
+dp2ems.prototype.mFilterItemsBySelected = function() {
 	//copy selectedItems to visibleItems
 	this.visibleItemsInds = [];
 	this.visibleItems = [];
-	if(this.areAllSelected && !this.options.hideAny) {
+	if(this.areAllSelected && !this.options.hideAny && this.anyItemInd != -1) {
 		this.visibleItemsInds.push(this.anyItemInd);
 		this.visibleItems.push(this.items[this.anyItemInd]);
 	}
@@ -538,28 +607,28 @@ dp2ems.prototype.filterItemsBySelected = function() {
 	this.selectedAndFilteredItemsInds = false;
 };
 
-dp2ems.prototype.filterItemsByNone = function() {
+dp2ems.prototype.mFilterItemsByNone = function() {
 	this.visibleItemsInds = false;
 	this.visibleItems = false;
 	this.selectedAndFilteredItems = false;
 	this.selectedAndFilteredItemsInds = false;
 };
-dp2ems.prototype.setFilterByFirstChar = function(gr) {
+dp2ems.prototype.mSetFilterByFirstChar = function(gr) {
 	this.filterFChar = gr;
 	this.filterStr = '';
 	this.fitlerBySel = false;
 };
-dp2ems.prototype.setFilterBySelected = function(sel) {
+dp2ems.prototype.mSetFilterBySelected = function(sel) {
 	this.filterFChar = '';
 	this.filterStr = '';
 	this.fitlerBySel = sel;
 };
-dp2ems.prototype.setFilterBySearchString = function(str) {
+dp2ems.prototype.mSetFilterBySearchString = function(str) {
 	this.filterFChar = '';
 	this.filterStr = str;
 	this.fitlerBySel = false;
 };
-dp2ems.prototype.setNoFilter = function() {
+dp2ems.prototype.mSetNoFilter = function() {
 	this.filterFChar = '';
 	this.filterStr = '';
 	this.fitlerBySel = false;
@@ -581,7 +650,7 @@ dp2ems.prototype.isNoFilter = function() {
 	return this.getFilterMode() == '';
 };
 
-dp2ems.prototype.sortSelectedItems = function() {
+dp2ems.prototype.mSortSelectedItems = function() {
 	this.selectedItems.sort();
 	var self = this;
 	this.selectedItemsInds.sort(function(ind1, ind2) {
@@ -593,7 +662,7 @@ dp2ems.prototype.sortSelectedItems = function() {
 
 // ------------------------------------------------ Model - changings
 
-dp2ems.prototype.selectItem = function(info) {
+dp2ems.prototype.mSelectItem = function(info) {
 	var ind = info.ind, text = info.text, isSel = info.isSel;
 	var changed = false;
 	var oldAreAllSelected = this.areAllSelected;
@@ -630,7 +699,7 @@ dp2ems.prototype.selectItem = function(info) {
 	}
 	changed = changed || (oldAreAllSelected != this.areAllSelected);
 	if(changed)
-		this.updAreAllSelected();
+		this.mUpdSelection();
 	
 	var ch_stat = 0;
 	if(oldAreAllSelected != this.areAllSelected || ind == this.anyItemInd)
@@ -641,7 +710,7 @@ dp2ems.prototype.selectItem = function(info) {
 	return ch_stat;
 };
 
-dp2ems.prototype.updAreAllSelected = function() {
+dp2ems.prototype.mUpdSelection = function() {
 	//flag - are all options selected (not by a-n-y option)?
 	var tmp = true;
 	//flag - is any option selected?
@@ -689,13 +758,17 @@ dp2ems.prototype.getTotalPages = function() {
 	return Math.ceil( 1.0 * this.items.length / (this.options.gridRows * this.options.gridColumns) );
 };
 
+dp2ems.prototype.getItemsCountWoAll = function() {
+	return this.items.length - (this.anyItemInd != -1 ? 1 : 0);
+};
+
 dp2ems.prototype.canGoToPage = function(page) {
-	return page == 0 && this.getPages() == 0 || page >= 0 && page < this.getPages();
+	return page == -1 && this.getPages() == 0 || page >= 0 && page < this.getPages();
 };
 
 dp2ems.prototype.getItemsRangeForPage = function(page) {
 	var rng = false;
-	if(this.canGoToPage(page)) {
+	if(this.canGoToPage(page) && page >= 0) {
 		var len = (this.options.gridRows * this.options.gridColumns);
 		var start = page * len;
 		if((start + len-1) >= this.getVisibleItems().length)
@@ -712,6 +785,8 @@ dp2ems.prototype.getSearchedCnt = function() {
 dp2ems.prototype.getPageForInd = function(ind) {
 	var page = -1;
 	var pos = this.visibleItemsInds !== false ?  this.visibleItemsInds.indexOf(ind) : ind;
+	if(pos != -1 && this.getSearchedCnt() == 0 && !this.options.showSelectedItemsWhenNoFound)
+		pos = -1;
 	if(pos != -1)
 		page = Math.floor( 1.0 * pos / (this.options.gridRows * this.options.gridColumns) );
 	return page;
@@ -725,9 +800,11 @@ dp2ems.prototype.getPageForCurrSel = function() {
 		if(p != -1 && (page == -1 || p < page))
 			page = p;
 	}
-	if(page == -1)
-		page = 0;
 	return page;
+};
+
+dp2ems.prototype.getFirstPage = function() {
+	return this.getPages() > 0 ? 0 : -1;
 };
 
 // ------------------------------------------------ View
@@ -756,7 +833,11 @@ dp2ems.isInited = function($sel) {
 
 //open, close
 //
-dp2ems.prototype.openPopup = function(animate) {
+dp2ems.prototype.isPopupOpened = function() {
+	return !this.$divPopup.hasClass('hidden');
+};
+
+dp2ems.prototype.vOpenPopup = function(animate) {
 	var canOpen = !this.isPopupOpened() && !this.$divPopup.data('opening') && !this.$divPopup.data('closing');
 	//"queue" open task
 	if(this.$divPopup.data('closing'))
@@ -766,6 +847,7 @@ dp2ems.prototype.openPopup = function(animate) {
 	var self = this;
 	
 	this.$divPopup.removeClass('hidden');
+	this.onShowPopup();
 	this.$divPopup.focus();
 	
 	var aniTo = {
@@ -792,32 +874,68 @@ dp2ems.prototype.openPopup = function(animate) {
 		aniFrom.height = Math.max(1, dp2ems.getFullHeight(this.$divSel) - aniFrom.top);
 	}
 	
-	if(animate === undefined && this.options.animatePopupDuration[1] > 0 || animate == true) {
+	var doAnimate = this.options.animatePopupDuration[0] > 0 && (animate === undefined || animate == true);
+	if(doAnimate) {
 		this.$divPopup.data('opening', 1);
+		//temp fixes for smooth animation
 		var isConcrete = this.$divPopup.hasClass('dp2ems-concrete-height');
+		if(this.$divPopup.$bodyWrapper.css('min-height')) {
+			this.$divPopup.$bodyWrapper.data('_min-height', this.$divPopup.$bodyWrapper.css('min-height'));
+			this.$divPopup.$bodyWrapper.css('min-height', '');
+		}
 		if(!isConcrete)
 			this.$divPopup.addClass('dp2ems-concrete-height');
-		this.$divPopup.css(aniFrom).animate(aniTo, this.options.animatePopupDuration[0], this.options.animatePopupEasing[0], function() {
-			self.$divPopup.css(cssRestore);
-			if(!isConcrete)
-				self.$divPopup.removeClass('dp2ems-concrete-height');
-			
-			self.fixCheckboxesWrapperHeight();
-			self.$divPopup.data('opening', 0);
-			//"dequeue" close task
-			if(self.$divPopup.data('to_close')) {
-				self.$divPopup.data('to_close', 0);
-				setTimeout(function() {
-					self.closePopup();
-				}, 1);
-			}
+		this.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
+			var $el = jQuery(el);
+			var w = $el.width(), h = $el.height();
+			$el.css({
+				'max-width': w,
+				'min-width': w,
+				'max-height': h,
+				'min-height': h,
+			});
 		});
+		//animate
+		var aniOpts = {
+			duration: this.options.animatePopupDuration[0], 
+			easing: this.options.animatePopupEasing[0],
+			complete: function() {
+				//revert temp fixes
+				if(!isConcrete)
+					self.$divPopup.removeClass('dp2ems-concrete-height');
+				if(self.$divPopup.$bodyWrapper.data('_min-height')) {
+					self.$divPopup.$bodyWrapper.css('min-height', self.$divPopup.$bodyWrapper.data('_min-height'));
+					self.$divPopup.$bodyWrapper.data('_min-height', '');
+				}
+				self.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
+					var $el = jQuery(el);
+					$el.css({
+						'max-width': '',
+						'min-width': '',
+						'max-height': '',
+						'min-height': '',
+					});
+				});
+				//restore state as before animation
+				self.$divPopup.css(cssRestore);
+				self.vFixBodyHeight();
+				self.$divPopup.data('opening', 0);
+				//"dequeue" close task
+				if(self.$divPopup.data('to_close')) {
+					self.$divPopup.data('to_close', 0);
+					setTimeout(function() {
+						self.vClosePopup();
+					}, 1);
+				}
+			}
+		};
+		this.$divPopup.css(aniFrom).animate(aniTo, aniOpts);
 	} else {
-		self.fixCheckboxesWrapperHeight();
+		self.vFixBodyHeight();
 	}
 };
 
-dp2ems.prototype.closePopup = function(animate) {
+dp2ems.prototype.vClosePopup = function(animate) {
 	var canClose = this.isPopupOpened() && !this.$divPopup.data('opening') && !this.$divPopup.data('closing');
 	//"queue" close task
 	if(this.$divPopup.data('opening'))
@@ -850,58 +968,104 @@ dp2ems.prototype.closePopup = function(animate) {
 		aniTo.height = Math.max(1, dp2ems.getFullHeight(this.$divSel) - aniTo.top);
 	}
 	
-	if(animate === undefined && this.options.animatePopupDuration[1] > 0 || animate == true) {
+	var doAnimate = this.options.animatePopupDuration[1] > 0 && (animate === undefined || animate == true)
+	if(doAnimate) {
 		self.$divPopup.data('closing', 1);
+		//temp fixes for smooth animation
 		var isConcrete = this.$divPopup.hasClass('dp2ems-concrete-height');
+		if(this.$divPopup.$bodyWrapper.css('min-height')) {
+			this.$divPopup.$bodyWrapper.data('_min-height', this.$divPopup.$bodyWrapper.css('min-height'));
+			this.$divPopup.$bodyWrapper.css('min-height', '');
+		}
 		if(!isConcrete)
 			this.$divPopup.addClass('dp2ems-concrete-height');
-		this.$divPopup.css(aniFrom).animate(aniTo, this.options.animatePopupDuration[1], this.options.animatePopupEasing[1], function() {
-			self.$divPopup.css(cssRestore);
-			if(!isConcrete)
-				self.$divPopup.removeClass('dp2ems-concrete-height');
-			self.$divPopup.addClass('hidden');
-			self.$divPopup.data('closing', 0);
-			//"dequeue" open task
-			if(self.$divPopup.data('to_open')) {
-				self.$divPopup.data('to_open', 0);
-				setTimeout(function() {
-					self.openPopup();
-				}, 1);
-			}
+		this.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
+			var $el = jQuery(el);
+			var w = $el.width(), h = $el.height();
+			$el.css({
+				'max-width': w,
+				'min-width': w,
+				'max-height': h,
+				'min-height': h,
+			});
 		});
+		//animate
+		var aniOpts = {
+			duration: this.options.animatePopupDuration[1], 
+			easing: this.options.animatePopupEasing[1],
+			complete: function() {
+				//revert temp fixes
+				if(!isConcrete)
+					self.$divPopup.removeClass('dp2ems-concrete-height');
+				if(self.$divPopup.$bodyWrapper.data('_min-height')) {
+					self.$divPopup.$bodyWrapper.css('min-height', self.$divPopup.$bodyWrapper.data('_min-height'));
+					self.$divPopup.$bodyWrapper.data('_min-height', '');
+				}
+				self.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
+					var $el = jQuery(el);
+					$el.css({
+						'max-width': '',
+						'min-width': '',
+						'max-height': '',
+						'min-height': '',
+					});
+				});
+				//restore state as before animation
+				self.$divPopup.css(cssRestore);
+				self.$divPopup.addClass('hidden');
+				self.onHidePopup();
+				self.$divPopup.data('closing', 0);
+				//"dequeue" open task
+				if(self.$divPopup.data('to_open')) {
+					self.$divPopup.data('to_open', 0);
+					setTimeout(function() {
+						self.vOpenPopup();
+					}, 1);
+				}
+			}
+		};
+		this.$divPopup.css(aniFrom).animate(aniTo, aniOpts);
 	} else {
 		this.$divPopup.addClass('hidden');
 	}
 };
 
-dp2ems.prototype.isPopupOpened = function() {
-	return !this.$divPopup.hasClass('hidden');
-};
-
 //render
 //
-dp2ems.prototype.convertSelectOnce = function() {
+dp2ems.prototype.vConvertSelectOnce = function() {
 	if(dp2ems.isInited(this.$sel))
 		return false;
 	var self = this;
 	
-	//replace original <select> with new sel & popup divs
+	//replace original <select> with our custom sel & popup divs
 	this.$sel.hide();
 	this.$sel.wrap(this.htmlForWrapper());
-	
-	this._allowZeroSelection();
-	
+	this._allowZeroSelection(); //TIP: need to fix after wrap() call
 	this.$divSel = jQuery(this.htmlForSel());
 	this.$divPopup = jQuery(this.htmlForPopup());
 	this.$divSel.insertAfter(this.$sel);
 	this.$divPopup.insertAfter(this.$divSel);
 	
-	//create references to html elements we need
+	//create references to all html elements we need later
 	this.$divSel.$span = this.$divSel.find('span');
 	this.$divPopup.$close = this.$divPopup.find('.dp2ems-close');
 	this.$divPopup.$head = this.$divPopup.find('.dp2ems-head');
 	this.$divPopup.$search = this.$divPopup.find('.dp2ems-search');
-	this.$divPopup.$ctrls = this.$divPopup.find('.dp2ems-ctrls');
+	this.$divPopup.$pagesList = this.$divPopup.find('.dp2ems-pages-list');
+	this.$divPopup.$pagesList.$dotsViewContainer = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-dots-wrapper') };
+	this.$divPopup.$pagesList.$dotsContainer = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-dots') };
+	this.$divPopup.$pagesList.$dotsWrappers = function() { return self.$divPopup.$pagesList.find('.dp2ems-page-dot-wrapper') };
+	this.$divPopup.$pagesList.$currDotWrapper = function() { return self.$divPopup.$pagesList.find('.dp2ems-page-dot-wrapper.dp2ems-page-dot-current') };
+	this.$divPopup.$pagesList.$dots = function() { return self.$divPopup.$pagesList.find('.dp2ems-page-dot-wrapper .dp2ems-page-dot') };
+	this.$divPopup.$pagesList.$currDot = function() { return self.$divPopup.$pagesList.find('.dp2ems-page-dot-wrapper.dp2ems-page-dot-current .dp2ems-page-dot') };
+	this.$divPopup.$pagesList.$ctrlPrev = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-prev') };
+	this.$divPopup.$pagesList.$ctrlNext = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-next') };
+	this.$divPopup.$pagesList.$ctrlFirst = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-first') };
+	this.$divPopup.$pagesList.$ctrlLast = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-last') };
+	this.$divPopup.$pagesList.$gradLeft = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-grad-left') };
+	this.$divPopup.$pagesList.$gradRight = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-grad-right') };
+	this.$divPopup.$ctrlsWrapper = this.$divPopup.find('.dp2ems-ctrls');
+	this.$divPopup.$ctrls = function() { return self.$divPopup.$ctrlsWrapper.find('> .dp2ems-ctrl') };
 	this.$divPopup.$ctrlPages = this.$divPopup.find('.dp2ems-ctrls-pag');
 	this.$divPopup.$ctrlClearAll = this.$divPopup.find('.dp2ems-ctrl-clear-all');
 	this.$divPopup.$ctrlShowSelection = this.$divPopup.find('.dp2ems-ctrl-show-selection');
@@ -909,12 +1073,14 @@ dp2ems.prototype.convertSelectOnce = function() {
 	this.$divPopup.$ctrlSaveSelection = this.$divPopup.find('.dp2ems-ctrl-save-selection');
 	this.$divPopup.$btnLeft = this.$divPopup.find('.dp2ems-btn-left');
 	this.$divPopup.$btnRight = this.$divPopup.find('.dp2ems-btn-right');
-	this.$divPopup.$body = this.$divPopup.find(".dp2ems-body");
+	this.$divPopup.$bodyWrapper = this.$divPopup.find(".dp2ems-body-wrapper");
+	this.$divPopup.$body = this.$divPopup.find(".dp2ems-body:not(.dp2ems-body-ghost)");
+	this.$divPopup.$bodyGhost = this.$divPopup.find(".dp2ems-body-ghost");
 	this.$divPopup.$msg = this.$divPopup.find(".dp2ems-msg");
 	this.$divPopup.$msgSpan = this.$divPopup.find(".dp2ems-msg span");
 	this.$divPopup.$index = this.$divPopup.find(".dp2ems-index");
 	this.$divPopup.$indexChars = function() { return self.$divPopup.$index.find('.dp2ems-char') };
-	this.$divPopup.$checkboxes = function() { return self.$divPopup.$body.find("input[type=checkbox], input[type=radio]") };
+	this.$divPopup.$body.$checkboxes = this.$divPopup.$bodyGhost.$checkboxes = function() { return jQuery(this).find("input[type=checkbox], input[type=radio]") };
 	this.$divPopup.getCheckboxInfo = function($checkbox) {
 		var info = {};
 		info.text = $checkbox.next('label').text();
@@ -929,7 +1095,7 @@ dp2ems.prototype.convertSelectOnce = function() {
 		return info;
 	};
 	
-	//Enable tabindexes
+	//enable tabindexes
 	this.$divSel.add(this.$divPopup).attr('tabindex', 0);
 	var $list = $();
 	$.each([
@@ -976,57 +1142,255 @@ dp2ems.prototype.convertSelectOnce = function() {
 		this.$divPopup.addClass(this.options.divPopupClasses);
 };
 
-dp2ems.prototype.renderPage = function(page) {
-	this.$divPopup.$btnLeft.toggleClass('disabled', !(page != -1 && page > 0));
-	this.$divPopup.$btnRight.toggleClass('disabled', !(page != -1 && page < (this.getPages() - 1)));
-	this.$divPopup.$ctrlPages.toggle( this.getPages() > 1 && !this.isFullExtView() );
-	this.$divPopup.$ctrls.toggle( this.$divPopup.$ctrls.find('> .dp2ems-ctrl').filter(function() { return $(this).css("display") != "none" }).length > 0 );
+dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
+	var self = this;
 	
-	//todo: effects
+	//enable/disable, show/hide controls
+	this.$divPopup.$btnLeft.toggleClass('dp2ems-enabled', (page > 0));
+	this.$divPopup.$btnRight.toggleClass('dp2ems-enabled', (page >= 0 && page < (this.getPages() - 1)));
+	this.$divPopup.$btnLeft.toggleClass('dp2ems-disabled', !(page > 0));
+	this.$divPopup.$btnRight.toggleClass('dp2ems-disabled', !(page >= 0 && page < (this.getPages() - 1)));
+	this.$divPopup.$ctrlPages.toggle( this.getPages() > 1 && !this.isFullExtView() );
+	this.$divPopup.$ctrlsWrapper.toggle( this.$divPopup.$ctrls().filter(function() { return $(this).css("display") != "none" }).length > 0 );
+	
+	//post-render page list
+	this.vPostRenderPagesList(true);
+	
+	//get html to render
 	var tmp = this.htmlForPage(page);
-	this.$divPopup.$body.html(tmp.html);
+	
+	//render msg
 	this.$divPopup.$msgSpan.html(tmp.msg);
 	this.$divPopup.$msg.toggleClass('visible', tmp.msg != '');
 	
-	//Customize checkboxes
-	var $checkboxes = this.$divPopup.$checkboxes();
+	//render page w/ or w/o animation
+	var doAnimate = (animate == true && page != oldPage && page >= 0 && oldPage >= 0 && this.options.animatePageDuration && !this.$divPopup.$body.is(':empty'));
+	if(!doAnimate) {
+		this.$divPopup.$bodyGhost.html('');
+		this.vRenderPageTo(tmp, this.$divPopup.$body);
+		callback();
+	} else {
+		var w = this.$divPopup.$body.width();
+		var h = this.$divPopup.$body.height();
+		var isSimultAnims = this.$divPopup.$bodyGhost.is(':visible');
+		if(isSimultAnims) {
+			this.vRenderPageTo(tmp, this.$divPopup.$bodyGhost);
+		} else {
+			this.$divPopup.$bodyGhost.removeClass('dp2ems-hidden').css({
+				width: w, 'min-width': w,'max-width': w, 
+				height: h, 'min-height': h, 'max-height': h,
+				top: 0,
+				left: (page > oldPage ? w : -w)
+			});
+			this.vRenderPageTo(tmp, this.$divPopup.$bodyGhost);
+			var bodyWrapperNewH = Math.max( dp2ems.getFullHeight(this.$divPopup.$bodyGhost), dp2ems.getFullHeight(this.$divPopup.$body) );
+			var bodyWrapperOldH = dp2ems.getFullHeight(this.$divPopup.$bodyWrapper);
+			this.$divPopup.$bodyWrapper.css({
+				height: bodyWrapperOldH
+			});
+			this.$divPopup.$body.addClass('dp2ems-body-ghost').removeClass('dp2ems-hidden').css({
+				width: w, 'min-width': w,'max-width': w, 
+				height: h, 'min-height': h, 'max-height': h,
+				top: 0,
+				left: 0
+			});
+			var bodyWrapperAniTo = {
+				height: bodyWrapperNewH
+			};
+			var bodyAniTo = {
+				left: (page > oldPage ? -w : w)
+			};
+			var bodyGhostAniTo = {
+				left: 0
+			};
+			var bodyWrapperCssRestore = {
+				height: '',
+			};
+			var bodyCssRestore = {
+				width: '', 'min-width': '','max-width': '', 
+				height: '', 'min-height': '', 'max-height': '',
+				top: '',
+				left: ''
+			};
+			var bodyGhostCssRestore = {
+				width: '', 'min-width': '','max-width': '', 
+				height: '', 'min-height': '', 'max-height': '',
+				top: '',
+				left: ''
+			};
+			var aniCnt = 0;
+			var onAllComplete = function() {
+				var isSimultAnims = !self.$divPopup.$body.hasClass('dp2ems-body-ghost');
+				if(isSimultAnims) {
+					//fix
+					var $tmp = self.$divPopup.$body;
+					self.$divPopup.$body = self.$divPopup.$bodyGhost;
+					self.$divPopup.$bodyGhost = $tmp;
+				}
+				self.$divPopup.$bodyGhost.removeClass('dp2ems-body-ghost').css(bodyCssRestore);
+				self.$divPopup.$body.css(bodyGhostCssRestore);
+				self.$divPopup.$bodyWrapper.css(bodyWrapperCssRestore);
+				var $tmp = self.$divPopup.$body;
+				self.$divPopup.$body = self.$divPopup.$bodyGhost;
+				self.$divPopup.$bodyGhost = $tmp;
+				self.$divPopup.$bodyGhost.addClass('dp2ems-hidden');
+				self.$divPopup.$body.removeClass('dp2ems-hidden');
+				self.vFixBodyHeight();
+				callback();
+			};
+			var onOneComplete = function() {
+				aniCnt--;
+				if(aniCnt == 0)
+					onAllComplete();
+			};
+			var aniOpts = {
+				duration: this.options.animatePageDuration, 
+				easing: this.options.animatePageEasing,
+				queue: false,
+				complete: onOneComplete
+			};
+			this.$divPopup.$bodyWrapper.animate(bodyWrapperAniTo, aniOpts);
+			aniCnt++;
+			this.$divPopup.$body.animate(bodyAniTo, aniOpts);
+			aniCnt++;
+			this.$divPopup.$bodyGhost.animate(bodyGhostAniTo, aniOpts);
+			aniCnt++;
+		}
+	}
+};
+
+dp2ems.prototype.vRenderPageTo = function(tmp, $body) {
+	$body.html(tmp.html);
+	
+	//add dynamic styles
+	$body.find('.dp2ems-row .dp2ems-el').css('width', (1.0 * 100 / this.options.gridColumns)+'%');
+	$body.find('.dp2ems-col').css('width', (1.0 * 100 / this.options.gridColumns)+'%');
+	$body.find('.dp2ems-col .dp2ems-el').css('height', (1.0 * 100 / this.options.gridRows)+'%');
+	
+	//customize checkboxes
+	var $checkboxes = $body.$checkboxes();
 	$checkboxes.filter(':not(.prch2-hidden)').prettyCheckboxes2();
-	//Enable tabindexes
+	//enable tabindexes
 	if(this.options.areInnerCtrlsFocuable)
 		$checkboxes.filter('.prch2-hidden').next('label').next('.prch2-label').attr('tabindex', this.options.areInnerCtrlsFocuable ? 0 : -1);
 	
-	this.fixCheckboxesWrapperHeight();
+	this.vFixBodyHeight();
 };
 
-dp2ems.prototype.renderValStr = function(str) {
+dp2ems.prototype.vRenderValStr = function(str) {
 	this.$divSel.$span.text(str);
 };
 
-dp2ems.prototype.renderFirstChars = function() {
-	var html = this.htmlForFirstChars();
-	this.$divPopup.$index.html(html);
-	//Enable tabindexes
-	var $indexChars = this.$divPopup.$indexChars();
-	if(this.options.areInnerCtrlsFocuable)
-		$indexChars.attr('tabindex', this.options.areInnerCtrlsFocuable ? 0 : -1);
+dp2ems.prototype.vRenderFirstChars = function() {
+	if(this.options.showIndex) {
+		var html = this.htmlForFirstChars();
+		this.$divPopup.$index.html(html);
+		
+		//enable tabindexes
+		var $indexChars = this.$divPopup.$indexChars();
+		if(this.options.areInnerCtrlsFocuable)
+			$indexChars.attr('tabindex', this.options.areInnerCtrlsFocuable ? 0 : -1);
+	} else {
+		this.$divPopup.$index.hide();
+	}
 };
 
-//upd html after *
+dp2ems.prototype.vRenderPagesList = function() {
+	if(this.options.showPagesList) {
+		var html = this.htmlForPagesList();
+		this.$divPopup.$pagesList.html(html);
+		
+		this.$divPopup.$pagesList.toggle( this.getTotalPages() > 1 );
+	} else {
+		this.$divPopup.$pagesList.hide();
+	}
+};
+
+dp2ems.prototype.vPostRenderPagesList = function(animate) {
+	if(!this.$divPopup.$pagesList.is(':visible'))
+		return;
+	
+	//change classes
+	this.$divPopup.$pagesList.$ctrlFirst().toggleClass('dp2ems-enabled', this.currPage > 0);
+	this.$divPopup.$pagesList.$ctrlFirst().toggleClass('dp2ems-disabled', !(this.currPage > 0));
+	this.$divPopup.$pagesList.$ctrlPrev().toggleClass('dp2ems-enabled', this.currPage > 0);
+	this.$divPopup.$pagesList.$ctrlPrev().toggleClass('dp2ems-disabled', !(this.currPage > 0));
+	this.$divPopup.$pagesList.$ctrlLast().toggleClass('dp2ems-enabled', this.currPage >= 0 && this.currPage < (this.getPages()-1));
+	this.$divPopup.$pagesList.$ctrlLast().toggleClass('dp2ems-disabled', !(this.currPage >= 0 && this.currPage < (this.getPages()-1)));
+	this.$divPopup.$pagesList.$ctrlNext().toggleClass('dp2ems-enabled', this.currPage >= 0 && this.currPage < (this.getPages()-1));
+	this.$divPopup.$pagesList.$ctrlNext().toggleClass('dp2ems-disabled', !(this.currPage >= 0 && this.currPage < (this.getPages()-1)));
+	this.$divPopup.$pagesList.$dotsWrappers().filter('.dp2ems-page-dot-current').not("[page="+this.currPage+"]").removeClass('dp2ems-page-dot-current');
+	this.$divPopup.$pagesList.$dotsWrappers().filter("[page="+this.currPage+"]").not('.dp2ems-page-dot-current').addClass('dp2ems-page-dot-current');
+	
+	//show/hide
+	this.$divPopup.$pagesList.$ctrlFirst().toggle( this.getPages() > 2 );
+	this.$divPopup.$pagesList.$ctrlLast().toggle( this.getPages() > 2 );
+	
+	//limit number of page dots
+	var listW = this.$divPopup.$pagesList.width();
+	var dotsFW = this.$divPopup.$pagesList.$dotsContainer().width();
+	var dotsVW = this.$divPopup.$pagesList.$dotsViewContainer().width();
+	var $dots = this.$divPopup.$pagesList.$dotsWrappers();
+	var $currDot = this.$divPopup.$pagesList.$currDotWrapper();
+	var currDotI = $dots.index($currDot);
+	var dotW = $dots.length ? dp2ems.getFullWidth($dots.first()) : 0;
+	var dotsCnt = $dots.length;
+	var maxDotCnt = dotW ? Math.floor(1.0 * dotsVW / dotW) : 0;
+	if(dotW && dotsCnt > maxDotCnt) {
+		var rngLen = maxDotCnt;
+		var rngStart = currDotI - Math.floor(1.0 * (rngLen - 1) / 2);
+		if(rngStart + rngLen > dotsCnt)
+			rngStart -= (rngStart + rngLen - dotsCnt);
+		if(rngStart < 0)
+			rngStart = 0;
+		var $dotsToHide = jQuery();
+		if(rngStart > 0)
+			$dotsToHide = $dotsToHide.add( $dots.slice(0, rngStart) );
+		if((rngStart + rngLen) < dotsCnt)
+			$dotsToHide = $dotsToHide.add( $dots.slice(rngStart + rngLen, dotsCnt) );
+		var $visDots = $dots.not($dotsToHide);
+		var offs = $visDots.first().position().left;
+		if((rngStart + rngLen) == dotsCnt)
+			offs = dotsCnt * dotW - dotsVW;
+		var doAnimate = this.options.animatePageDuration > 0 && (animate === undefined || animate == true);
+		var aniTo = {
+			'left': (-1 * offs)+'px'
+		};
+		if(!doAnimate) {
+			this.$divPopup.$pagesList.$dotsContainer().css(aniTo);
+		} else {
+			var aniOpts = {
+				duration: this.options.animatePageDuration, 
+				easing: this.options.animatePageEasing,
+			};
+			this.$divPopup.$pagesList.$dotsContainer().animate(aniTo, aniOpts);
+		}
+		this.$divPopup.$pagesList.$gradLeft().toggle( rngStart > 0 );
+		this.$divPopup.$pagesList.$gradRight().toggle( (rngStart + rngLen) < dotsCnt );
+	} else {
+		this.$divPopup.$pagesList.$gradLeft().hide();
+		this.$divPopup.$pagesList.$gradRight().hide();
+	}
+};
+
+//upd view after some actions
 //
 /**
  * If on new page there are less options than on old one, popup height will normally decrease - we don't want that, so fix!
  */
-dp2ems.prototype.fixCheckboxesWrapperHeight = function() {
+dp2ems.prototype.vFixBodyHeight = function($divToRender) {
 	var self = this;
+	if($divToRender === undefined)
+		$divToRender = self.$divPopup.$bodyWrapper;
 	if(this.$divPopup.hasClass('dp2ems-concrete-height')) {
 	} else {
-		var $divToRender = self.$divPopup.$body;
 		var h = parseInt($divToRender.height());
 		var minh = parseInt($divToRender.css('min-height'));
 		var _minh = parseInt($divToRender.data('_min-height'));
 		if(isNaN(_minh)) _minh = 0;
 		if(isNaN(minh)) minh = 0;
-		if(self.getSearchedCnt() == 0 && self.$divPopup.$msg.hasClass('visible')) {
+		if(self.$divPopup.$msg.hasClass('visible') && self.$divPopup.$body.is(':empty')) {
+			//body is empty and msg is not
 			var msgH = dp2ems.getFullHeight(self.$divPopup.$msg);
 			if(!_minh) {
 				$divToRender.css('min-height', (minh-msgH)+'px');
@@ -1044,7 +1408,7 @@ dp2ems.prototype.fixCheckboxesWrapperHeight = function() {
 	}
 };
 
-dp2ems.prototype.updHtmlAfterFilterChange = function() {
+dp2ems.prototype.vAfterFilterChange = function() {
 	var self = this;
 	this.$divPopup.$ctrlShowSelection.toggleClass('selected', this.fitlerBySel);
 	this.$divPopup.$indexChars().each(function(ind, el) {
@@ -1055,12 +1419,12 @@ dp2ems.prototype.updHtmlAfterFilterChange = function() {
 		this.$divPopup.$search.val(this.filterStr);
 };
 
-dp2ems.prototype.updHtmlAfterSingleChanged = function($chkbx) {
+dp2ems.prototype.vAfterSingleChanged = function($chkbx) {
 	var $inputToUncheck = this.$divPopup.$body.find("input"+(this.selectedItemsInds.length ? "[realind!="+this.selectedItemsInds[0]+"]" : "")+":checked").not($chkbx);
 	$inputToUncheck.prop('checked', false).trigger('change');
 };
 
-dp2ems.prototype.updHtmlAfterAllSelectedChanged = function($chkbx) {
+dp2ems.prototype.vAfterAllSelectedChanged = function($chkbx) {
 	var $inputAnyChecked = this.$divPopup.$body.find("input.dp2ems-checkbox-any:checked").not($chkbx);
 	var $inputAnyUnhecked = this.$divPopup.$body.find("input.dp2ems-checkbox-any:not(:checked)").not($chkbx);
 	var $inputsNotAnyChecked = this.$divPopup.$body.find("input:not(.dp2ems-checkbox-any):checked").not($chkbx);
@@ -1078,12 +1442,16 @@ dp2ems.prototype.updHtmlAfterAllSelectedChanged = function($chkbx) {
 	this._allowZeroSelection();
 };
 
-dp2ems.prototype.updHtmlAfterUpdateItems = function() {
+dp2ems.prototype.vAfterUpdateItems = function() {
 	var classAreaPopup = (this.isFullExtView() ? 'dp2ems-popup-ext' : (this.isCompactExtView() ? 'dp2ems-popup-comp' : 'dp2ems-popup-norm'));
 	this.$divPopup.removeClass('dp2ems-popup-ext');
 	this.$divPopup.removeClass('dp2ems-popup-comp');
 	this.$divPopup.removeClass('dp2ems-popup-norm');
 	this.$divPopup.addClass(classAreaPopup);
+	
+	this.$divPopup.$ctrlClearAll.toggle( this.getItemsCountWoAll() > 0 );
+	this.$divPopup.$ctrlShowSelection.toggle( this.getItemsCountWoAll() > 0 );
+	this.$divPopup.$bodyWrapper.toggle( this.items.length > 0 );
 };
 
 // ------------------------------------------------ View - generate html for rendering
@@ -1100,41 +1468,61 @@ dp2ems.prototype.htmlForWrapper = function() {
 dp2ems.prototype.htmlForPopup = function() {
 	var classAreaPopup = (this.isFullExtView() ? 'dp2ems-popup-ext' : (this.isCompactExtView() ? 'dp2ems-popup-comp' : 'dp2ems-popup-norm'));
 	
-	var textClearAll = 		this.options.ctrlClearAll instanceof Array		? this.options.ctrlClearAll[this.isMultiple ? 0 : 1]		: this.options.ctrlClearAll;
-	var textShowSelection =	this.options.ctrlShowSelection instanceof Array	? this.options.ctrlShowSelection[this.isMultiple ? 0 : 1]	: this.options.ctrlShowSelection;
-	var textGotoSelection =	this.options.ctrlGotoSelection instanceof Array ? this.options.ctrlGotoSelection[this.isMultiple ? 0 : 1]	: this.options.ctrlGotoSelection;
-	var textSaveSelection =	this.options.ctrlSaveSelection instanceof Array ? this.options.ctrlSaveSelection[this.isMultiple ? 0 : 1]	: this.options.ctrlSaveSelection;
+	var textClearAll = 		this.strings.ctrlClearAll instanceof Array		? this.strings.ctrlClearAll[this.isMultiple ? 0 : 1]		: this.strings.ctrlClearAll;
+	var textShowSelection =	this.strings.ctrlShowSelection instanceof Array	? this.strings.ctrlShowSelection[this.isMultiple ? 0 : 1]	: this.strings.ctrlShowSelection;
+	var textGotoSelection =	this.strings.ctrlGotoSelection instanceof Array ? this.strings.ctrlGotoSelection[this.isMultiple ? 0 : 1]	: this.strings.ctrlGotoSelection;
+	var textSaveSelection =	this.strings.ctrlSaveSelection instanceof Array ? this.strings.ctrlSaveSelection[this.isMultiple ? 0 : 1]	: this.strings.ctrlSaveSelection;
 	
 	var divPopupHtml = '';
 	divPopupHtml += "<div class='hidden dp2ems-popup " + classAreaPopup + (this.isMultiple ? "" : " dp2ems-popup-single") + "'>";
 		divPopupHtml += "<div class='dp2ems-close'>";
 		divPopupHtml += "</div>";
-		divPopupHtml += "<div class='dp2ems-head'>";
-			divPopupHtml += "<input class='dp2ems-search' type='text' placeholder='" + this.options.inputPlaceholder + "'/>";
-			divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-left'></div>";
-			divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-right'></div>";
-		divPopupHtml += "</div>";
-		divPopupHtml += "<div class='dp2ems-msg'><span></span></div>";
-		divPopupHtml += "<div class='dp2ems-body " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'dp2ems-body-dir-horz' : 'dp2ems-body-dir-vert') + " dp2ems-body-cols-" + this.options.gridColumns + " dp2ems-body-rows-" + this.options.gridRows + "'>";
-			//... look at this.doRenderPage(page)
-		divPopupHtml += "</div>";
-		divPopupHtml += "<div class='dp2ems-ctrls'>";
-			divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrls-pag'>";
-				divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-left'></div>";
-				divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-right'></div>";
-				divPopupHtml += "<div class='dp2ems-clr'></div>";
+		if(this.options.showSearch) {
+			divPopupHtml += "<div class='dp2ems-head'>";
+				divPopupHtml += "<input class='dp2ems-search' type='text' placeholder='" + this.strings.inputPlaceholder + "'/>";
+				if(!(this.options.hidePageControlsWhenThereisPegeList && this.options.showPagesList)) {
+					divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-left'></div>";
+					divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-right'></div>";
+				}
 			divPopupHtml += "</div>";
-			divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-clear-all'>" + textClearAll + "</div>";
-			if(this.isMultiple && !this.options.hideShowSelectionControl)
-				divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-show-selection'>" + textShowSelection + "</div>";
-			if(!this.isMultiple)
-				divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-goto-selection'>" + textGotoSelection + "</div>";
-			divPopupHtml += "<div class='dp2ems-ctrl-space'></div>";
-			divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
+		}
+		divPopupHtml += "<div class='dp2ems-msg'><span></span></div>";
+		divPopupHtml += "<div class='dp2ems-body-wrapper'>";
+			divPopupHtml += "<div class='dp2ems-body " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'dp2ems-body-dir-horz' : 'dp2ems-body-dir-vert') + " dp2ems-body-cols-x dp2ems-body-cols-" + this.options.gridColumns + " dp2ems-body-rows-x dp2ems-body-rows-" + this.options.gridRows + "'>";
+				//... look at this.vRenderPage(page)
+			divPopupHtml += "</div>";
+			divPopupHtml += "<div class='dp2ems-body dp2ems-body-ghost dp2ems-hidden " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'dp2ems-body-dir-horz' : 'dp2ems-body-dir-vert') + " dp2ems-body-cols-x dp2ems-body-cols-" + this.options.gridColumns + " dp2ems-body-rows-x dp2ems-body-rows-" + this.options.gridRows + "'>";
+				//... look at this.vRenderPage(page)
+			divPopupHtml += "</div>";
 		divPopupHtml += "</div>";
-		divPopupHtml += "<div class='dp2ems-index'" + ">";
-			//... look at this.doRenderFirstChars()
-		divPopupHtml += "</div>";
+		if(this.options.showPagesList) {
+			divPopupHtml += "<div class='dp2ems-pages-list'>";
+				//... look at this.vRenderPagesList()
+			divPopupHtml += "</div>";
+		}
+		if(this.options.showControls) {
+			divPopupHtml += "<div class='dp2ems-ctrls'>";
+				if(!(this.options.hidePageControlsWhenThereisPegeList && this.options.showPagesList)) {
+					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrls-pag'>";
+						divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-left'></div>";
+						divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-right'></div>";
+						divPopupHtml += "<div class='dp2ems-clr'></div>";
+					divPopupHtml += "</div>";
+				}
+				divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-clear-all'>" + textClearAll + "</div>";
+				if(this.isMultiple && !this.options.hideShowSelectionControl)
+					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-show-selection'>" + textShowSelection + "</div>";
+				if(!this.isMultiple)
+					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-goto-selection'>" + textGotoSelection + "</div>";
+				divPopupHtml += "<div class='dp2ems-ctrl-space'></div>";
+				divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
+			divPopupHtml += "</div>";
+		}
+		if(this.options.showIndex) {
+			divPopupHtml += "<div class='dp2ems-index'" + ">";
+				//... look at this.vRenderFirstChars()
+			divPopupHtml += "</div>";
+		}
 	divPopupHtml += "</div>";
 	return divPopupHtml;
 }
@@ -1145,19 +1533,26 @@ dp2ems.prototype.htmlForPage = function(page) {
 	var rng = this.getItemsRangeForPage(page);
 	
 	if(this.getFilterMode() == 'search' && this.selectedItems.length >= this.options.maxSelectionLimit && this.options.showSelectedItemsBeforeSearched) {
-		msg = this.options.maxSelectionMsg;
+		msg = this.strings.maxSelectionMsg;
 	}
 	
+	var doRenderBody = true;
 	if(this.getSearchedCnt() == 0) {
-		msg = this.options.noResultsMsg;
-	} else if(page == 0 && this.getPages() == 0) {
+		msg = this.strings.noResultsMsg;
+		doRenderBody = this.selectedItems.length && this.options.showSelectedItemsWhenNoFound;
+	} else if(this.getPages() == 0) {
 		if(this.getFilterMode() == 'sel')
-			msg = this.options.noSelectionMsg;
+			msg = this.strings.noSelectionMsg;
 		else
 			msg = "Empty!";
+		doRenderBody = false;
 	} else if(!this.canGoToPage(page)) {
 		msg = "Error! Wrong page " + page;
-	} else if(rng !== false) {
+		doRenderBody = false;
+	} else if(rng === false) {
+		doRenderBody = false;
+	}
+	if(doRenderBody) {
 		var indStart = rng[0];
 		var indEnd = rng[1];
 		var cnt = indEnd - indStart + 1;
@@ -1187,14 +1582,13 @@ dp2ems.prototype.htmlForPage = function(page) {
 		};
 		
 		var renderRowStart = function(self, html, r) {
-			var html = "<div class='dp2ems-row dp2ems-body-rows-" + self.options.gridRows + "' id='dp2ems-row-" + r + "'>";
+			var html = "<div class='dp2ems-row dp2ems-body-rows-x dp2ems-body-rows-" + self.options.gridRows + "' id='dp2ems-row-" + r + "'>";
 			return html;
 		};
 		var renderRowEnd = function(self, html, r) {
 			var html = "</div>";
 			return html;
 		};
-		
 		if(this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection) {
 			for(var r = 0 ; r < this.options.gridRows ; r++) {
 				for(var c = 0 ; c < this.options.gridColumns ; c++) {
@@ -1237,13 +1631,40 @@ dp2ems.prototype.htmlForPage = function(page) {
 	return {html: html, msg: msg};
 };
 
+dp2ems.prototype.htmlForPagesList = function() {
+	var html = '';
+	
+	if(this.getPages() > 0) {
+		html += "<div class='dp2ems-pages-ctrl dp2ems-pages-first "+(this.currPage > 0 ? 'dp2ems-enabled' : 'dp2ems-disabled')+"'><span class='ui-icon ui-icon-seek-first'></span></div>";
+		html += "<div class='dp2ems-pages-ctrl dp2ems-pages-prev "+(this.currPage > 0 ? 'dp2ems-enabled' : 'dp2ems-disabled')+"'><span class='ui-icon ui-icon-triangle-1-w'></span></div>";
+		
+		html += "<div class='dp2ems-pages-dots-wrapper'>";
+			html += "<div class='dp2ems-pages-grad-left'></div>";
+			html += "<div class='dp2ems-pages-dots'>";
+				for(var p = 0 ; p < this.getPages() ; p++) {
+					html += "<div class='dp2ems-page-dot-wrapper"+ (p == this.currPage ? " dp2ems-page-dot-current" : "") +"' id='dp2ems-page-dot-wrapper-"+p+"' page='"+p+"'>";
+						html += "<div class='dp2ems-page-dot' page='"+p+"'>";
+							html += "<div class='dp2ems-page-dot-inner'></div>";
+						html += "</div>";
+					html += "</div>";
+				}
+			html += "</div>";
+			html += "<div class='dp2ems-pages-grad-right'></div>";
+		html += "</div>";
+		
+		html += "<div class='dp2ems-pages-ctrl dp2ems-pages-next "+(this.currPage >= 0 && this.currPage < (this.getPages()-1) ? 'dp2ems-enabled' : 'dp2ems-disabled')+"'><span class='ui-icon ui-icon-triangle-1-e'></span></div>";
+		html += "<div class='dp2ems-pages-ctrl dp2ems-pages-last "+(this.currPage >= 0 && this.currPage < (this.getPages()-1) ? 'dp2ems-enabled' : 'dp2ems-disabled')+"'><span class='ui-icon ui-icon-seek-end'></span></div>";
+	}
+	
+	return html;
+};
+
 dp2ems.prototype.htmlForFirstChars = function() {
 	var html = '';
 	
 	var cntAll = this.items.length;
 	var fCharAll = '';
-	var allName = 'Все';
-	html += "<div class='dp2ems-char' fChar='" + fCharAll + "' fCharCnt='" + cntAll + "'>" + allName + "</div>";
+	html += "<div class='dp2ems-char' fChar='" + fCharAll + "' fCharCnt='" + cntAll + "'>" + this.strings.indexAll + "</div>";
 	
 	for(var fChar in this.firstChars) if (this.firstChars.hasOwnProperty(fChar)) {
 		var cnt = this.firstChars[fChar];
@@ -1261,12 +1682,13 @@ dp2ems.prototype.doInitOnce = function() {
 		return false;
 	var self = this;
 	
-	this.syncFromSelect(true);
+	this.mSyncFromSelect(true);
 	
 	this.doPrepareHtmlOnce();
+	this.vAfterUpdateItems();
 	
 	this.doSetNoFilter();
-	this.doApplyFilterAndRender0();
+	this.doApplyFilterAndGotoFirstPage();
 	this.doRenderFirstChars();
 	this.doRenderValStr();
 	
@@ -1286,7 +1708,7 @@ dp2ems.prototype.doPrepareHtmlOnce = function() {
 	
 	//render - replace original <select> with new sel & popup divs
 	//and create references to html elements we need
-	this.convertSelectOnce();
+	this.vConvertSelectOnce();
 	
 	//press enter == click
 	var $list = $();
@@ -1353,34 +1775,28 @@ dp2ems.prototype.doPrepareHtmlOnce = function() {
 	this.$divPopup.$search.bind('input', function(e) {
 		var text = e.target.value;
 		self.doSetFilterBySearchString(text);
-		self.doApplyFilterAndRender0();
+		self.doApplyFilterAndGotoFirstPage();
 	});
 	this.$divPopup.$ctrlClearAll.click(function() {
-		self.doUnselectAllItems();
-		self.doSetNoFilter();
-		self.doApplyFilterAndRender0();
-		if(!self.isMultiple)
-			self.doClosePopup();
+		self.doClearAll();
 	});
 	this.$divPopup.$ctrlShowSelection.click(function() {
 		self.doSetFilterBySelected(! self.fitlerBySel);
-		self.doApplyFilterAndRender0();
+		self.doApplyFilterAndGotoFirstPage();
 	});
 	this.$divPopup.$ctrlGotoSelection.click(function() {
-		self.doSetNoFilter();
-		self.doApplyFilter();
-		self.doRenderPage(self.getPageForCurrSel());
+		self.doGotoSelection(true);
 	});
 	this.$divPopup.$ctrlSaveSelection.click(function() {
 		self.doClosePopup();
 	});
 	this.$divPopup.$btnLeft.click(function() {
 		if(self.canGoToPage(self.currPage - 1))
-			self.doRenderPage(self.currPage - 1);
+			self.doGotoPage(self.currPage - 1, true);
 	});
 	this.$divPopup.$btnRight.click(function() {
 		if(self.canGoToPage(self.currPage + 1))
-			self.doRenderPage(self.currPage + 1);
+			self.doGotoPage(self.currPage + 1, true);
 	});
 	
 	return true;	
@@ -1389,13 +1805,14 @@ dp2ems.prototype.doPrepareHtmlOnce = function() {
 //sync from original <select> if has been updated
 //
 dp2ems.prototype.doUpdateItems = function() {
-	this.syncFromSelect(false);
+	this.mSyncFromSelect(false);
 	
-	this.updHtmlAfterUpdateItems();
+	this.vAfterUpdateItems();
 	
 	this.doSetNoFilter();
 	this.doApplyFilter();
-	this.doRenderPage(this.getPageForCurrSel());
+	var pageForSel = this.getPageForCurrSel();
+	this.doGotoPage(pageForSel != -1 ? pageForSel : this.getFirstPage(), false);
 	this.doRenderFirstChars();
 	this.doRenderValStr();
 };
@@ -1403,11 +1820,14 @@ dp2ems.prototype.doUpdateItems = function() {
 //open, close
 //
 dp2ems.prototype.doOpenPopup = function() {
-	dp2ems.closeAppPopups();
-	this.openPopup();
+	dp2ems.doCloseAppPopups();
+	if(!this.isMultiple) {
+		this.doGotoSelection(false);
+	}
+	this.vOpenPopup();
 };
 dp2ems.prototype.doClosePopup = function() {
-	this.closePopup();
+	this.vClosePopup();
 };
 dp2ems.prototype.doTogglePopup = function() {
 	if(!this.isPopupOpened())
@@ -1415,7 +1835,7 @@ dp2ems.prototype.doTogglePopup = function() {
 	else
 		this.doClosePopup();
 };
-dp2ems.closeAppPopups = function() {
+dp2ems.doCloseAppPopups = function() {
 	for(var selId in dp2ems._instances) if (dp2ems._instances.hasOwnProperty(selId)) {
 		var inst = dp2ems._instances[selId];
 		inst.doClosePopup();
@@ -1424,40 +1844,73 @@ dp2ems.closeAppPopups = function() {
 
 //render
 //
-dp2ems.prototype.doRenderPage = function(page) {
+dp2ems.prototype.doGotoPage = function(page, animate) {
 	var self = this;
-	this.currPage = page;
 	
-	//render
-	this.renderPage(page);
+	var oldPage = this.currPage;
+	this.currPage = parseInt(page);
 	
-	//press enter == click
-	if(this.options.areInnerCtrlsFocuable)
-		this.$divPopup.$checkboxes().filter('.prch2-hidden').next('label').next('.prch2-label').keypress(function(e) {
-			if(e.which == 13 || e.keyCode == 13) {
-				$(this).click();
-			}
-		});
-	
-	//attach events
-	this.$divPopup.$checkboxes().each(function(ind, el) {
-		jQuery(el).change(function() {
-			var info = self.$divPopup.getCheckboxInfo(jQuery(this));
-			self.onSelectItem(info, jQuery(this));			
+	this.vRenderPage(page, oldPage, animate, function() {
+		//press enter == click
+		if(self.options.areInnerCtrlsFocuable)
+			self.$divPopup.$body.$checkboxes().filter('.prch2-hidden').next('label').next('.prch2-label').keypress(function(e) {
+				if(e.which == 13 || e.keyCode == 13) {
+					$(this).click();
+				}
+			});
+		
+		//attach events
+		self.$divPopup.$body.$checkboxes().each(function(ind, el) {
+			jQuery(el).change(function() {
+				var info = self.$divPopup.getCheckboxInfo(jQuery(this));
+				self.onSelectItem(info, jQuery(this));			
+			});
 		});
 	});
+	
 };
 
 dp2ems.prototype.doRenderValStr = function() {
-	this.renderValStr(this.valStr);
+	this.vRenderValStr(this.valStr);
+};
+
+dp2ems.prototype.doRenderPagesList = function() {
+	if(this.options.showPagesList) {
+		var self = this;
+		
+		this.vRenderPagesList();
+		
+		//attach events
+		this.$divPopup.$pagesList.$ctrlPrev().click(function() {
+			if(self.canGoToPage(self.currPage - 1))
+				self.doGotoPage(self.currPage - 1, true);
+		});
+		this.$divPopup.$pagesList.$ctrlNext().click(function() {
+			if(self.canGoToPage(self.currPage + 1))
+				self.doGotoPage(self.currPage + 1, true);
+		});
+		this.$divPopup.$pagesList.$ctrlFirst().click(function() {
+			if(self.canGoToPage(0))
+				self.doGotoPage(0, true);
+		});
+		this.$divPopup.$pagesList.$ctrlLast().click(function() {
+			if(self.canGoToPage(self.getPages() - 1))
+				self.doGotoPage(self.getPages() - 1, true);
+		});
+		this.$divPopup.$pagesList.$dots().click(function() {
+			var p = parseInt(jQuery(this).attr('page'));
+			if(self.canGoToPage(p))
+				self.doGotoPage(p, true);
+		});
+	}
 };
 
 dp2ems.prototype.doRenderFirstChars = function() {
 	if(this.isFullExtView()) {
 		var self = this;
 		//render
-		this.renderFirstChars();
-		this.updHtmlAfterFilterChange();
+		this.vRenderFirstChars();
+		this.vAfterFilterChange();
 		var $indexChars = this.$divPopup.$indexChars();
 		
 		//press enter == click
@@ -1473,7 +1926,7 @@ dp2ems.prototype.doRenderFirstChars = function() {
 			jQuery(el).click(function() {
 				var info = self.$divPopup.getCharInfo(jQuery(this));
 				self.doSetFilterByFirstChar(info.gr);
-				self.doApplyFilterAndRender0();
+				self.doApplyFilterAndGotoFirstPage();
 			});
 		});
 	}
@@ -1482,49 +1935,70 @@ dp2ems.prototype.doRenderFirstChars = function() {
 //filters
 //
 dp2ems.prototype.doSetFilterByFirstChar = function(gr) {
-	this.setFilterByFirstChar(gr);
-	this.updHtmlAfterFilterChange();
+	this.mSetFilterByFirstChar(gr);
+	this.vAfterFilterChange();
 };
 dp2ems.prototype.doSetFilterBySelected = function(sel) {
-	this.setFilterBySelected(sel);
-	this.updHtmlAfterFilterChange();
+	this.mSetFilterBySelected(sel);
+	this.vAfterFilterChange();
 };
 dp2ems.prototype.doSetFilterBySearchString = function(str) {
-	this.setFilterBySearchString(str);
-	this.updHtmlAfterFilterChange();
+	this.mSetFilterBySearchString(str);
+	this.vAfterFilterChange();
 };
 dp2ems.prototype.doSetNoFilter = function() {
-	this.setNoFilter();
-	this.updHtmlAfterFilterChange();
+	this.mSetNoFilter();
+	this.vAfterFilterChange();
 };
 
 dp2ems.prototype.doApplyFilter = function() {
 	var mode = this.getFilterMode();
 	if(mode == 'sel') {
-		this.filterItemsBySelected();
+		this.mFilterItemsBySelected();
 	} else if(mode == 'fchar') {
-		this.filterItemsByFirstChar(this.filterFChar);
+		this.mFilterItemsByFirstChar(this.filterFChar);
 	} else if(mode == 'search') {
-		this.filterItemsBySearchString(this.filterStr);
+		this.mFilterItemsBySearchString(this.filterStr);
 	} else if(mode == '') {
-		this.filterItemsByNone();
+		this.mFilterItemsByNone();
 	}
+	
+	this.doRenderPagesList();
 };
 
-dp2ems.prototype.doApplyFilterAndRender0 = function() {
+dp2ems.prototype.doApplyFilterAndGotoFirstPage = function() {
 	this.doApplyFilter();
-	this.doRenderPage(0);
+	this.doGotoPage(this.getFirstPage());
 };
 
-//selection
+dp2ems.prototype.doGotoSelection = function(animate) {
+	var pageForSel = this.getPageForCurrSel();
+	var resetFilter = (pageForSel == -1 || this.getSearchedCnt() == 0);
+	if(resetFilter) {
+		this.doSetNoFilter();
+		this.doApplyFilter();
+		pageForSel = this.getPageForCurrSel();
+	}
+	this.doGotoPage(pageForSel != -1 ? pageForSel : this.getFirstPage(), animate && !resetFilter);
+};
+
+dp2ems.prototype.doClearAll = function() {
+	this.doUnselectAllItems();
+	this.doSetNoFilter();
+	this.doApplyFilterAndGotoFirstPage();
+	if(!this.isMultiple)
+		this.doClosePopup();
+};
+
+//selection events
 //
 dp2ems.prototype.onSelectItem = function(info, $chkbx) {
-	var ch_stat = this.selectItem(info);
+	var ch_stat = this.mSelectItem(info);
 	if(ch_stat > 0 && !this.isMultiple) {
-		this.updHtmlAfterSingleChanged($chkbx);
+		this.vAfterSingleChanged($chkbx);
 	}
 	if(ch_stat == 2) {
-		this.updHtmlAfterAllSelectedChanged($chkbx);
+		this.vAfterAllSelectedChanged($chkbx);
 	}
 	if(ch_stat > 0) {
 		this.onSelectionChanged();
@@ -1535,26 +2009,27 @@ dp2ems.prototype.onSelectItem = function(info, $chkbx) {
 
 dp2ems.prototype.onSelectionChanged = function() {
 	if(this.getFilterMode() == 'sel') {
-		this.filterItemsBySelected();
+		this.mFilterItemsBySelected();
 		var page = this.currPage;
+		//fix page
 		if(!this.canGoToPage(page)) {
 			if(this.getPages() == 0)
-				page = 0;
-			else if(page > this.getPages())
+				page = -1;
+			else if(this.getPages() > 0 && page > (this.getPages() - 1))
 				page = this.getPages() - 1;
-			else
+			else if(this.getPages() > 0 && page < 0)
 				page = 0;
 		}
-		this.doRenderPage(page);
+		this.doGotoPage(page);
 	}
 	
 	this.valStr = this.selectedItemsToStr(this.selectedItems, this.areAllSelected);
 	this.doRenderValStr();
-	this.syncToSelect(true);
+	this.mSyncToSelect(true);
 	
 	if(this.getFilterMode() == 'search' && this.options.flushSearchStringAfterSelection) {
 		this.doSetFilterBySearchString('');
-		this.doApplyFilterAndRender0();
+		this.doApplyFilterAndGotoFirstPage();
 		this.$divPopup.$search.focus();
 	}
 };
@@ -1563,10 +2038,20 @@ dp2ems.prototype.doUnselectAllItems = function() {
 	var oldAreAllSelected = this.areAllSelected;
 	this.areAllSelected = true;
 	if(oldAreAllSelected != this.areAllSelected) {
-		this.updAreAllSelected();
-		this.updHtmlAfterAllSelectedChanged();
+		this.mUpdSelection();
+		this.vAfterAllSelectedChanged();
 		this.onSelectionChanged();
 	}
+};
+
+//other events
+//
+//things that can be done only when popup is visible
+dp2ems.prototype.onShowPopup = function() {
+	this.vPostRenderPagesList(false);
+};
+
+dp2ems.prototype.onHidePopup = function() {
 };
 
 // ------------------------------------------------
