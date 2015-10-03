@@ -8,7 +8,7 @@ Useful for big list of options.
 <h3>Screenshot:</h3>
 <img src='http://i59.tinypic.com/v7qblx.png'  />
 
-<h3>Using</h3>
+<h3>Using:</h3>
 See demo.html<br>
 Requires: browser with CSS3 support, jQuery, jQuery UI (effects, icons).
 
