@@ -1,13 +1,16 @@
 # dp2ems
 
 <h3>Description:</h3>
-Pretty looking and customizable multi-select control (over standard &lt;select multiple=&quot;multiple&quot;&gt;). Features search and filter by first letter for big list of options.
+Pretty looking and highly customizable multi-select (or single-select) control (over standard &lt;select&gt;).<br>
+Features search and filter by first letter.<br>
+Useful for big list of options.
 
 <h3>Screenshot:</h3>
 <img src='http://i59.tinypic.com/v7qblx.png'  />
 
-<h3>Demo:</h3>
-See demo.html
+<h3>Using</h3>
+See demo.html<br>
+Requires: browser with CSS3 support, jQuery, jQuery UI (effects, icons).
 
 <h3>Changelog:</h3>
 <ul>
