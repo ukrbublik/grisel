@@ -17,7 +17,7 @@
 
 /**
  * TODO:
- * [d] docs, gif presentation, examples
+ * [d] docs
  * [+] choose optional position of popup according to potiotion of select on window
  * [+] disable controls (ctrlGotoSelection, ctrlShowSelection, ctrlClearAll) if need to
  *
