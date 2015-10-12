@@ -17,7 +17,9 @@
 
 /**
  * TODO:
+ * [d] docs, gif presentation, examples
  * [+] choose optional position of popup according to potiotion of select on window
+ * [+] disable controls (ctrlGotoSelection, ctrlShowSelection, ctrlClearAll) if need to
  *
  * Maybe later:
  * [b] sometimes at first run (clear cache, try different broser etc.) - bad width (equals to width of window) - why???
