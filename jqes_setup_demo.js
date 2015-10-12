@@ -1,5 +1,5 @@
 
-dp2ems.defaultOptions = jQuery.extend(dp2ems.defaultOptions, {
+jqes.defaultOptions = jQuery.extend(jqes.defaultOptions, {
 	'divSelWidth': 300,
 	'divSelHeight': 30,
 	'divPopupWidth': 0,
@@ -8,7 +8,7 @@ dp2ems.defaultOptions = jQuery.extend(dp2ems.defaultOptions, {
 	'reserveForPopupHeight': 50,
 });
 
-dp2ems.optionsBySelId = {
+jqes.optionsBySelId = {
 	's_street': {
 	},
 	's_street2': {
@@ -28,12 +28,12 @@ dp2ems.optionsBySelId = {
 };
 
 
-dp2ems.defaultLang = 'ru';
+jqes.defaultLang = 'ru';
 
-dp2ems.defaultStrings = jQuery.extend(dp2ems.defaultStrings, {
+jqes.defaultStrings = jQuery.extend(jqes.defaultStrings, {
 });
 
-dp2ems.stringsBySelId = {
+jqes.stringsBySelId = {
 	's_street': {
 		'ru': {
 			'cntNames': ['улица', 'улицы', 'улиц'],

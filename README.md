@@ -1,4 +1,4 @@
-# dp2ems
+# jqes
 
 <h3>Description:</h3>
 Pretty looking and highly customizable multi-select (or single-select) control (over standard &lt;select&gt;).<br>
@@ -30,13 +30,13 @@ See demo.html
 <li><b>2015-10-01 - v2.0</b><br>
 <ul>
 <li>Now you can open popup on click on selector and close by close btn.</li>
-<li>Now dp2ems is focusable, you can use Tab key to focus on selector, Enter
+<li>Now jqes is focusable, you can use Tab key to focus on selector, Enter
 to open, Esc to close. Popup will autoclose when looses focus.</li>
 <li>Added single selection option (zero selection is allowed).</li>
 <li>Modified CSS. Now fully flexible popup.</li>
 <li>Added animations of open/close popup.</li>
 <li>Added many-many options to customize.</li>
-<li>Modified demo to present different features of dp2ems.</li>
+<li>Modified demo to present different features of jqes.</li>
 </ul>
 </li>
 <li><b>2015-10-03 - v2.1</b><br>
@@ -55,5 +55,9 @@ to open, Esc to close. Popup will autoclose when looses focus.</li>
 <li>Added many options to customize look. Most important are tryToKeepConstPopupHeight and reserveForPopupHeight.</li>
 <li>Proper display of pages with "deficit" of rows.</li>
 <li>Options can be set with 'data-*' attributes of &lt;select&gt;.</li>
+</ul>
+<li><b>2015-10-12 - v2.2.1</b><br>
+<ul>
+<li>Changed name to jqes.</li>
 </ul>
 </ul>

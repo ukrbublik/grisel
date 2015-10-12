@@ -43,8 +43,10 @@ Temporary Items
 .apdisk
 
 #
-# dp2ems
+# jqes
 #
 demo_domplus.html
 dp2ems_setup_domplus.js
 dp2ems_domplus.css
+jqes_setup_domplus.js
+jqes_domplus.css

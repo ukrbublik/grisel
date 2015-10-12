@@ -1,5 +1,5 @@
 /**
- * dp2ems
+ * jqes
  * 
  * Pretty looking and highly customizable multi-select (or single-select) control (over standard <select>). 
  * Features search and filter by first letter.
@@ -7,8 +7,8 @@
  *
  * Requires: browser with CSS3 support, jQuery, jQuery UI (effects, icons)
  *
- * @version 2.2
- * @homepage https://github.com/ukrbublik/dp2ems
+ * @version 2.2.1
+ * @homepage https://github.com/ukrbublik/jqes
  * @author ukrbublik
  * @license MIT
  *
@@ -27,9 +27,9 @@
  */
 
 //
-// Class dp2ems
+// Class jqes
 //
-function dp2ems(s, options, strings, lang) {
+function jqes(s, options, strings, lang) {
 	/**
 	 * Vars
 	 */
@@ -83,22 +83,22 @@ function dp2ems(s, options, strings, lang) {
 		if(this.$sel.attr('class'))
 			selClasses = this.$sel.attr('class').split(' ');
 		
-		if(!dp2ems.canInit(this.$sel)) {
+		if(!jqes.canInit(this.$sel)) {
 			this.isBadInst = true;
 			return null;
 		}
-		if(dp2ems.isInited(this.$sel))
-			return dp2ems.getInstance(this.selId);
+		if(jqes.isInited(this.$sel))
+			return jqes.getInstance(this.selId);
 		
 		//Build options
-		this.options = jQuery.extend({}, dp2ems.defaultOptions);
+		this.options = jQuery.extend({}, jqes.defaultOptions);
 		for(var i = 0 ; i < selClasses.length ; i++) {
-			if(typeof dp2ems.optionsBySelClass[selClasses[i]] != 'undefined')
-				this.options = jQuery.extend(this.options, dp2ems.optionsBySelClass[selClasses[i]]);
+			if(typeof jqes.optionsBySelClass[selClasses[i]] != 'undefined')
+				this.options = jQuery.extend(this.options, jqes.optionsBySelClass[selClasses[i]]);
 		}
-		if(typeof dp2ems.optionsBySelId[this.selId] != 'undefined')
-			this.options = jQuery.extend(this.options, dp2ems.optionsBySelId[this.selId]);
-		var optionsKeys = Object.keys(dp2ems.defaultOptions);
+		if(typeof jqes.optionsBySelId[this.selId] != 'undefined')
+			this.options = jQuery.extend(this.options, jqes.optionsBySelId[this.selId]);
+		var optionsKeys = Object.keys(jqes.defaultOptions);
 		for(var i = 0 ; i < optionsKeys.length ; i++) {
 			var k = optionsKeys[i], v = this.$sel.data(k);
 			if(v !== undefined)
@@ -108,23 +108,23 @@ function dp2ems(s, options, strings, lang) {
 			this.options = jQuery.extend(this.options, _options);
 		
 		//Lang
-		this.lang = _lang ? _lang : dp2ems.defaultLang;
+		this.lang = _lang ? _lang : jqes.defaultLang;
 		
 		//Build strings
-		this.strings = jQuery.extend({}, dp2ems.defaultStrings[this.lang]);
+		this.strings = jQuery.extend({}, jqes.defaultStrings[this.lang]);
 		for(var i = 0 ; i < selClasses.length ; i++) {
-			if(typeof dp2ems.stringsBySelClass[selClasses[i]] != 'undefined' && typeof dp2ems.stringsBySelClass[selClasses[i]][this.lang] != 'undefined')
-				this.strings = jQuery.extend(this.strings, dp2ems.stringsBySelClass[selClasses[i]][this.lang]);
+			if(typeof jqes.stringsBySelClass[selClasses[i]] != 'undefined' && typeof jqes.stringsBySelClass[selClasses[i]][this.lang] != 'undefined')
+				this.strings = jQuery.extend(this.strings, jqes.stringsBySelClass[selClasses[i]][this.lang]);
 		}
-		if(typeof dp2ems.stringsBySelId[this.selId] != 'undefined' && typeof dp2ems.stringsBySelId[this.selId][this.lang] != 'undefined')
-			this.strings = jQuery.extend(this.strings, dp2ems.stringsBySelId[this.selId][this.lang]);
+		if(typeof jqes.stringsBySelId[this.selId] != 'undefined' && typeof jqes.stringsBySelId[this.selId][this.lang] != 'undefined')
+			this.strings = jQuery.extend(this.strings, jqes.stringsBySelId[this.selId][this.lang]);
 		if(_strings)
 			this.strings = jQuery.extend(this.strings, _strings);
 		
 		//Init
 		this.doInitOnce();
 		
-		dp2ems._instances[this.selId] = this;
+		jqes._instances[this.selId] = this;
 		
 		return this;
 	};
@@ -134,9 +134,9 @@ function dp2ems(s, options, strings, lang) {
 
 // ------------------------------------------------ Strings
 
-dp2ems.defaultLang = 'ru';
+jqes.defaultLang = 'ru';
 
-dp2ems.defaultStrings = {
+jqes.defaultStrings = {
 	'ru': {
 		'indexAll': 'Все',
 		'ctrlSaveSelection': 'Сохранить',
@@ -172,14 +172,14 @@ dp2ems.defaultStrings = {
 		'maxSelectionMsg': 'You reached max number of selected elements.<br>Please save your selection',
 	}
 };
-dp2ems.stringsBySelClass = {
+jqes.stringsBySelClass = {
 };
-dp2ems.stringsBySelId = {
+jqes.stringsBySelId = {
 };
 
 // ------------------------------------------------ Options
 
-dp2ems.defaultOptions = {
+jqes.defaultOptions = {
 	'gridRows': 5,
 	'gridColumns': 3,
 	'minPagesForExt': 3,
@@ -248,23 +248,23 @@ dp2ems.defaultOptions = {
 	//only for showSelectedItemsBeforeSearched==1
 	'maxSelectionLimit': 3*5,
 };
-dp2ems.optionsBySelClass = {
+jqes.optionsBySelClass = {
 };
-dp2ems.optionsBySelId = {
+jqes.optionsBySelId = {
 };
 
 // ------------------------------------------------ Static stuff
 
-dp2ems._instances = {};
+jqes._instances = {};
 
-dp2ems.getInstance = function(selId) {
-	var inst = dp2ems._instances[selId];
+jqes.getInstance = function(selId) {
+	var inst = jqes._instances[selId];
 	if(inst === undefined)
 		inst = null;
 	return inst;
 };
 
-dp2ems.fCharToGroup = function(fChar) {
+jqes.fCharToGroup = function(fChar) {
 	var gr = fChar;
 	var chLC = fChar.toLowerCase();
 	if(fChar >= '0' && fChar <= '9')
@@ -274,7 +274,7 @@ dp2ems.fCharToGroup = function(fChar) {
 	return gr;
 };
 
-dp2ems.isFCharInGroup = function(fChar, gr) {
+jqes.isFCharInGroup = function(fChar, gr) {
 	var chLC = fChar.toLowerCase();
 	if(gr == '0-9')
 		return (fChar >= '0' && fChar <= '9');
@@ -285,23 +285,23 @@ dp2ems.isFCharInGroup = function(fChar, gr) {
 };
 
 //helpers
-dp2ems.getFullWidth = function($el, width_margin) {
-	return parseFloat($el.width()) + dp2ems.getWidthOverhead($el, width_margin);
+jqes.getFullWidth = function($el, width_margin) {
+	return parseFloat($el.width()) + jqes.getWidthOverhead($el, width_margin);
 };
-dp2ems.getFullHeight = function($el, width_margin) {
-	return parseFloat($el.height()) + dp2ems.getHeightOverhead($el, width_margin);
+jqes.getFullHeight = function($el, width_margin) {
+	return parseFloat($el.height()) + jqes.getHeightOverhead($el, width_margin);
 };
-dp2ems.getWidthOverhead = function($el, width_margin) {
+jqes.getWidthOverhead = function($el, width_margin) {
 	if(width_margin === undefined)
 		width_margin = false;
 	return parseFloat($el.css('padding-left')) + parseFloat($el.css('padding-right')) + parseFloat($el.css('border-left-width')) + parseFloat($el.css('border-right-width')) + (width_margin ? parseFloat($el.css('margin-left')) + parseFloat($el.css('margin-right')) : 0);
 };
-dp2ems.getHeightOverhead = function($el, width_margin) {
+jqes.getHeightOverhead = function($el, width_margin) {
 	if(width_margin === undefined)
 		width_margin = false;
 	return parseFloat($el.css('padding-top')) + parseFloat($el.css('padding-bottom')) + parseFloat($el.css('border-top-width')) + parseFloat($el.css('border-bottom-width')) + (width_margin ? parseFloat($el.css('margin-top')) + parseFloat($el.css('margin-bottom')) : 0);
 };
-dp2ems.getFloatWidth = function($el) {
+jqes.getFloatWidth = function($el) {
 	var rect = $el[0].getBoundingClientRect();
 	var width;
 	if (rect.width) { //IE9+
@@ -311,7 +311,7 @@ dp2ems.getFloatWidth = function($el) {
 	}
 	return width;
 };
-dp2ems.getFloatHeight = function($el) {
+jqes.getFloatHeight = function($el) {
 	var rect = $el[0].getBoundingClientRect();
 	var height;
 	if (rect.height) { //IE9+
@@ -322,7 +322,7 @@ dp2ems.getFloatHeight = function($el) {
 	return height;
 };
 
-dp2ems.localizeCntName = function(cnt, cnt_names) {
+jqes.localizeCntName = function(cnt, cnt_names) {
 	var i;
 	if(cnt > 10 && cnt < 20)
 		i = 2;
@@ -340,12 +340,12 @@ dp2ems.localizeCntName = function(cnt, cnt_names) {
 /**
  * Build human string representing current selection
  */
-dp2ems.prototype.selectedItemsToStr = function(arr, areAll) {
+jqes.prototype.selectedItemsToStr = function(arr, areAll) {
 	var val = '';
 	if(this.isMultiple && arr.length == 0 || areAll)
 		val = (this.strings.allStr != '' ? this.strings.allStr : (this.anyStr != '' ? this.anyStr : this.strings.allStrDefault[this.isMultiple ? 0 : 1]));
 	else if(this.isMultiple && this.options.maxCntToShowListAsValStr >= 0 && arr.length > this.options.maxCntToShowListAsValStr)
-		val = this.strings.cntFmt.replace('{cnt}', arr.length).replace('{cnt_name}', dp2ems.localizeCntName(arr.length, this.strings.cntNames));
+		val = this.strings.cntFmt.replace('{cnt}', arr.length).replace('{cnt_name}', jqes.localizeCntName(arr.length, this.strings.cntNames));
 	else if(arr.length)
 		val = arr.join(', ');
 	else if(!this.isMultiple && arr.length == 0)
@@ -356,7 +356,7 @@ dp2ems.prototype.selectedItemsToStr = function(arr, areAll) {
 /**
  * Load model from original <select>
  */
-dp2ems.prototype.getOptsFromSelect = function(initial /* = false*/) {
+jqes.prototype.getOptsFromSelect = function(initial /* = false*/) {
 	var opts = [];
 	var $optns = this.$sel.find("option");
 	var self = this;
@@ -396,7 +396,7 @@ dp2ems.prototype.getOptsFromSelect = function(initial /* = false*/) {
 /**
  * Sync model from original <select>
  */
-dp2ems.prototype.mSyncFromSelect = function(initial /* = false*/) {
+jqes.prototype.mSyncFromSelect = function(initial /* = false*/) {
 	this.$sel.data('syncing_from', 1);
 	
 	//sync items
@@ -424,7 +424,7 @@ dp2ems.prototype.mSyncFromSelect = function(initial /* = false*/) {
 		}
 		if(!opt[2] && opt[0].length) {
 			var fChar = opt[0][0];
-			var gr = dp2ems.fCharToGroup(fChar);
+			var gr = jqes.fCharToGroup(fChar);
 			if(typeof this.firstChars[gr] == 'undefined')
 				this.firstChars[gr] = 1;
 			else
@@ -440,7 +440,7 @@ dp2ems.prototype.mSyncFromSelect = function(initial /* = false*/) {
 	this.$sel.data('syncing_from', 0);
 };
 
-dp2ems.prototype._allowZeroSelection = function() {
+jqes.prototype._allowZeroSelection = function() {
 	if(!this.isMultiple && this.anyOpt === false && this.areAllSelected) {
 		this.$sel.val('');
 	}
@@ -451,7 +451,7 @@ dp2ems.prototype._allowZeroSelection = function() {
  *
  * lite == 1 - only check "selected" flags, lite == 0 - check all options and its order
  */
-dp2ems.prototype.mSyncToSelect = function(lite) {
+jqes.prototype.mSyncToSelect = function(lite) {
 	this.$sel.data('syncing_to', 1);
 	
 	//tmp (will be reversed)
@@ -583,7 +583,7 @@ dp2ems.prototype.mSyncToSelect = function(lite) {
 
 // ------------------------------------------------ Model - filtering
 
-dp2ems.prototype.mFilterItemsBySearchString = function(str) {
+jqes.prototype.mFilterItemsBySearchString = function(str) {
 	if(str == '') {
 		this.visibleItemsInds = false;
 		this.visibleItems = false;
@@ -623,7 +623,7 @@ dp2ems.prototype.mFilterItemsBySearchString = function(str) {
 	}
 };
 
-dp2ems.prototype.mFilterItemsByFirstChar = function(gr) {
+jqes.prototype.mFilterItemsByFirstChar = function(gr) {
 	if(gr == '') {
 		this.visibleItemsInds = false;
 		this.visibleItems = false;
@@ -638,7 +638,7 @@ dp2ems.prototype.mFilterItemsByFirstChar = function(gr) {
 			var it = this.items[i];
 			if(it.length > 0) {
 				var fChar = it[0];
-				if(dp2ems.isFCharInGroup(fChar, gr) && this.anyItemInd != i) {
+				if(jqes.isFCharInGroup(fChar, gr) && this.anyItemInd != i) {
 					this.visibleItemsInds.push(i);
 					this.visibleItems.push(it);
 				}
@@ -647,7 +647,7 @@ dp2ems.prototype.mFilterItemsByFirstChar = function(gr) {
 	}
 };
 
-dp2ems.prototype.mFilterItemsBySelected = function() {
+jqes.prototype.mFilterItemsBySelected = function() {
 	//copy selectedItems to visibleItems
 	this.visibleItemsInds = [];
 	this.visibleItems = [];
@@ -665,33 +665,33 @@ dp2ems.prototype.mFilterItemsBySelected = function() {
 	this.selectedAndFilteredItemsInds = false;
 };
 
-dp2ems.prototype.mFilterItemsByNone = function() {
+jqes.prototype.mFilterItemsByNone = function() {
 	this.visibleItemsInds = false;
 	this.visibleItems = false;
 	this.selectedAndFilteredItems = false;
 	this.selectedAndFilteredItemsInds = false;
 };
-dp2ems.prototype.mSetFilterByFirstChar = function(gr) {
+jqes.prototype.mSetFilterByFirstChar = function(gr) {
 	this.filterFChar = gr;
 	this.filterStr = '';
 	this.fitlerBySel = false;
 };
-dp2ems.prototype.mSetFilterBySelected = function(sel) {
+jqes.prototype.mSetFilterBySelected = function(sel) {
 	this.filterFChar = '';
 	this.filterStr = '';
 	this.fitlerBySel = sel;
 };
-dp2ems.prototype.mSetFilterBySearchString = function(str) {
+jqes.prototype.mSetFilterBySearchString = function(str) {
 	this.filterFChar = '';
 	this.filterStr = str;
 	this.fitlerBySel = false;
 };
-dp2ems.prototype.mSetNoFilter = function() {
+jqes.prototype.mSetNoFilter = function() {
 	this.filterFChar = '';
 	this.filterStr = '';
 	this.fitlerBySel = false;
 };
-dp2ems.prototype.getFilterMode = function() {
+jqes.prototype.getFilterMode = function() {
 	var mode = '';
 	if(this.fitlerBySel) {
 		mode = 'sel';
@@ -704,11 +704,11 @@ dp2ems.prototype.getFilterMode = function() {
 	}
 	return mode;
 };
-dp2ems.prototype.isNoFilter = function() {
+jqes.prototype.isNoFilter = function() {
 	return this.getFilterMode() == '';
 };
 
-dp2ems.prototype.mSortSelectedItems = function() {
+jqes.prototype.mSortSelectedItems = function() {
 	this.selectedItems.sort();
 	var self = this;
 	this.selectedItemsInds.sort(function(ind1, ind2) {
@@ -720,7 +720,7 @@ dp2ems.prototype.mSortSelectedItems = function() {
 
 // ------------------------------------------------ Model - changings
 
-dp2ems.prototype.mSelectItem = function(info) {
+jqes.prototype.mSelectItem = function(info) {
 	var ind = info.ind, text = info.text, isSel = info.isSel;
 	var changed = false;
 	var oldAreAllSelected = this.areAllSelected;
@@ -768,7 +768,7 @@ dp2ems.prototype.mSelectItem = function(info) {
 	return ch_stat;
 };
 
-dp2ems.prototype.mUpdSelection = function() {
+jqes.prototype.mUpdSelection = function() {
 	//flag - are all options selected (not by a-n-y option)?
 	var tmp = true;
 	//flag - is any option selected?
@@ -798,46 +798,46 @@ dp2ems.prototype.mUpdSelection = function() {
 
 // ------------------------------------------------ Model - getting slices of items list
 
-dp2ems.prototype.getVisibleItems = function() {
+jqes.prototype.getVisibleItems = function() {
 	return this.visibleItems !== false ?  this.visibleItems : this.items;
 };
-dp2ems.prototype.getVisibleOpt = function(i) {
+jqes.prototype.getVisibleOpt = function(i) {
 	return this.visibleItemsInds !== false ?  this.opts[ this.visibleItemsInds[i] ] : this.opts[i];
 };
-dp2ems.prototype.getVisibleOptInd = function(i) {
+jqes.prototype.getVisibleOptInd = function(i) {
 	return this.visibleItemsInds !== false ?  this.visibleItemsInds[i] : i;
 };
 
-dp2ems.prototype.getPages = function() {
+jqes.prototype.getPages = function() {
 	return Math.ceil( 1.0 * this.getVisibleItems().length / (this.options.gridRows * this.options.gridColumns) );
 };
 
-dp2ems.prototype.getTotalPages = function() {
+jqes.prototype.getTotalPages = function() {
 	return Math.ceil( 1.0 * this.items.length / (this.options.gridRows * this.options.gridColumns) );
 };
 
-dp2ems.prototype.getItemsCountWoAll = function() {
+jqes.prototype.getItemsCountWoAll = function() {
 	return this.items.length - (this.anyItemInd != -1 ? 1 : 0);
 };
 
-dp2ems.prototype.canGoToPage = function(page) {
+jqes.prototype.canGoToPage = function(page) {
 	return (page == -1 && this.getPages() == 0 || page >= 0 && page < this.getPages()) && !(this.$divPopup.data('changing-page') && this.$divPopup.data('changing-page-from') == page);
 };
 
-dp2ems.prototype.getMaxUsedGridRows = function() {
+jqes.prototype.getMaxUsedGridRows = function() {
 	return Math.min( this.options.gridRows, !this.options.gridDirectionHorizontal ? this.items.length : Math.ceil(1.0 * this.items.length / this.options.gridColumns) );
 };
-dp2ems.prototype.getMaxUsedGridColumns = function() {
+jqes.prototype.getMaxUsedGridColumns = function() {
 	return Math.min( this.options.gridColumns, this.options.gridDirectionHorizontal ? this.items.length : Math.ceil(1.0 * this.items.length / this.options.gridRows) );
 };
-dp2ems.prototype.getUsedGridRowsForPage = function(page) {
+jqes.prototype.getUsedGridRowsForPage = function(page) {
 	return Math.min( this.options.gridRows, !this.options.gridDirectionHorizontal ? this.getVisibleItemsCntForPage(page) : Math.ceil(1.0 * this.getVisibleItemsCntForPage(page) / this.options.gridColumns) );
 };
-dp2ems.prototype.getUsedGridColumnsForPage = function(page) {
+jqes.prototype.getUsedGridColumnsForPage = function(page) {
 	return Math.min( this.options.gridColumns, this.options.gridDirectionHorizontal ? this.getVisibleItemsCntForPage(page) : Math.ceil(1.0 * this.getVisibleItemsCntForPage(page) / this.options.gridRows) );
 };
 
-dp2ems.prototype.getItemsRangeForPage = function(page) {
+jqes.prototype.getItemsRangeForPage = function(page) {
 	var rng = false;
 	if(this.canGoToPage(page) && page >= 0) {
 		var len = (this.options.gridRows * this.options.gridColumns);
@@ -848,7 +848,7 @@ dp2ems.prototype.getItemsRangeForPage = function(page) {
 	}
 	return rng;
 };
-dp2ems.prototype.getVisibleItemsCntForPage = function(page) {
+jqes.prototype.getVisibleItemsCntForPage = function(page) {
 	if(page === undefined)
 		page = this.currPage;
 	var rng = this.getItemsRangeForPage(page);
@@ -858,11 +858,11 @@ dp2ems.prototype.getVisibleItemsCntForPage = function(page) {
 	return cnt;
 };
 
-dp2ems.prototype.getSearchedCnt = function() {
+jqes.prototype.getSearchedCnt = function() {
 	return this.getFilterMode() == 'search' ? this.getVisibleItems().length - this.selectedItems.length + this.selectedAndFilteredItems.length : -1;
 };
 
-dp2ems.prototype.getPageForInd = function(ind) {
+jqes.prototype.getPageForInd = function(ind) {
 	var page = -1;
 	var pos = this.visibleItemsInds !== false ?  this.visibleItemsInds.indexOf(ind) : ind;
 	if(pos != -1 && this.getSearchedCnt() == 0 && !this.options.showSelectedItemsWhenNoFound)
@@ -872,7 +872,7 @@ dp2ems.prototype.getPageForInd = function(ind) {
 	return page;
 };
 
-dp2ems.prototype.getPageForCurrSel = function() {
+jqes.prototype.getPageForCurrSel = function() {
 	var page = -1;
 	for(var i = 0 ; i < this.selectedItemsInds.length ; i++) {
 		var ind = this.selectedItemsInds[i];
@@ -883,41 +883,41 @@ dp2ems.prototype.getPageForCurrSel = function() {
 	return page;
 };
 
-dp2ems.prototype.getFirstPage = function() {
+jqes.prototype.getFirstPage = function() {
 	return this.getPages() > 0 ? 0 : -1;
 };
 
 // ------------------------------------------------ View
 
-dp2ems.prototype.isExtView = function() {
+jqes.prototype.isExtView = function() {
 	return this.getTotalPages() >= this.options.minPagesForExt;
 };
-dp2ems.prototype.isFullExtView = function() {
+jqes.prototype.isFullExtView = function() {
 	return this.options.isExt == 1 || this.options.isExt == -1 && this.isExtView();
 };
-dp2ems.prototype.isCompactExtView = function() {
+jqes.prototype.isCompactExtView = function() {
 	return this.options.isExt == 0 || this.options.isExt == -1 && !this.isExtView();
 };
 
-dp2ems.canInit = function($sel) {
+jqes.canInit = function($sel) {
 	var selId = $sel.attr('id');
 	var ok = (selId && jQuery('#'+selId).length == 1 && $sel.is('select'));
 	return ok;
 };
-dp2ems.isInited = function($sel) {
+jqes.isInited = function($sel) {
 	var $divSel = $sel.next();
 	var $divEms = $sel.next().next();
-	var is = $sel.is(':hidden') && $divSel.is('.dp2ems-select') && $divEms.is('.dp2ems-popup');
+	var is = $sel.is(':hidden') && $divSel.is('.jqes-select') && $divEms.is('.jqes-popup');
 	return is;
 };
 
 //open, close
 //
-dp2ems.prototype.isPopupOpened = function() {
+jqes.prototype.isPopupOpened = function() {
 	return !this.$divPopup.hasClass('hidden');
 };
 
-dp2ems.prototype.vOpenPopup = function(animate) {
+jqes.prototype.vOpenPopup = function(animate) {
 	var canOpen = !this.isPopupOpened() && !this.$divPopup.data('opening') && !this.$divPopup.data('closing');
 	//"queue" open task
 	if(this.$divPopup.data('closing'))
@@ -926,7 +926,7 @@ dp2ems.prototype.vOpenPopup = function(animate) {
 		return;
 	var self = this;
 	
-	var minw = Math.max(parseFloat(this.$divPopup.css('min-width')), dp2ems.getFullWidth(this.$divSel));
+	var minw = Math.max(parseFloat(this.$divPopup.css('min-width')), jqes.getFullWidth(this.$divSel));
 	this.$divPopup.css('min-width', minw);
 	this.$divPopup.removeClass('hidden');
 	var isFullRows = this.getUsedGridRowsForPage(this.currPage) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
@@ -941,28 +941,28 @@ dp2ems.prototype.vOpenPopup = function(animate) {
 	this.$divPopup.focus();
 	var aniTo = {
 		'min-width': minw,
-		width: dp2ems.getFullWidth(this.$divPopup), 
-		height: dp2ems.getFullHeight(this.$divPopup),
+		width: jqes.getFullWidth(this.$divPopup), 
+		height: jqes.getFullHeight(this.$divPopup),
 		opacity: this.$divPopup.css('opacity'),
 	};
 	var cssRestore = {
-		width: (this.options.divPopupWidth > 0 ? this.options.divPopupWidth : (this.options.divPopupWidth == -1 ? dp2ems.getFullWidth(this.$divSel) : '')),
+		width: (this.options.divPopupWidth > 0 ? this.options.divPopupWidth : (this.options.divPopupWidth == -1 ? jqes.getFullWidth(this.$divSel) : '')),
 		height: (this.options.divPopupHeight ? this.options.divPopupHeight : ''),
 		opacity: this.$divPopup.css('opacity'),
 	};
 	var aniFrom = {
 		'min-width': '',
-		width: dp2ems.getFullWidth(this.$divSel),
-		height: dp2ems.getFullHeight(this.$divSel),
+		width: jqes.getFullWidth(this.$divSel),
+		height: jqes.getFullHeight(this.$divSel),
 		opacity: 0,
 	};
 	if(this.options.isElasticPopupAnimation[0]) {
 		aniTo.left = this.$divPopup.css('left');
 		aniTo.top = this.$divPopup.css('top');
-		aniFrom.left = Math.min(dp2ems.getFullWidth(this.$divSel), dp2ems.getFullWidth(this.$divPopup) / 2);
-		aniFrom.top = dp2ems.getFullHeight(this.$divSel);
-		aniFrom.width = Math.max(1, dp2ems.getFullWidth(this.$divSel) - aniFrom.left);
-		aniFrom.height = Math.max(1, dp2ems.getFullHeight(this.$divSel) - aniFrom.top);
+		aniFrom.left = Math.min(jqes.getFullWidth(this.$divSel), jqes.getFullWidth(this.$divPopup) / 2);
+		aniFrom.top = jqes.getFullHeight(this.$divSel);
+		aniFrom.width = Math.max(1, jqes.getFullWidth(this.$divSel) - aniFrom.left);
+		aniFrom.height = Math.max(1, jqes.getFullHeight(this.$divSel) - aniFrom.top);
 	}
 	
 	var doAnimate = this.options.animatePopupDuration[0] > 0 && (animate === undefined || animate == true);
@@ -996,7 +996,7 @@ dp2ems.prototype.vOpenPopup = function(animate) {
 	}
 };
 
-dp2ems.prototype.vClosePopup = function(animate) {
+jqes.prototype.vClosePopup = function(animate) {
 	var canClose = this.isPopupOpened() && !this.$divPopup.data('opening') && !this.$divPopup.data('closing');
 	//"queue" close task
 	if(this.$divPopup.data('opening'))
@@ -1007,29 +1007,29 @@ dp2ems.prototype.vClosePopup = function(animate) {
 	
 	var minw = parseFloat(this.$divPopup.css('min-width'));
 	var aniTo = {
-		width: dp2ems.getFullWidth(this.$divSel),
-		height: dp2ems.getFullHeight(this.$divSel),
+		width: jqes.getFullWidth(this.$divSel),
+		height: jqes.getFullHeight(this.$divSel),
 		opacity: 0,
 	};
 	var cssRestore = {
 		'min-width': minw,
-		width: (this.options.divPopupWidth > 0 ? this.options.divPopupWidth : (this.options.divPopupWidth == -1 ? dp2ems.getFullWidth(this.$divSel) : '')),
+		width: (this.options.divPopupWidth > 0 ? this.options.divPopupWidth : (this.options.divPopupWidth == -1 ? jqes.getFullWidth(this.$divSel) : '')),
 		height: (this.options.divPopupHeight ? this.options.divPopupHeight : ''),
 		opacity: this.$divPopup.css('opacity'),
 	};
 	var aniFrom = {
 		'min-width': '',
-		width: dp2ems.getFullWidth(this.$divPopup), 
-		height: dp2ems.getFullHeight(this.$divPopup),
+		width: jqes.getFullWidth(this.$divPopup), 
+		height: jqes.getFullHeight(this.$divPopup),
 		opacity: this.$divPopup.css('opacity'),
 	};
 	if(this.options.isElasticPopupAnimation[1]) {
 		aniFrom.left = this.$divPopup.css('left');
 		aniFrom.top = this.$divPopup.css('top');
-		aniTo.left = Math.min(dp2ems.getFullWidth(this.$divSel), dp2ems.getFullWidth(this.$divPopup) / 2);
-		aniTo.top = dp2ems.getFullHeight(this.$divSel);
-		aniTo.width = Math.max(1, dp2ems.getFullWidth(this.$divSel) - aniTo.left);
-		aniTo.height = Math.max(1, dp2ems.getFullHeight(this.$divSel) - aniTo.top);
+		aniTo.left = Math.min(jqes.getFullWidth(this.$divSel), jqes.getFullWidth(this.$divPopup) / 2);
+		aniTo.top = jqes.getFullHeight(this.$divSel);
+		aniTo.width = Math.max(1, jqes.getFullWidth(this.$divSel) - aniTo.left);
+		aniTo.height = Math.max(1, jqes.getFullHeight(this.$divSel) - aniTo.top);
 	}
 	
 	var doAnimate = this.options.animatePopupDuration[1] > 0 && (animate === undefined || animate == true)
@@ -1064,14 +1064,14 @@ dp2ems.prototype.vClosePopup = function(animate) {
 	}
 };
 
-dp2ems.prototype._vTempFixesBeforeAnimationOpCl = function() {
+jqes.prototype._vTempFixesBeforeAnimationOpCl = function() {
 	var self = this;
-	var bodyHeight = dp2ems.getFullHeight(this.$divPopup.$body, true);
-	var bodyWrapperHeight = dp2ems.getFullHeight(this.$divPopup.$bodyWrapper, true);
+	var bodyHeight = jqes.getFullHeight(this.$divPopup.$body, true);
+	var bodyWrapperHeight = jqes.getFullHeight(this.$divPopup.$bodyWrapper, true);
 	var tmp = [];
 	this.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
 		var $el = jQuery(el);
-		var w = dp2ems.getFloatWidth($el), h = dp2ems.getFloatHeight($el);
+		var w = jqes.getFloatWidth($el), h = jqes.getFloatHeight($el);
 		tmp.push([ $el, w, h ]);
 	});
 	for(var i = 0 ; i < tmp.length ; i++) {
@@ -1082,7 +1082,7 @@ dp2ems.prototype._vTempFixesBeforeAnimationOpCl = function() {
 			'min-height': tmp[i][2],
 		});
 	}
-	var isConcrete = this.$divPopup.hasClass('dp2ems-concrete-height');
+	var isConcrete = this.$divPopup.hasClass('jqes-concrete-height');
 	this.$divPopup.data('_isConcrete', isConcrete);
 	if(this.$divPopup.$bodyWrapper.css('min-height'))
 		this.$divPopup.$bodyWrapper.data('_min-height', this.$divPopup.$bodyWrapper.css('min-height')).css('min-height', '');
@@ -1090,18 +1090,18 @@ dp2ems.prototype._vTempFixesBeforeAnimationOpCl = function() {
 		this.$divPopup.$bodyWrapper.data('_min-width', this.$divPopup.$bodyWrapper.css('min-width')).css('min-width', '');
 	if(this.$divPopup.$bodyWrapper.css('max-width'))
 		this.$divPopup.$bodyWrapper.data('_max-width', this.$divPopup.$bodyWrapper.css('max-width')).css('max-width', '');
-	this.$divPopup.$bodyWrapper.addClass('dp2ems-body-wrapper-flex');
+	this.$divPopup.$bodyWrapper.addClass('jqes-body-wrapper-flex');
 	this.$divPopup.$body.css('flex-grow', bodyHeight);
 	this.$divPopup.$bodyAniHelper.css('flex-grow', bodyWrapperHeight - bodyHeight);
 	if(!isConcrete)
-		this.$divPopup.addClass('dp2ems-concrete-height');
+		this.$divPopup.addClass('jqes-concrete-height');
 };
 
-dp2ems.prototype._vRevertTempFixesAfterAnimationOpCl = function() {
+jqes.prototype._vRevertTempFixesAfterAnimationOpCl = function() {
 	var self = this;
 	var isConcrete = this.$divPopup.data('_isConcrete');
 	if(!isConcrete)
-		this.$divPopup.removeClass('dp2ems-concrete-height');
+		this.$divPopup.removeClass('jqes-concrete-height');
 	if(this.$divPopup.$bodyWrapper.data('_min-height'))
 		this.$divPopup.$bodyWrapper.css('min-height', this.$divPopup.$bodyWrapper.data('_min-height')).data('_min-height', '');
 	if(this.$divPopup.$bodyWrapper.data('_min-width'))
@@ -1117,24 +1117,24 @@ dp2ems.prototype._vRevertTempFixesAfterAnimationOpCl = function() {
 			'min-height': '',
 		});
 	});
-	this.$divPopup.$bodyWrapper.removeClass('dp2ems-body-wrapper-flex');
+	this.$divPopup.$bodyWrapper.removeClass('jqes-body-wrapper-flex');
 }
 
-dp2ems.prototype._vBodyFlexOn = function() {
-	var bodyHeight = dp2ems.getFullHeight(this.$divPopup.$body, true);
-	var bodyWrapperHeight = dp2ems.getFullHeight(this.$divPopup.$bodyWrapper, true);
-	this.$divPopup.$bodyWrapper.addClass('dp2ems-body-wrapper-flex');
+jqes.prototype._vBodyFlexOn = function() {
+	var bodyHeight = jqes.getFullHeight(this.$divPopup.$body, true);
+	var bodyWrapperHeight = jqes.getFullHeight(this.$divPopup.$bodyWrapper, true);
+	this.$divPopup.$bodyWrapper.addClass('jqes-body-wrapper-flex');
 	this.$divPopup.$body.css('flex-grow', bodyHeight);
 	this.$divPopup.$bodyAniHelper.css('flex-grow', bodyWrapperHeight - bodyHeight);
 };
-dp2ems.prototype._vBodyFlexOff = function() {
-	this.$divPopup.$bodyWrapper.removeClass('dp2ems-body-wrapper-flex');
+jqes.prototype._vBodyFlexOff = function() {
+	this.$divPopup.$bodyWrapper.removeClass('jqes-body-wrapper-flex');
 };
 
 //render
 //
-dp2ems.prototype.vConvertSelectOnce = function() {
-	if(dp2ems.isInited(this.$sel))
+jqes.prototype.vConvertSelectOnce = function() {
+	if(jqes.isInited(this.$sel))
 		return false;
 	var self = this;
 	
@@ -1150,46 +1150,46 @@ dp2ems.prototype.vConvertSelectOnce = function() {
 	
 	//create references to all html elements we need later
 	this.$divSel.$span = this.$divSel.find('span');
-	this.$divPopup.$close = this.$divPopup.find('.dp2ems-close');
-	this.$divPopup.$head = this.$divPopup.find('.dp2ems-head');
-	this.$divPopup.$search = this.$divPopup.find('.dp2ems-search');
-	this.$divPopup.$pagesList = this.$divPopup.find('.dp2ems-pages-list');
-	this.$divPopup.$pagesList.$dotsViewContainer = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-dots-wrapper') };
-	this.$divPopup.$pagesList.$dotsContainer = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-dots') };
-	this.$divPopup.$pagesList.$dotsWrappers = function() { return self.$divPopup.$pagesList.find('.dp2ems-page-dot-wrapper') };
-	this.$divPopup.$pagesList.$currDotWrapper = function() { return self.$divPopup.$pagesList.find('.dp2ems-page-dot-wrapper.dp2ems-page-dot-current') };
-	this.$divPopup.$pagesList.$dots = function() { return self.$divPopup.$pagesList.find('.dp2ems-page-dot-wrapper .dp2ems-page-dot') };
-	this.$divPopup.$pagesList.$currDot = function() { return self.$divPopup.$pagesList.find('.dp2ems-page-dot-wrapper.dp2ems-page-dot-current .dp2ems-page-dot') };
-	this.$divPopup.$pagesList.$ctrlPrev = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-prev') };
-	this.$divPopup.$pagesList.$ctrlNext = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-next') };
-	this.$divPopup.$pagesList.$ctrlFirst = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-first') };
-	this.$divPopup.$pagesList.$ctrlLast = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-last') };
-	this.$divPopup.$pagesList.$gradLeft = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-grad-left') };
-	this.$divPopup.$pagesList.$gradRight = function() { return self.$divPopup.$pagesList.find('.dp2ems-pages-grad-right') };
-	this.$divPopup.$ctrlsWrapper = this.$divPopup.find('.dp2ems-ctrls');
-	this.$divPopup.$ctrls = function() { return self.$divPopup.$ctrlsWrapper.find('> .dp2ems-ctrl') };
-	this.$divPopup.$ctrlPages = this.$divPopup.find('.dp2ems-ctrls-pag');
-	this.$divPopup.$ctrlClearAll = this.$divPopup.find('.dp2ems-ctrl-clear-all');
-	this.$divPopup.$ctrlShowSelection = this.$divPopup.find('.dp2ems-ctrl-show-selection');
-	this.$divPopup.$ctrlGotoSelection = this.$divPopup.find('.dp2ems-ctrl-goto-selection');
-	this.$divPopup.$ctrlSaveSelection = this.$divPopup.find('.dp2ems-ctrl-save-selection');
-	this.$divPopup.$btnLeft = this.$divPopup.find('.dp2ems-btn-left');
-	this.$divPopup.$btnRight = this.$divPopup.find('.dp2ems-btn-right');
-	this.$divPopup.$bodyWrapper = this.$divPopup.find(".dp2ems-body-wrapper");
-	this.$divPopup.$body = this.$divPopup.find(".dp2ems-body:not(.dp2ems-body-ghost)");
-	this.$divPopup.$bodyGhost = this.$divPopup.find(".dp2ems-body-ghost");
-	this.$divPopup.$bodyAniHelper = this.$divPopup.find(".dp2ems-body-ani-helper");
-	this.$divPopup.$msg = this.$divPopup.find(".dp2ems-msg");
-	this.$divPopup.$msgSpan = this.$divPopup.find(".dp2ems-msg span");
-	this.$divPopup.$index = this.$divPopup.find(".dp2ems-index");
-	this.$divPopup.$indexChars = function() { return self.$divPopup.$index.find('.dp2ems-char') };
+	this.$divPopup.$close = this.$divPopup.find('.jqes-close');
+	this.$divPopup.$head = this.$divPopup.find('.jqes-head');
+	this.$divPopup.$search = this.$divPopup.find('.jqes-search');
+	this.$divPopup.$pagesList = this.$divPopup.find('.jqes-pages-list');
+	this.$divPopup.$pagesList.$dotsViewContainer = function() { return self.$divPopup.$pagesList.find('.jqes-pages-dots-wrapper') };
+	this.$divPopup.$pagesList.$dotsContainer = function() { return self.$divPopup.$pagesList.find('.jqes-pages-dots') };
+	this.$divPopup.$pagesList.$dotsWrappers = function() { return self.$divPopup.$pagesList.find('.jqes-page-dot-wrapper') };
+	this.$divPopup.$pagesList.$currDotWrapper = function() { return self.$divPopup.$pagesList.find('.jqes-page-dot-wrapper.jqes-page-dot-current') };
+	this.$divPopup.$pagesList.$dots = function() { return self.$divPopup.$pagesList.find('.jqes-page-dot-wrapper .jqes-page-dot') };
+	this.$divPopup.$pagesList.$currDot = function() { return self.$divPopup.$pagesList.find('.jqes-page-dot-wrapper.jqes-page-dot-current .jqes-page-dot') };
+	this.$divPopup.$pagesList.$ctrlPrev = function() { return self.$divPopup.$pagesList.find('.jqes-pages-prev') };
+	this.$divPopup.$pagesList.$ctrlNext = function() { return self.$divPopup.$pagesList.find('.jqes-pages-next') };
+	this.$divPopup.$pagesList.$ctrlFirst = function() { return self.$divPopup.$pagesList.find('.jqes-pages-first') };
+	this.$divPopup.$pagesList.$ctrlLast = function() { return self.$divPopup.$pagesList.find('.jqes-pages-last') };
+	this.$divPopup.$pagesList.$gradLeft = function() { return self.$divPopup.$pagesList.find('.jqes-pages-grad-left') };
+	this.$divPopup.$pagesList.$gradRight = function() { return self.$divPopup.$pagesList.find('.jqes-pages-grad-right') };
+	this.$divPopup.$ctrlsWrapper = this.$divPopup.find('.jqes-ctrls');
+	this.$divPopup.$ctrls = function() { return self.$divPopup.$ctrlsWrapper.find('> .jqes-ctrl') };
+	this.$divPopup.$ctrlPages = this.$divPopup.find('.jqes-ctrls-pag');
+	this.$divPopup.$ctrlClearAll = this.$divPopup.find('.jqes-ctrl-clear-all');
+	this.$divPopup.$ctrlShowSelection = this.$divPopup.find('.jqes-ctrl-show-selection');
+	this.$divPopup.$ctrlGotoSelection = this.$divPopup.find('.jqes-ctrl-goto-selection');
+	this.$divPopup.$ctrlSaveSelection = this.$divPopup.find('.jqes-ctrl-save-selection');
+	this.$divPopup.$btnLeft = this.$divPopup.find('.jqes-btn-left');
+	this.$divPopup.$btnRight = this.$divPopup.find('.jqes-btn-right');
+	this.$divPopup.$bodyWrapper = this.$divPopup.find(".jqes-body-wrapper");
+	this.$divPopup.$body = this.$divPopup.find(".jqes-body:not(.jqes-body-ghost)");
+	this.$divPopup.$bodyGhost = this.$divPopup.find(".jqes-body-ghost");
+	this.$divPopup.$bodyAniHelper = this.$divPopup.find(".jqes-body-ani-helper");
+	this.$divPopup.$msg = this.$divPopup.find(".jqes-msg");
+	this.$divPopup.$msgSpan = this.$divPopup.find(".jqes-msg span");
+	this.$divPopup.$index = this.$divPopup.find(".jqes-index");
+	this.$divPopup.$indexChars = function() { return self.$divPopup.$index.find('.jqes-char') };
 	this.$divPopup.$body.$checkboxes = this.$divPopup.$bodyGhost.$checkboxes = function() { return jQuery(this).find("input[type=checkbox], input[type=radio]") };
 	this.$divPopup.getCheckboxInfo = function($checkbox) {
 		var info = {};
 		info.text = $checkbox.next('label').text();
 		info.ind = parseInt($checkbox.attr('realInd'));
 		info.isSel = $checkbox.is(':checked');
-		info.isAny = $checkbox.is('.dp2ems-checkbox-any');
+		info.isAny = $checkbox.is('.jqes-checkbox-any');
 		return info;
 	};
 	this.$divPopup.getCharInfo = function($char) {
@@ -1218,35 +1218,35 @@ dp2ems.prototype.vConvertSelectOnce = function() {
 	
 	//apply sizes options
 	if(this.options.divSelWidth == -2)
-		this.$divSel.css('width', dp2ems.getFullWidth(this.$sel));
+		this.$divSel.css('width', jqes.getFullWidth(this.$sel));
 	else if(this.options.divSelWidth == -1)
-		this.$divSel.addClass('dp2ems-select-auto-width');
+		this.$divSel.addClass('jqes-select-auto-width');
 	else if(this.options.divSelWidth > 0)
 		this.$divSel.css('width', parseFloat(this.options.divSelWidth));
 	if(this.options.divSelHeight == -2)
-		this.$divSel.css('height', dp2ems.getFullHeight(this.$sel));
+		this.$divSel.css('height', jqes.getFullHeight(this.$sel));
 	else if(this.options.divSelHeight == -1)
-		this.$divSel.addClass('dp2ems-select-auto-height');
+		this.$divSel.addClass('jqes-select-auto-height');
 	else if(this.options.divSelHeight > 0)
 		this.$divSel.css('height', parseFloat(this.options.divSelHeight));
 	if(this.options.divSelPaddingLeft) {
 		setTimeout(function() {
 			self.$divSel.css('padding-left', parseFloat(self.options.divSelPaddingLeft));
-			self.$divSel.css('padding-right', parseFloat(self.options.divSelPaddingLeft) + dp2ems.getFullWidth(self.$divSel.find('.cuselFrameRight'), true) - 8);
+			self.$divSel.css('padding-right', parseFloat(self.options.divSelPaddingLeft) + jqes.getFullWidth(self.$divSel.find('.cuselFrameRight'), true) - 8);
 		}, 5);
 	}
 	if(this.options.divSelIsMultiline)
-		this.$divSel.addClass('dp2ems-select-multiline');
+		this.$divSel.addClass('jqes-select-multiline');
 	if(this.options.divSelClasses)
 		this.$divSel.addClass(this.options.divSelClasses);
 	if(this.options.divPopupWidth == -2)
-		this.$divPopup.addClass('dp2ems-popup-auto-width');
+		this.$divPopup.addClass('jqes-popup-auto-width');
 	else if(this.options.divPopupWidth == -1)
-		this.$divPopup.css('width', dp2ems.getFullWidth(this.$divSel));
+		this.$divPopup.css('width', jqes.getFullWidth(this.$divSel));
 	else if(this.options.divPopupWidth > 0)
 		this.$divPopup.css('width', parseFloat(this.options.divPopupWidth));
 	if(this.options.divPopupHeight > 0) {
-		this.$divPopup.addClass('dp2ems-concrete-height');
+		this.$divPopup.addClass('jqes-concrete-height');
 		this.$divPopup.css('height', parseFloat(this.options.divPopupHeight));
 	}
 	if(this.options.divPopupClasses)
@@ -1255,14 +1255,14 @@ dp2ems.prototype.vConvertSelectOnce = function() {
 		this.$divWrapper.addClass(this.options.divWrapperClasses);
 };
 
-dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
+jqes.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 	var self = this;
 	
 	//enable/disable, show/hide controls
-	this.$divPopup.$btnLeft.toggleClass('dp2ems-enabled', (page > 0));
-	this.$divPopup.$btnRight.toggleClass('dp2ems-enabled', (page >= 0 && page < (this.getPages() - 1)));
-	this.$divPopup.$btnLeft.toggleClass('dp2ems-disabled', !(page > 0));
-	this.$divPopup.$btnRight.toggleClass('dp2ems-disabled', !(page >= 0 && page < (this.getPages() - 1)));
+	this.$divPopup.$btnLeft.toggleClass('jqes-enabled', (page > 0));
+	this.$divPopup.$btnRight.toggleClass('jqes-enabled', (page >= 0 && page < (this.getPages() - 1)));
+	this.$divPopup.$btnLeft.toggleClass('jqes-disabled', !(page > 0));
+	this.$divPopup.$btnRight.toggleClass('jqes-disabled', !(page >= 0 && page < (this.getPages() - 1)));
 	this.$divPopup.$ctrlPages.toggle( this.getPages() > 1 && !this.isFullExtView() );
 	this.$divPopup.$ctrlsWrapper.toggle( this.$divPopup.$ctrls().filter(function() { return $(this).css("display") != "none" }).length > 0 );
 	
@@ -1292,9 +1292,9 @@ dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 		if(isSimultAnims) {
 			this.vRenderPageTo(tmp, this.$divPopup.$bodyGhost);
 		} else {
-			this.$divPopup.data('changing-page', 1).data('changing-page-from', oldPage).data('changing-page-to', page).addClass('dp2ems-animating-change-page');
+			this.$divPopup.data('changing-page', 1).data('changing-page-from', oldPage).data('changing-page-to', page).addClass('jqes-animating-change-page');
 			this.vRenderPageTo(tmp, this.$divPopup.$bodyGhost);
-			this.$divPopup.$bodyGhost.removeClass('dp2ems-hidden');
+			this.$divPopup.$bodyGhost.removeClass('jqes-hidden');
 			this.$divPopup.$bodyGhost.css({
 				width: w,
 				top: 0,
@@ -1305,7 +1305,7 @@ dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 			this.$divPopup.$bodyWrapper.css({
 				height: r.bodyWrapperOldH
 			});
-			this.$divPopup.$body.addClass('dp2ems-body-ghost').removeClass('dp2ems-hidden').css({
+			this.$divPopup.$body.addClass('jqes-body-ghost').removeClass('jqes-hidden').css({
 				width: w,
 				height: h,
 				top: 0,
@@ -1337,23 +1337,23 @@ dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 			};
 			var aniCnt = 0;
 			var onAllComplete = function() {
-				var isSimultAnims = !self.$divPopup.$body.hasClass('dp2ems-body-ghost');
+				var isSimultAnims = !self.$divPopup.$body.hasClass('jqes-body-ghost');
 				if(isSimultAnims) {
 					//fix
 					var $tmp = self.$divPopup.$body;
 					self.$divPopup.$body = self.$divPopup.$bodyGhost;
 					self.$divPopup.$bodyGhost = $tmp;
 				}
-				self.$divPopup.$bodyGhost.removeClass('dp2ems-body-ghost').css(bodyCssRestore);
+				self.$divPopup.$bodyGhost.removeClass('jqes-body-ghost').css(bodyCssRestore);
 				self.$divPopup.$body.css(bodyGhostCssRestore);
 				self.$divPopup.$bodyWrapper.css(bodyWrapperCssRestore);
 				var $tmp = self.$divPopup.$body;
 				self.$divPopup.$body = self.$divPopup.$bodyGhost;
 				self.$divPopup.$bodyGhost = $tmp;
-				self.$divPopup.$bodyGhost.addClass('dp2ems-hidden');
-				self.$divPopup.$body.removeClass('dp2ems-hidden');
+				self.$divPopup.$bodyGhost.addClass('jqes-hidden');
+				self.$divPopup.$body.removeClass('jqes-hidden');
 				self._vFixBodyHeight();
-				self.$divPopup.data('changing-page', 0).removeData('changing-page-from').removeData('changing-page-to').removeClass('dp2ems-animating-change-page');
+				self.$divPopup.data('changing-page', 0).removeData('changing-page-from').removeData('changing-page-to').removeClass('jqes-animating-change-page');
 				callback();
 			};
 			var onOneComplete = function() {
@@ -1377,13 +1377,13 @@ dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 	}
 };
 
-dp2ems.prototype.vRenderPageTo = function(tmp, $body) {
+jqes.prototype.vRenderPageTo = function(tmp, $body) {
 	$body.html(tmp.html);
 	
 	//add dynamic styles
-	$body.find('.dp2ems-row .dp2ems-el').css('width', (1.0 * 100 / this.getMaxUsedGridColumns())+'%');
-	$body.find('.dp2ems-col').css('width', (1.0 * 100 / this.getMaxUsedGridColumns())+'%');
-	$body.find('.dp2ems-col .dp2ems-el').css('height', (1.0 * 100 / this.getMaxUsedGridRows())+'%');
+	$body.find('.jqes-row .jqes-el').css('width', (1.0 * 100 / this.getMaxUsedGridColumns())+'%');
+	$body.find('.jqes-col').css('width', (1.0 * 100 / this.getMaxUsedGridColumns())+'%');
+	$body.find('.jqes-col .jqes-el').css('height', (1.0 * 100 / this.getMaxUsedGridRows())+'%');
 	
 	//customize checkboxes
 	var $checkboxes = $body.$checkboxes();
@@ -1398,11 +1398,11 @@ dp2ems.prototype.vRenderPageTo = function(tmp, $body) {
 	this._vFixBodyHeight();
 };
 
-dp2ems.prototype.vRenderValStr = function(str) {
+jqes.prototype.vRenderValStr = function(str) {
 	this.$divSel.$span.text(str);
 };
 
-dp2ems.prototype.vRenderFirstChars = function() {
+jqes.prototype.vRenderFirstChars = function() {
 	if(this.options.showIndex) {
 		var html = this.htmlForFirstChars();
 		this.$divPopup.$index.html(html);
@@ -1416,7 +1416,7 @@ dp2ems.prototype.vRenderFirstChars = function() {
 	}
 };
 
-dp2ems.prototype.vRenderPagesList = function() {
+jqes.prototype.vRenderPagesList = function() {
 	if(this.options.showPagesList) {
 		var html = this.htmlForPagesList();
 		this.$divPopup.$pagesList.html(html);
@@ -1427,21 +1427,21 @@ dp2ems.prototype.vRenderPagesList = function() {
 	}
 };
 
-dp2ems.prototype.vPostRenderPagesList = function(animate) {
+jqes.prototype.vPostRenderPagesList = function(animate) {
 	if(!this.$divPopup.$pagesList.is(':visible'))
 		return;
 	
 	//change classes
-	this.$divPopup.$pagesList.$ctrlFirst().toggleClass('dp2ems-enabled', this.currPage > 0);
-	this.$divPopup.$pagesList.$ctrlFirst().toggleClass('dp2ems-disabled', !(this.currPage > 0));
-	this.$divPopup.$pagesList.$ctrlPrev().toggleClass('dp2ems-enabled', this.currPage > 0);
-	this.$divPopup.$pagesList.$ctrlPrev().toggleClass('dp2ems-disabled', !(this.currPage > 0));
-	this.$divPopup.$pagesList.$ctrlLast().toggleClass('dp2ems-enabled', this.currPage >= 0 && this.currPage < (this.getPages()-1));
-	this.$divPopup.$pagesList.$ctrlLast().toggleClass('dp2ems-disabled', !(this.currPage >= 0 && this.currPage < (this.getPages()-1)));
-	this.$divPopup.$pagesList.$ctrlNext().toggleClass('dp2ems-enabled', this.currPage >= 0 && this.currPage < (this.getPages()-1));
-	this.$divPopup.$pagesList.$ctrlNext().toggleClass('dp2ems-disabled', !(this.currPage >= 0 && this.currPage < (this.getPages()-1)));
-	this.$divPopup.$pagesList.$dotsWrappers().filter('.dp2ems-page-dot-current').not("[page="+this.currPage+"]").removeClass('dp2ems-page-dot-current');
-	this.$divPopup.$pagesList.$dotsWrappers().filter("[page="+this.currPage+"]").not('.dp2ems-page-dot-current').addClass('dp2ems-page-dot-current');
+	this.$divPopup.$pagesList.$ctrlFirst().toggleClass('jqes-enabled', this.currPage > 0);
+	this.$divPopup.$pagesList.$ctrlFirst().toggleClass('jqes-disabled', !(this.currPage > 0));
+	this.$divPopup.$pagesList.$ctrlPrev().toggleClass('jqes-enabled', this.currPage > 0);
+	this.$divPopup.$pagesList.$ctrlPrev().toggleClass('jqes-disabled', !(this.currPage > 0));
+	this.$divPopup.$pagesList.$ctrlLast().toggleClass('jqes-enabled', this.currPage >= 0 && this.currPage < (this.getPages()-1));
+	this.$divPopup.$pagesList.$ctrlLast().toggleClass('jqes-disabled', !(this.currPage >= 0 && this.currPage < (this.getPages()-1)));
+	this.$divPopup.$pagesList.$ctrlNext().toggleClass('jqes-enabled', this.currPage >= 0 && this.currPage < (this.getPages()-1));
+	this.$divPopup.$pagesList.$ctrlNext().toggleClass('jqes-disabled', !(this.currPage >= 0 && this.currPage < (this.getPages()-1)));
+	this.$divPopup.$pagesList.$dotsWrappers().filter('.jqes-page-dot-current').not("[page="+this.currPage+"]").removeClass('jqes-page-dot-current');
+	this.$divPopup.$pagesList.$dotsWrappers().filter("[page="+this.currPage+"]").not('.jqes-page-dot-current').addClass('jqes-page-dot-current');
 	
 	//show/hide
 	this.$divPopup.$pagesList.$ctrlFirst().toggle( this.getPages() > 2 );
@@ -1454,7 +1454,7 @@ dp2ems.prototype.vPostRenderPagesList = function(animate) {
 	var $dots = this.$divPopup.$pagesList.$dotsWrappers();
 	var $currDot = this.$divPopup.$pagesList.$currDotWrapper();
 	var currDotI = $dots.index($currDot);
-	var dotW = $dots.length ? dp2ems.getFullWidth($dots.first(), true) : 0;
+	var dotW = $dots.length ? jqes.getFullWidth($dots.first(), true) : 0;
 	var dotsCnt = $dots.length;
 	var maxDotCnt = dotW ? Math.floor(1.0 * dotsVW / dotW) : 0;
 	if(dotW && dotsCnt > maxDotCnt) {
@@ -1504,12 +1504,12 @@ dp2ems.prototype.vPostRenderPagesList = function(animate) {
  * If option 'reserveForPopupHeight' is set and on curr page there is "deficit" of rows, add % of reserve to these rows.
  * (This fixes will force body to keep 'width' css-style)
  */
-dp2ems.prototype._vPreFixBodyHeight = function(applyToBodyGhost) {
+jqes.prototype._vPreFixBodyHeight = function(applyToBodyGhost) {
 	var $trgBody = (applyToBodyGhost ? this.$divPopup.$bodyGhost : this.$divPopup.$body);
 	var isFullRows = this.getUsedGridRowsForPage(this.currPage) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
-	var bodyWrapperOldH = dp2ems.getFullHeight(this.$divPopup.$bodyWrapper, true);
+	var bodyWrapperOldH = jqes.getFullHeight(this.$divPopup.$bodyWrapper, true);
 	$trgBody.css('height', '');
-	var gh1 = dp2ems.getFullHeight($trgBody, true);
+	var gh1 = jqes.getFullHeight($trgBody, true);
 	var gh = $trgBody.height();
 	var gh1_ = 0, gh_ = 0; //forced height
 	if(!isFullRows && this.options.reserveForPopupHeight < 0) {
@@ -1521,12 +1521,12 @@ dp2ems.prototype._vPreFixBodyHeight = function(applyToBodyGhost) {
 	}
 	if(gh1_) {
 		gh1 = gh1_;
-		gh_ = gh1_ - dp2ems.getHeightOverhead($trgBody, true);
+		gh_ = gh1_ - jqes.getHeightOverhead($trgBody, true);
 		gh = gh_;
 	}
 	if(gh)
 		$trgBody.css('height', gh);
-	var bh1 = dp2ems.getFullHeight(this.$divPopup.$body, true);
+	var bh1 = jqes.getFullHeight(this.$divPopup.$body, true);
 	var bodyWrapperNewH = Math.max(bh1, gh1);
 	
 	var r = {gh1: gh1, gh: gh, gh1_: gh1_, gh_: gh_, bodyWrapperOldH: bodyWrapperOldH, bodyWrapperNewH: bodyWrapperNewH};
@@ -1538,10 +1538,10 @@ dp2ems.prototype._vPreFixBodyHeight = function(applyToBodyGhost) {
  * This fix will force bodyWrapper to keep 'min-height' css-style.
  * Also if option 'tryToKeepConstPopupHeight' is set, body will keep const height (only for full rows) via 'width' css-style.
  */
-dp2ems.prototype._vFixBodyHeight = function() {
+jqes.prototype._vFixBodyHeight = function() {
 	var self = this;
 	var $divToRender = self.$divPopup.$bodyWrapper;
-	if(this.$divPopup.hasClass('dp2ems-concrete-height')) {
+	if(this.$divPopup.hasClass('jqes-concrete-height')) {
 	} else {
 		var isFullRows = this.getUsedGridRowsForPage(this.currPage) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
 		
@@ -1557,7 +1557,7 @@ dp2ems.prototype._vFixBodyHeight = function() {
 		if(isNaN(minw)) minw = 0;
 		if(self.$divPopup.$msg.hasClass('visible') && self.$divPopup.$body.is(':empty')) {
 			//body is empty and msg is not
-			var msgH = dp2ems.getFullHeight(self.$divPopup.$msg, true);
+			var msgH = jqes.getFullHeight(self.$divPopup.$msg, true);
 			if(!_minh) {
 				$divToRender.css('min-height', (minh-msgH)+'px');
 				$divToRender.data('_min-height', minh+'px');
@@ -1574,7 +1574,7 @@ dp2ems.prototype._vFixBodyHeight = function() {
 			}
 			/** don't need (?), see _vPreFixBodyHeight() above **
 			if(this.options.tryToKeepConstPopupHeight && minh && isFullRows) {
-				self.$divPopup.$body.css('height', minh - dp2ems.getHeightOverhead(this.$divPopup.$body, true));
+				self.$divPopup.$body.css('height', minh - jqes.getHeightOverhead(this.$divPopup.$body, true));
 			}
 			*/
 		}
@@ -1585,7 +1585,7 @@ dp2ems.prototype._vFixBodyHeight = function() {
 	}
 };
 
-dp2ems.prototype.vAfterFilterChange = function() {
+jqes.prototype.vAfterFilterChange = function() {
 	var self = this;
 	this.$divPopup.$ctrlShowSelection.toggleClass('selected', this.fitlerBySel);
 	this.$divPopup.$indexChars().each(function(ind, el) {
@@ -1596,15 +1596,15 @@ dp2ems.prototype.vAfterFilterChange = function() {
 		this.$divPopup.$search.val(this.filterStr);
 };
 
-dp2ems.prototype.vAfterSingleChanged = function($chkbx) {
+jqes.prototype.vAfterSingleChanged = function($chkbx) {
 	var $inputToUncheck = this.$divPopup.$body.find("input"+(this.selectedItemsInds.length ? "[realind!="+this.selectedItemsInds[0]+"]" : "")+":checked").not($chkbx);
 	$inputToUncheck.prop('checked', false).trigger('change');
 };
 
-dp2ems.prototype.vAfterAllSelectedChanged = function($chkbx) {
-	var $inputAnyChecked = this.$divPopup.$body.find("input.dp2ems-checkbox-any:checked").not($chkbx);
-	var $inputAnyUnhecked = this.$divPopup.$body.find("input.dp2ems-checkbox-any:not(:checked)").not($chkbx);
-	var $inputsNotAnyChecked = this.$divPopup.$body.find("input:not(.dp2ems-checkbox-any):checked").not($chkbx);
+jqes.prototype.vAfterAllSelectedChanged = function($chkbx) {
+	var $inputAnyChecked = this.$divPopup.$body.find("input.jqes-checkbox-any:checked").not($chkbx);
+	var $inputAnyUnhecked = this.$divPopup.$body.find("input.jqes-checkbox-any:not(:checked)").not($chkbx);
+	var $inputsNotAnyChecked = this.$divPopup.$body.find("input:not(.jqes-checkbox-any):checked").not($chkbx);
 	
 	if(this.areAllSelected) {
 		//if no options are selected, check only a-n-y option
@@ -1619,11 +1619,11 @@ dp2ems.prototype.vAfterAllSelectedChanged = function($chkbx) {
 	this._allowZeroSelection();
 };
 
-dp2ems.prototype.vAfterUpdateItems = function() {
-	var classAreaPopup = (this.isFullExtView() ? 'dp2ems-popup-ext' : (this.isCompactExtView() ? 'dp2ems-popup-comp' : 'dp2ems-popup-norm'));
-	this.$divPopup.removeClass('dp2ems-popup-ext');
-	this.$divPopup.removeClass('dp2ems-popup-comp');
-	this.$divPopup.removeClass('dp2ems-popup-norm');
+jqes.prototype.vAfterUpdateItems = function() {
+	var classAreaPopup = (this.isFullExtView() ? 'jqes-popup-ext' : (this.isCompactExtView() ? 'jqes-popup-comp' : 'jqes-popup-norm'));
+	this.$divPopup.removeClass('jqes-popup-ext');
+	this.$divPopup.removeClass('jqes-popup-comp');
+	this.$divPopup.removeClass('jqes-popup-norm');
 	this.$divPopup.addClass(classAreaPopup);
 	
 	this.$divPopup.$ctrlClearAll.toggle( this.getItemsCountWoAll() > 0 );
@@ -1634,17 +1634,17 @@ dp2ems.prototype.vAfterUpdateItems = function() {
 
 // ------------------------------------------------ View - generate html for rendering
 
-dp2ems.prototype.htmlForSel = function() {
-	var divSelHtml = "<div class='dp2ems-select" + (this.isMultiple ? "" : " dp2ems-select-single") + "'><div class='dp2ems-select-text'><span>" + this.valStr + "</span></div><div class='cuselFrameRight'></div></div>";
+jqes.prototype.htmlForSel = function() {
+	var divSelHtml = "<div class='jqes-select" + (this.isMultiple ? "" : " jqes-select-single") + "'><div class='jqes-select-text'><span>" + this.valStr + "</span></div><div class='cuselFrameRight'></div></div>";
 	return divSelHtml;
 };
 
-dp2ems.prototype.htmlForWrapper = function() {
-	return "<div class='dp2ems-wrapper'></div>";
+jqes.prototype.htmlForWrapper = function() {
+	return "<div class='jqes-wrapper'></div>";
 };
 
-dp2ems.prototype.htmlForPopup = function() {
-	var classAreaPopup = (this.isFullExtView() ? 'dp2ems-popup-ext' : (this.isCompactExtView() ? 'dp2ems-popup-comp' : 'dp2ems-popup-norm'));
+jqes.prototype.htmlForPopup = function() {
+	var classAreaPopup = (this.isFullExtView() ? 'jqes-popup-ext' : (this.isCompactExtView() ? 'jqes-popup-comp' : 'jqes-popup-norm'));
 	
 	var textClearAll = 		this.strings.ctrlClearAll instanceof Array		? this.strings.ctrlClearAll[this.isMultiple ? 0 : 1]		: this.strings.ctrlClearAll;
 	var textShowSelection =	this.strings.ctrlShowSelection instanceof Array	? this.strings.ctrlShowSelection[this.isMultiple ? 0 : 1]	: this.strings.ctrlShowSelection;
@@ -1652,56 +1652,56 @@ dp2ems.prototype.htmlForPopup = function() {
 	var textSaveSelection =	this.strings.ctrlSaveSelection instanceof Array ? this.strings.ctrlSaveSelection[this.isMultiple ? 0 : 1]	: this.strings.ctrlSaveSelection;
 	
 	var divPopupHtml = '';
-	divPopupHtml += "<div class='hidden dp2ems-popup " + classAreaPopup + (this.isMultiple ? "" : " dp2ems-popup-single") + "'>";
+	divPopupHtml += "<div class='hidden jqes-popup " + classAreaPopup + (this.isMultiple ? "" : " jqes-popup-single") + "'>";
 		if(this.options.showCloseCross) {
-			divPopupHtml += "<div class='dp2ems-close'></div>";
+			divPopupHtml += "<div class='jqes-close'></div>";
 		}
 		if(this.options.showSearch) {
-			divPopupHtml += "<div class='dp2ems-head'>";
-				divPopupHtml += "<input class='dp2ems-search' type='text' placeholder='" + this.strings.inputPlaceholder + "'/>";
+			divPopupHtml += "<div class='jqes-head'>";
+				divPopupHtml += "<input class='jqes-search' type='text' placeholder='" + this.strings.inputPlaceholder + "'/>";
 				if(!(this.options.hidePageControlsWhenThereIsPegeList && this.options.showPagesList)) {
-					divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-left'></div>";
-					divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-right'></div>";
+					divPopupHtml += "<div class='jqes-btn jqes-btn-left'></div>";
+					divPopupHtml += "<div class='jqes-btn jqes-btn-right'></div>";
 				}
 			divPopupHtml += "</div>";
 		}
-		divPopupHtml += "<div class='dp2ems-msg'><span></span></div>";
-		divPopupHtml += "<div class='dp2ems-body-wrapper " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'dp2ems-dir-horz' : 'dp2ems-dir-vert') + " dp2ems-cols-x dp2ems-cols-" + this.options.gridColumns + " dp2ems-rows-x dp2ems-rows-" + this.options.gridRows + "'>";
-			divPopupHtml += "<div class='dp2ems-body'>";
+		divPopupHtml += "<div class='jqes-msg'><span></span></div>";
+		divPopupHtml += "<div class='jqes-body-wrapper " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'jqes-dir-horz' : 'jqes-dir-vert') + " jqes-cols-x jqes-cols-" + this.options.gridColumns + " jqes-rows-x jqes-rows-" + this.options.gridRows + "'>";
+			divPopupHtml += "<div class='jqes-body'>";
 				//... look at this.vRenderPage(page)
 			divPopupHtml += "</div>";
-			divPopupHtml += "<div class='dp2ems-body dp2ems-body-ghost dp2ems-hidden'>";
+			divPopupHtml += "<div class='jqes-body jqes-body-ghost jqes-hidden'>";
 				//... look at this.vRenderPage(page)
 			divPopupHtml += "</div>";
-			divPopupHtml += "<div class='dp2ems-body-ani-helper'></div>";
+			divPopupHtml += "<div class='jqes-body-ani-helper'></div>";
 		divPopupHtml += "</div>";
 		if(this.options.showPagesList) {
-			divPopupHtml += "<div class='dp2ems-pages-list'>";
+			divPopupHtml += "<div class='jqes-pages-list'>";
 				//... look at this.vRenderPagesList()
 			divPopupHtml += "</div>";
 		}
 		if(this.options.showControls) {
-			divPopupHtml += "<div class='dp2ems-ctrls'>";
+			divPopupHtml += "<div class='jqes-ctrls'>";
 				if(!(this.options.hidePageControlsWhenThereIsPegeList && this.options.showPagesList)) {
-					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrls-pag'>";
-						divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-left'></div>";
-						divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-right'></div>";
-						divPopupHtml += "<div class='dp2ems-clr'></div>";
+					divPopupHtml += "<div class='jqes-ctrl jqes-ctrls-pag'>";
+						divPopupHtml += "<div class='jqes-btn jqes-btn-left'></div>";
+						divPopupHtml += "<div class='jqes-btn jqes-btn-right'></div>";
+						divPopupHtml += "<div class='jqes-clr'></div>";
 					divPopupHtml += "</div>";
 				}
 				if(this.options.showCtrlClearAll)
-					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-clear-all'>" + textClearAll + "</div>";
+					divPopupHtml += "<div class='jqes-ctrl jqes-ctrl-link jqes-ctrl-clear-all'>" + textClearAll + "</div>";
 				if(this.isMultiple && this.options.showCtrlShowSelection)
-					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-show-selection'>" + textShowSelection + "</div>";
+					divPopupHtml += "<div class='jqes-ctrl jqes-ctrl-link jqes-ctrl-show-selection'>" + textShowSelection + "</div>";
 				if(!this.isMultiple && this.options.showCtrlGotoSelection)
-					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-goto-selection'>" + textGotoSelection + "</div>";
-				divPopupHtml += "<div class='dp2ems-ctrl-space'></div>";
+					divPopupHtml += "<div class='jqes-ctrl jqes-ctrl-link jqes-ctrl-goto-selection'>" + textGotoSelection + "</div>";
+				divPopupHtml += "<div class='jqes-ctrl-space'></div>";
 				if(this.options.showCtrlSaveSelection)
-					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
+					divPopupHtml += "<div class='jqes-ctrl jqes-ctrl-link jqes-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
 			divPopupHtml += "</div>";
 		}
 		if(this.options.showIndex) {
-			divPopupHtml += "<div class='dp2ems-index'" + ">";
+			divPopupHtml += "<div class='jqes-index'" + ">";
 				//... look at this.vRenderFirstChars()
 			divPopupHtml += "</div>";
 		}
@@ -1709,7 +1709,7 @@ dp2ems.prototype.htmlForPopup = function() {
 	return divPopupHtml;
 }
 
-dp2ems.prototype.htmlForPage = function(page) {
+jqes.prototype.htmlForPage = function(page) {
 	var msg = '';
 	var html = '';
 	var rng = this.getItemsRangeForPage(page);
@@ -1747,15 +1747,15 @@ dp2ems.prototype.htmlForPage = function(page) {
 			var name = self.selId + '_items';
 			var text = opt[0];
 			var checked = opt[2] ? self.areAllSelected : opt[1];
-			html += "<div class='dp2ems-el'>";
-				html += "<input type='"+(self.isMultiple ? 'checkbox' : 'radio')+"' class='" + (opt[2] ? "dp2ems-checkbox-any" : "") + "' realInd='" + realInd + "' name='" + name + "' id='" + id + "' " + (checked ? " checked" : "") + ">";
-				html += "<label for='" + id + "' _class='" + (opt[2] ? "dp2ems-label-any" : "") + "'>" + text + "</label>";
+			html += "<div class='jqes-el'>";
+				html += "<input type='"+(self.isMultiple ? 'checkbox' : 'radio')+"' class='" + (opt[2] ? "jqes-checkbox-any" : "") + "' realInd='" + realInd + "' name='" + name + "' id='" + id + "' " + (checked ? " checked" : "") + ">";
+				html += "<label for='" + id + "' _class='" + (opt[2] ? "jqes-label-any" : "") + "'>" + text + "</label>";
 			html += "</div>";
 			return html;
 		};
 		
 		var renderColStart = function(self, html, c) {
-			var html = "<div class='dp2ems-col' id='dp2ems-col-" + c + "'>";
+			var html = "<div class='jqes-col' id='jqes-col-" + c + "'>";
 			return html;
 		};
 		var renderColEnd = function(self, html, c) {
@@ -1764,7 +1764,7 @@ dp2ems.prototype.htmlForPage = function(page) {
 		};
 		
 		var renderRowStart = function(self, html, r) {
-			var html = "<div class='dp2ems-row dp2ems-body-rows-x dp2ems-body-rows-" + self.getMaxUsedGridRows() + "' id='dp2ems-row-" + r + "'>";
+			var html = "<div class='jqes-row jqes-body-rows-x jqes-body-rows-" + self.getMaxUsedGridRows() + "' id='jqes-row-" + r + "'>";
 			return html;
 		};
 		var renderRowEnd = function(self, html, r) {
@@ -1813,44 +1813,44 @@ dp2ems.prototype.htmlForPage = function(page) {
 	return {html: html, msg: msg};
 };
 
-dp2ems.prototype.htmlForPagesList = function() {
+jqes.prototype.htmlForPagesList = function() {
 	var html = '';
 	
 	if(this.getPages() > 0) {
-		html += "<div class='dp2ems-pages-ctrl dp2ems-pages-first "+(this.currPage > 0 ? 'dp2ems-enabled' : 'dp2ems-disabled')+"'><span class='ui-icon ui-icon-seek-first'></span></div>";
-		html += "<div class='dp2ems-pages-ctrl dp2ems-pages-prev "+(this.currPage > 0 ? 'dp2ems-enabled' : 'dp2ems-disabled')+"'><span class='ui-icon ui-icon-triangle-1-w'></span></div>";
+		html += "<div class='jqes-pages-ctrl jqes-pages-first "+(this.currPage > 0 ? 'jqes-enabled' : 'jqes-disabled')+"'><span class='ui-icon ui-icon-seek-first'></span></div>";
+		html += "<div class='jqes-pages-ctrl jqes-pages-prev "+(this.currPage > 0 ? 'jqes-enabled' : 'jqes-disabled')+"'><span class='ui-icon ui-icon-triangle-1-w'></span></div>";
 		
-		html += "<div class='dp2ems-pages-dots-wrapper'>";
-			html += "<div class='dp2ems-pages-grad-left'></div>";
-			html += "<div class='dp2ems-pages-dots'>";
+		html += "<div class='jqes-pages-dots-wrapper'>";
+			html += "<div class='jqes-pages-grad-left'></div>";
+			html += "<div class='jqes-pages-dots'>";
 				for(var p = 0 ; p < this.getPages() ; p++) {
-					html += "<div class='dp2ems-page-dot-wrapper"+ (p == this.currPage ? " dp2ems-page-dot-current" : "") +"' id='dp2ems-page-dot-wrapper-"+p+"' page='"+p+"'>";
-						html += "<div class='dp2ems-page-dot' page='"+p+"'>";
-							html += "<div class='dp2ems-page-dot-inner'></div>";
+					html += "<div class='jqes-page-dot-wrapper"+ (p == this.currPage ? " jqes-page-dot-current" : "") +"' id='jqes-page-dot-wrapper-"+p+"' page='"+p+"'>";
+						html += "<div class='jqes-page-dot' page='"+p+"'>";
+							html += "<div class='jqes-page-dot-inner'></div>";
 						html += "</div>";
 					html += "</div>";
 				}
 			html += "</div>";
-			html += "<div class='dp2ems-pages-grad-right'></div>";
+			html += "<div class='jqes-pages-grad-right'></div>";
 		html += "</div>";
 		
-		html += "<div class='dp2ems-pages-ctrl dp2ems-pages-next "+(this.currPage >= 0 && this.currPage < (this.getPages()-1) ? 'dp2ems-enabled' : 'dp2ems-disabled')+"'><span class='ui-icon ui-icon-triangle-1-e'></span></div>";
-		html += "<div class='dp2ems-pages-ctrl dp2ems-pages-last "+(this.currPage >= 0 && this.currPage < (this.getPages()-1) ? 'dp2ems-enabled' : 'dp2ems-disabled')+"'><span class='ui-icon ui-icon-seek-end'></span></div>";
+		html += "<div class='jqes-pages-ctrl jqes-pages-next "+(this.currPage >= 0 && this.currPage < (this.getPages()-1) ? 'jqes-enabled' : 'jqes-disabled')+"'><span class='ui-icon ui-icon-triangle-1-e'></span></div>";
+		html += "<div class='jqes-pages-ctrl jqes-pages-last "+(this.currPage >= 0 && this.currPage < (this.getPages()-1) ? 'jqes-enabled' : 'jqes-disabled')+"'><span class='ui-icon ui-icon-seek-end'></span></div>";
 	}
 	
 	return html;
 };
 
-dp2ems.prototype.htmlForFirstChars = function() {
+jqes.prototype.htmlForFirstChars = function() {
 	var html = '';
 	
 	var cntAll = this.items.length;
 	var fCharAll = '';
-	html += "<div class='dp2ems-char' fChar='" + fCharAll + "' fCharCnt='" + cntAll + "'>" + this.strings.indexAll + "</div>";
+	html += "<div class='jqes-char' fChar='" + fCharAll + "' fCharCnt='" + cntAll + "'>" + this.strings.indexAll + "</div>";
 	
 	for(var fChar in this.firstChars) if (this.firstChars.hasOwnProperty(fChar)) {
 		var cnt = this.firstChars[fChar];
-		html += "<div class='dp2ems-char' fChar='" + fChar + "' fCharCnt='" + cnt + "'>" + fChar + "</div>";
+		html += "<div class='jqes-char' fChar='" + fChar + "' fCharCnt='" + cnt + "'>" + fChar + "</div>";
 	}
 	return html;
 };
@@ -1859,8 +1859,8 @@ dp2ems.prototype.htmlForFirstChars = function() {
 
 //init
 //
-dp2ems.prototype.doInitOnce = function() {
-	if(dp2ems.isInited(this.$sel))
+jqes.prototype.doInitOnce = function() {
+	if(jqes.isInited(this.$sel))
 		return false;
 	var self = this;
 	
@@ -1884,8 +1884,8 @@ dp2ems.prototype.doInitOnce = function() {
 	});
 };
 
-dp2ems.prototype.doPrepareHtmlOnce = function() {
-	if(dp2ems.isInited(this.$sel))
+jqes.prototype.doPrepareHtmlOnce = function() {
+	if(jqes.isInited(this.$sel))
 		return false;
 	
 	//render - replace original <select> with new sel & popup divs
@@ -1986,7 +1986,7 @@ dp2ems.prototype.doPrepareHtmlOnce = function() {
 
 //sync from original <select> if has been updated
 //
-dp2ems.prototype.doUpdateItems = function() {
+jqes.prototype.doUpdateItems = function() {
 	this.mSyncFromSelect(false);
 	
 	this.vAfterUpdateItems();
@@ -2001,31 +2001,31 @@ dp2ems.prototype.doUpdateItems = function() {
 
 //open, close
 //
-dp2ems.prototype.doOpenPopup = function() {
-	dp2ems.doCloseAppPopups();
+jqes.prototype.doOpenPopup = function() {
+	jqes.doCloseAppPopups();
 	if(!this.isMultiple && this.selectedItemsInds.length)
 		this.doGotoSelection(false);
 	this.vOpenPopup();
 };
-dp2ems.prototype.doClosePopup = function() {
+jqes.prototype.doClosePopup = function() {
 	this.vClosePopup();
 };
-dp2ems.prototype.doTogglePopup = function() {
+jqes.prototype.doTogglePopup = function() {
 	if(!this.isPopupOpened())
 		this.doOpenPopup();
 	else
 		this.doClosePopup();
 };
-dp2ems.doCloseAppPopups = function() {
-	for(var selId in dp2ems._instances) if (dp2ems._instances.hasOwnProperty(selId)) {
-		var inst = dp2ems._instances[selId];
+jqes.doCloseAppPopups = function() {
+	for(var selId in jqes._instances) if (jqes._instances.hasOwnProperty(selId)) {
+		var inst = jqes._instances[selId];
 		inst.doClosePopup();
 	}
 };
 
 //render
 //
-dp2ems.prototype.doGotoPage = function(page, animate) {
+jqes.prototype.doGotoPage = function(page, animate) {
 	var self = this;
 	
 	var oldPage = this.currPage;
@@ -2051,11 +2051,11 @@ dp2ems.prototype.doGotoPage = function(page, animate) {
 	
 };
 
-dp2ems.prototype.doRenderValStr = function() {
+jqes.prototype.doRenderValStr = function() {
 	this.vRenderValStr(this.valStr);
 };
 
-dp2ems.prototype.doRenderPagesList = function() {
+jqes.prototype.doRenderPagesList = function() {
 	if(this.options.showPagesList) {
 		var self = this;
 		
@@ -2086,7 +2086,7 @@ dp2ems.prototype.doRenderPagesList = function() {
 	}
 };
 
-dp2ems.prototype.doRenderFirstChars = function() {
+jqes.prototype.doRenderFirstChars = function() {
 	if(this.isFullExtView()) {
 		var self = this;
 		//render
@@ -2115,24 +2115,24 @@ dp2ems.prototype.doRenderFirstChars = function() {
 
 //filters
 //
-dp2ems.prototype.doSetFilterByFirstChar = function(gr) {
+jqes.prototype.doSetFilterByFirstChar = function(gr) {
 	this.mSetFilterByFirstChar(gr);
 	this.vAfterFilterChange();
 };
-dp2ems.prototype.doSetFilterBySelected = function(sel) {
+jqes.prototype.doSetFilterBySelected = function(sel) {
 	this.mSetFilterBySelected(sel);
 	this.vAfterFilterChange();
 };
-dp2ems.prototype.doSetFilterBySearchString = function(str) {
+jqes.prototype.doSetFilterBySearchString = function(str) {
 	this.mSetFilterBySearchString(str);
 	this.vAfterFilterChange();
 };
-dp2ems.prototype.doSetNoFilter = function() {
+jqes.prototype.doSetNoFilter = function() {
 	this.mSetNoFilter();
 	this.vAfterFilterChange();
 };
 
-dp2ems.prototype.doApplyFilter = function() {
+jqes.prototype.doApplyFilter = function() {
 	var mode = this.getFilterMode();
 	if(mode == 'sel') {
 		this.mFilterItemsBySelected();
@@ -2147,12 +2147,12 @@ dp2ems.prototype.doApplyFilter = function() {
 	this.doRenderPagesList();
 };
 
-dp2ems.prototype.doApplyFilterAndGotoFirstPage = function() {
+jqes.prototype.doApplyFilterAndGotoFirstPage = function() {
 	this.doApplyFilter();
 	this.doGotoPage(this.getFirstPage());
 };
 
-dp2ems.prototype.doGotoSelection = function(animate) {
+jqes.prototype.doGotoSelection = function(animate) {
 	var pageForSel = this.getPageForCurrSel();
 	var resetFilter = (pageForSel == -1 || this.getSearchedCnt() == 0);
 	if(resetFilter) {
@@ -2163,7 +2163,7 @@ dp2ems.prototype.doGotoSelection = function(animate) {
 	this.doGotoPage(pageForSel != -1 ? pageForSel : this.getFirstPage(), animate && !resetFilter);
 };
 
-dp2ems.prototype.doClearAll = function() {
+jqes.prototype.doClearAll = function() {
 	this.doUnselectAllItems();
 	this.doSetNoFilter();
 	this.doApplyFilterAndGotoFirstPage();
@@ -2173,7 +2173,7 @@ dp2ems.prototype.doClearAll = function() {
 
 //selection events
 //
-dp2ems.prototype.onSelectItem = function(info, $chkbx) {
+jqes.prototype.onSelectItem = function(info, $chkbx) {
 	var ch_stat = this.mSelectItem(info);
 	if(ch_stat > 0 && !this.isMultiple) {
 		this.vAfterSingleChanged($chkbx);
@@ -2188,7 +2188,7 @@ dp2ems.prototype.onSelectItem = function(info, $chkbx) {
 		this.doClosePopup();
 };
 
-dp2ems.prototype.onSelectionChanged = function() {
+jqes.prototype.onSelectionChanged = function() {
 	if(this.getFilterMode() == 'sel') {
 		this.mFilterItemsBySelected();
 		var page = this.currPage;
@@ -2215,7 +2215,7 @@ dp2ems.prototype.onSelectionChanged = function() {
 	}
 };
 
-dp2ems.prototype.doUnselectAllItems = function() {
+jqes.prototype.doUnselectAllItems = function() {
 	var oldAreAllSelected = this.areAllSelected;
 	this.areAllSelected = true;
 	if(oldAreAllSelected != this.areAllSelected) {
@@ -2228,36 +2228,36 @@ dp2ems.prototype.doUnselectAllItems = function() {
 //other events
 //
 //things that can be done only when popup is visible
-dp2ems.prototype.onShowPopup = function() {
+jqes.prototype.onShowPopup = function() {
 	this.vPostRenderPagesList(false);
 };
 
-dp2ems.prototype.onHidePopup = function() {
+jqes.prototype.onHidePopup = function() {
 };
 
 // ------------------------------------------------
 
 //
-// jQuery extensions for class dp2ems
+// jQuery extensions for class jqes
 //
 
-jQuery.fn.dp2emsInit = function() {
+jQuery.fn.jqesInit = function() {
 	for(var i = 0 ; i < this.length ; i++) {
 		var $sel = jQuery(this[i]);
-		var ems = new dp2ems($sel);
+		var ems = new jqes($sel);
 	}
 	return this;
 };
 
-jQuery.fn.dp2emsUpdate = function() {
+jQuery.fn.jqesUpdate = function() {
 	for(var i = 0 ; i < this.length ; i++) {
 		var $sel = jQuery(this[i]);
 		var selId = $sel.attr('id');
-		if(0 && !dp2ems.isInited($sel)) {
-			$sel.dp2emsInit();
+		if(0 && !jqes.isInited($sel)) {
+			$sel.jqesInit();
 		}
-		if(dp2ems.isInited($sel)) {
-			var ems = dp2ems.getInstance(selId);
+		if(jqes.isInited($sel)) {
+			var ems = jqes.getInstance(selId);
 			if(ems)
 				ems.doUpdateItems();
 		}
@@ -2266,8 +2266,8 @@ jQuery.fn.dp2emsUpdate = function() {
 };
 
 jQuery( document ).ready(function() {
-	if (jQuery(".dp2ems").size() > 0) {
-		jQuery(".dp2ems").dp2emsInit();
+	if (jQuery(".jqes, .dp2ems").size() > 0) {
+		jQuery(".jqes, .dp2ems").jqesInit();
 	}
 });
 
