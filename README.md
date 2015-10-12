@@ -9,6 +9,7 @@ Useful for big list of options.
 <img src='http://i59.tinypic.com/v7qblx.png'  />
 
 <h3>Demo:</h3>
+<img src='http://fat.gfycat.com/DelightfulPoliteAardwolf.gif'  /><br>
 See demo.html
 
 <h3>Changelog:</h3>
