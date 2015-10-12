@@ -8,9 +8,8 @@ Useful for big list of options.
 <h3>Screenshot:</h3>
 <img src='http://i59.tinypic.com/v7qblx.png'  />
 
-<h3>Using:</h3>
-See demo.html<br>
-Requires: browser with CSS3 support, jQuery, jQuery UI (effects, icons).
+<h3>Demo:</h3>
+See demo.html
 
 <h3>Changelog:</h3>
 <ul>
@@ -51,4 +50,10 @@ to open, Esc to close. Popup will autoclose when looses focus.</li>
 'htmlFor', controller methods - 'do' or 'on'.</li>
 </ul>
 </li>
+<li><b>2015-10-12 - v2.2</b><br>
+<ul>
+<li>Added many options to customize look. Most important are tryToKeepConstPopupHeight and reserveForPopupHeight.</li>
+<li>Proper display of pages with "deficit" of rows.</li>
+<li>Options can be set with 'data-*' attributes of &lt;select&gt;.</li>
+</ul>
 </ul>

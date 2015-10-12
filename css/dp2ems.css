@@ -7,7 +7,7 @@
  *
  * Requires: browser with CSS3 support, jQuery, jQuery UI (effects, icons)
  *
- * @version 2.1
+ * @version 2.2
  * @homepage https://github.com/ukrbublik/dp2ems
  * @author ukrbublik
  * @license MIT
@@ -55,10 +55,8 @@ position: relative;
 .dp2ems-select {
 border: 1px solid #D9D7D7;
 color: #4E4E53;
-padding: 2px 21px 2px 5px; /*minimum, L-R can be adjusted*/ /* r = l + w(.dp2ems-select > .cuselFrameRight)==24 - 8 */
+padding: 2px 21px 2px 5px; /* minimum, L-R can be adjusted*/ /* r = l + w(.dp2ems-select > .cuselFrameRight)==24 - 8 */
 border-radius: 4px;
-width: 215px; /*default*/
-height: 32px;  /*default*/
 position: relative;
 font-size: 12px;
 box-sizing: border-box;
@@ -72,6 +70,9 @@ outline: 0;
 }
 .dp2ems-select-auto-width {
 width: auto;
+}
+.dp2ems-select-auto-height {
+height: 100%;
 }
 .dp2ems-select > .cuselFrameRight {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
@@ -107,7 +108,6 @@ top: 0;
 left: 0;
 z-index: 99999999;
 box-sizing: border-box;
-width: 540px; /*default*/
 padding: 30px;
 outline: 0;
 -webkit-touch-callout: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
@@ -167,11 +167,6 @@ display: none;
 }
 .dp2ems-popup-ext {
 padding: 30px;
-}
-.dp2ems-popup-wide1 {
-right: 20px;
-left: 20px;
-width: auto;
 }
 
 /* popup close */
@@ -293,7 +288,7 @@ margin: -5px;
 }
 
 /* horizontal direction */
-.dp2ems-body-dir-horz {
+.dp2ems-dir-horz .dp2ems-body {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
 /* to let elements occupy all heigt */
@@ -306,13 +301,13 @@ display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-
 .dp2ems-row .dp2ems-el {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 }
-.dp2ems-body-cols-x .dp2ems-row .dp2ems-el {
+.dp2ems-cols-x .dp2ems-row .dp2ems-el {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 /* width: ? %; - will be added by JS dynamically, see renderPageTo() */
 }
 
 /* vertical direction */
-.dp2ems-body-dir-vert {
+.dp2ems-dir-vert .dp2ems-body {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 }
@@ -323,15 +318,15 @@ display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-
 .dp2ems-col .dp2ems-el {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 }
-.dp2ems-body-cols-x .dp2ems-col {
+.dp2ems-cols-x .dp2ems-col {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 /* width: ? %; - will be added by JS dynamically, see renderPageTo() */
 /* to let elements occupy all heigt */
-justify-content: space-between;
+justify-content: flex-start;
 }
 
 /* не работает? (пример: фильтр по Г, "Героев Сталинграда просп"), workaround - см. useRowsStyleForVerticalDirection */
-.dp2ems-body-rows-x .dp2ems-col .dp2ems-el {
+.dp2ems-rows-x .dp2ems-col .dp2ems-el {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 /* height: ? %; - will be added by JS dynamically, see renderPageTo() */
 }
@@ -340,17 +335,32 @@ justify-content: space-between;
 .dp2ems-body-wrapper {
 position: relative;
 overflow: hidden;
-/* to let .dp2ems-body occupy all height of .dp2ems-body-wrapper */
-display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
--webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 }
+
+.dp2ems-body-wrapper-flex {
+display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
+-webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
+}
+.dp2ems-body-wrapper-flex .dp2ems-body {
+-webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
+flex-basis: 0;
+/* flex-grow: <will be set dynamically>; */
+overflow: visible;
+}
+.dp2ems-body-wrapper-flex .dp2ems-body-ani-helper {
+-webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
+flex-basis: 0;
+/* flex-grow: <will be set dynamically>; */
+}
+
 .dp2ems-body {
 padding: 1px;
-/* to let .dp2ems-body occupy all height of .dp2ems-body-wrapper */
--webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
+overflow: visible;
 }
+
 .dp2ems-body-ghost {
 position: absolute;
+overflow: visible;
 }
 
 /* pages list */
@@ -496,10 +506,6 @@ text-decoration: underline;
 .dp2ems-ctrl-save-selection {
 position: relative;
 padding: 0 22px 0 0;
-display: none;
-}
-.dp2ems-popup-domplus .dp2ems-ctrl-save-selection {
-display: block;
 }
 .dp2ems-clr {
 clear: both;

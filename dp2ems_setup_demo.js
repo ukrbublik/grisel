@@ -1,25 +1,37 @@
 
 dp2ems.defaultOptions = jQuery.extend(dp2ems.defaultOptions, {
-	
-	//for domplus.com.ua:
-	//
-	//'divPopupClasses': 'dp2ems-popup-wide1',
-	//'divPopupClasses': 'dp2ems-popup-domplus',
-	//'flushSearchStringAfterSelection': 1,
-	//'showSelectedItemsBeforeSearched': 1,
-	//'showSelectedItemsWhenNoFound': 1,
-	//'hidePageControlsWhenThereisPegeList': 0,
-	'openOnHover': 0,
-	'minPagesForExt': 3,
-	//'showPagesList': 0,
-	
-	//test:
-	//
-	//'maxCntToShowListAsValStr': 2,
-	//'hideAny' : 1,
+	'divSelWidth': 300,
+	'divSelHeight': 30,
+	'divPopupWidth': 0,
+	'divPopupLabelsMinWidth': 100,
+	'tryToKeepConstPopupHeight': 1,
+	'reserveForPopupHeight': 50,
 });
 
+dp2ems.optionsBySelId = {
+	's_street': {
+	},
+	's_street2': {
+	},
+	's_street3': {
+	},
+	's_street4': {
+	},
+	's_street5': {
+	},
+	's_street6': {
+	},
+	's_street7': {
+	},
+	's_street8': {
+	},
+};
+
+
 dp2ems.defaultLang = 'ru';
+
+dp2ems.defaultStrings = jQuery.extend(dp2ems.defaultStrings, {
+});
 
 dp2ems.stringsBySelId = {
 	's_street': {
@@ -30,11 +42,5 @@ dp2ems.stringsBySelId = {
 			'noResultsMsg': 'Данной улицы Киева нет в списке, измените, пожалуйста, параметры поиска',
 			'maxSelectionMsg': 'Количество выбранных Вами улиц Киева достигло максимального значения.<br>Сохраните, пожалуйста, Ваш выбор',
 		}
-	},
-	's_street2': {
-		
-	},
-	's_street3': {
-		
 	},
 };

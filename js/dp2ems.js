@@ -7,7 +7,7 @@
  *
  * Requires: browser with CSS3 support, jQuery, jQuery UI (effects, icons)
  *
- * @version 2.1
+ * @version 2.2
  * @homepage https://github.com/ukrbublik/dp2ems
  * @author ukrbublik
  * @license MIT
@@ -17,11 +17,13 @@
 
 /**
  * TODO:
- * - pre-calc height (see 'min-height' at code) of body
+ * [+] choose optional position of popup according to potiotion of select on window
  *
  * Maybe later:
- * - skins with different colors?
- * - groups?
+ * [b] sometimes at first run (clear cache, try different broser etc.) - bad width (equals to width of window) - why???
+ * [+] skins with different colors?
+ * [+] groups of options?
+ * [?] for smooth animation without workarounds use html2canvas (http://html2canvas.hertzen.com/)
  */
 
 //
@@ -34,6 +36,7 @@ function dp2ems(s, options, strings, lang) {
 	this.$sel = jQuery();
 	this.$divSel = jQuery();
 	this.$divPopup = jQuery();
+	this.divWrapper = jQuery();
 	
 	this.isBadInst = false;
 	this.selId = '';
@@ -95,6 +98,12 @@ function dp2ems(s, options, strings, lang) {
 		}
 		if(typeof dp2ems.optionsBySelId[this.selId] != 'undefined')
 			this.options = jQuery.extend(this.options, dp2ems.optionsBySelId[this.selId]);
+		var optionsKeys = Object.keys(dp2ems.defaultOptions);
+		for(var i = 0 ; i < optionsKeys.length ; i++) {
+			var k = optionsKeys[i], v = this.$sel.data(k);
+			if(v !== undefined)
+				this.options[k] = v;
+		}
 		if(_options)
 			this.options = jQuery.extend(this.options, _options);
 		
@@ -179,34 +188,53 @@ dp2ems.defaultOptions = {
 	'hideAny': false,
 	//1 - fill items in left-to-right direction (horizontal) (in html group by rows), 0 - up-to-down direction (vertical) (in html group by cols)
 	'gridDirectionHorizontal': false,
-	//1 - force group by rows (not cols) in html for vertical direction (to make all elements in one row having equal height)
+	//1 - force group by rows (not cols) in html for vertical direction (to make all elements in one row having equal height),
+	// highly recommended (also because of animation problems with cols)
 	'useRowsStyleForVerticalDirection': true,
 	'openOnHover': false,
 	'areInnerCtrlsFocuable': false,
-	'showPagesList': true,
-	'showSearch': true,
-	'showIndex': true,
-	'showControls': true,
-	'hidePageControlsWhenThereisPegeList': true,
 	//when set to 2: for 3+ selected values text will be "X values", for 1-2 - "valA, valB", for 0 - one of allStr/anyStr/allStrDefault;
 	//when set to -1: always "X values"
 	'maxCntToShowListAsValStr': 3,
 	
+	//show/hide:
+	//
+	'showPagesList': true,
+	'showSearch': true,
+	'showIndex': true,
+	'showControls': true,
+	'hidePageControlsWhenThereIsPegeList': true,
+	'showCtrlSaveSelection': false,
+	'showCtrlShowSelection': true,
+	'showCtrlGotoSelection': true,
+	'showCtrlClearAll': true,
+	'showCloseCross': true,
+	
 	//sizes:
 	//
-	'autoWidth': false,
+	//-2 - equal to <select>'s width, -1 - equal to wrapper's width, 0 - auto, > 0 - concrete width
 	'divSelWidth': 0,
+	//-2 - equal to <select>'s height, -1 - equal to wrapper's height, 0 - auto, > 0 - concrete height
 	'divSelHeight': 0,
 	'divSelPaddingLeft': 8,
 	'divSelIsMultiline': false,
 	'divSelClasses': '',
+	//-2 - equal to wrapper's width, -1 - equal to sel's width, 0 - auto, > 0 - concrete width
 	'divPopupWidth': 0,
+	//0 - use css, > 0 - concrete height
 	'divPopupHeight': 0,
+	//for auto popup width - set min checkbox/radio's labels width
+	'divPopupLabelsMinWidth': 0,
 	'divPopupClasses': '',
+	'divWrapperClasses': '',
+	//when page with long labels appeared, keep new bigger popup height for all other pages
+	'tryToKeepConstPopupHeight': true,
+	//reserve (once) more height for popup (for case of appearing long labels at next pages), in px
+	'reserveForPopupHeight': 0,
 	
 	//animation:
 	//
-	'animatePopupDuration': [700, 400],
+	'animatePopupDuration': [600, 400],
 	'isElasticPopupAnimation': [1, 0],
 	'animatePopupEasing': ['easeOutElastic', 'easeInOutBack'],
 	'animatePageDuration': 150,
@@ -214,7 +242,6 @@ dp2ems.defaultOptions = {
 	
 	//"legacy" options (made for domplus.com.ua)
 	//
-	'hideShowSelectionControl': false,
 	'flushSearchStringAfterSelection': false,
 	'showSelectedItemsBeforeSearched': false,
 	'showSelectedItemsWhenNoFound': false,
@@ -237,26 +264,6 @@ dp2ems.getInstance = function(selId) {
 	return inst;
 };
 
-dp2ems.getFullHeight = function($el) {
-	return parseInt($el.height()) + parseInt($el.css('padding-top')) + parseInt($el.css('padding-bottom')) + parseInt($el.css('margin-top')) + parseInt($el.css('margin-bottom'));
-};
-dp2ems.getFullWidth = function($el) {
-	return parseInt($el.width()) + parseInt($el.css('padding-left')) + parseInt($el.css('padding-right')) + parseInt($el.css('margin-left')) + parseInt($el.css('margin-right'));
-};
-
-dp2ems.localizeCntName = function(cnt, cnt_names) {
-	var i;
-	if(cnt > 10 && cnt < 20)
-		i = 2;
-	else if(cnt % 10 == 1)
-		i = 0;
-	else if(cnt % 10 == 2 || cnt % 10 == 3 || cnt % 10 == 4)
-		i = 1;
-	else
-		i = 2;
-	return cnt_names[i];
-};
-
 dp2ems.fCharToGroup = function(fChar) {
 	var gr = fChar;
 	var chLC = fChar.toLowerCase();
@@ -275,6 +282,57 @@ dp2ems.isFCharInGroup = function(fChar, gr) {
 		return (!(chLC >= "а" && chLC <= "я" || chLC >= "a" && chLC <= "z"));
 	else
 		return fChar == gr;
+};
+
+//helpers
+dp2ems.getFullWidth = function($el, width_margin) {
+	return parseFloat($el.width()) + dp2ems.getWidthOverhead($el, width_margin);
+};
+dp2ems.getFullHeight = function($el, width_margin) {
+	return parseFloat($el.height()) + dp2ems.getHeightOverhead($el, width_margin);
+};
+dp2ems.getWidthOverhead = function($el, width_margin) {
+	if(width_margin === undefined)
+		width_margin = false;
+	return parseFloat($el.css('padding-left')) + parseFloat($el.css('padding-right')) + parseFloat($el.css('border-left-width')) + parseFloat($el.css('border-right-width')) + (width_margin ? parseFloat($el.css('margin-left')) + parseFloat($el.css('margin-right')) : 0);
+};
+dp2ems.getHeightOverhead = function($el, width_margin) {
+	if(width_margin === undefined)
+		width_margin = false;
+	return parseFloat($el.css('padding-top')) + parseFloat($el.css('padding-bottom')) + parseFloat($el.css('border-top-width')) + parseFloat($el.css('border-bottom-width')) + (width_margin ? parseFloat($el.css('margin-top')) + parseFloat($el.css('margin-bottom')) : 0);
+};
+dp2ems.getFloatWidth = function($el) {
+	var rect = $el[0].getBoundingClientRect();
+	var width;
+	if (rect.width) { //IE9+
+		width = rect.width;
+	} else {
+		width = rect.right - rect.left;
+	}
+	return width;
+};
+dp2ems.getFloatHeight = function($el) {
+	var rect = $el[0].getBoundingClientRect();
+	var height;
+	if (rect.height) { //IE9+
+		height = rect.height;
+	} else {
+		height = rect.bottom - rect.top;
+	}
+	return height;
+};
+
+dp2ems.localizeCntName = function(cnt, cnt_names) {
+	var i;
+	if(cnt > 10 && cnt < 20)
+		i = 2;
+	else if(cnt % 10 == 1)
+		i = 0;
+	else if(cnt % 10 == 2 || cnt % 10 == 3 || cnt % 10 == 4)
+		i = 1;
+	else
+		i = 2;
+	return cnt_names[i];
 };
 
 // ------------------------------------------------ Model - sync
@@ -580,7 +638,7 @@ dp2ems.prototype.mFilterItemsByFirstChar = function(gr) {
 			var it = this.items[i];
 			if(it.length > 0) {
 				var fChar = it[0];
-				if(dp2ems.isFCharInGroup(fChar, gr)) {
+				if(dp2ems.isFCharInGroup(fChar, gr) && this.anyItemInd != i) {
 					this.visibleItemsInds.push(i);
 					this.visibleItems.push(it);
 				}
@@ -763,7 +821,20 @@ dp2ems.prototype.getItemsCountWoAll = function() {
 };
 
 dp2ems.prototype.canGoToPage = function(page) {
-	return page == -1 && this.getPages() == 0 || page >= 0 && page < this.getPages();
+	return (page == -1 && this.getPages() == 0 || page >= 0 && page < this.getPages()) && !(this.$divPopup.data('changing-page') && this.$divPopup.data('changing-page-from') == page);
+};
+
+dp2ems.prototype.getMaxUsedGridRows = function() {
+	return Math.min( this.options.gridRows, !this.options.gridDirectionHorizontal ? this.items.length : Math.ceil(1.0 * this.items.length / this.options.gridColumns) );
+};
+dp2ems.prototype.getMaxUsedGridColumns = function() {
+	return Math.min( this.options.gridColumns, this.options.gridDirectionHorizontal ? this.items.length : Math.ceil(1.0 * this.items.length / this.options.gridRows) );
+};
+dp2ems.prototype.getUsedGridRowsForPage = function(page) {
+	return Math.min( this.options.gridRows, !this.options.gridDirectionHorizontal ? this.getVisibleItemsCntForPage(page) : Math.ceil(1.0 * this.getVisibleItemsCntForPage(page) / this.options.gridColumns) );
+};
+dp2ems.prototype.getUsedGridColumnsForPage = function(page) {
+	return Math.min( this.options.gridColumns, this.options.gridDirectionHorizontal ? this.getVisibleItemsCntForPage(page) : Math.ceil(1.0 * this.getVisibleItemsCntForPage(page) / this.options.gridRows) );
 };
 
 dp2ems.prototype.getItemsRangeForPage = function(page) {
@@ -776,6 +847,15 @@ dp2ems.prototype.getItemsRangeForPage = function(page) {
 		rng = [start, start + len-1];
 	}
 	return rng;
+};
+dp2ems.prototype.getVisibleItemsCntForPage = function(page) {
+	if(page === undefined)
+		page = this.currPage;
+	var rng = this.getItemsRangeForPage(page);
+	var cnt = 0;
+	if(rng !== false)
+		cnt = rng[1] - rng[0] + 1;
+	return cnt;
 };
 
 dp2ems.prototype.getSearchedCnt = function() {
@@ -846,21 +926,32 @@ dp2ems.prototype.vOpenPopup = function(animate) {
 		return;
 	var self = this;
 	
+	var minw = Math.max(parseFloat(this.$divPopup.css('min-width')), dp2ems.getFullWidth(this.$divSel));
+	this.$divPopup.css('min-width', minw);
 	this.$divPopup.removeClass('hidden');
+	var isFullRows = this.getUsedGridRowsForPage(this.currPage) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
+	if(isFullRows && this.options.reserveForPopupHeight > 0) {
+		//reserve (once) more height for popup (for case of appearing long labels at next pages)
+		var bh0 = this.$divPopup.$body.height();
+		bh0 += this.options.reserveForPopupHeight;
+		this.$divPopup.$body.height(bh0);
+		this.options.reserveForPopupHeight = -1 * this.options.reserveForPopupHeight;
+	}
 	this.onShowPopup();
 	this.$divPopup.focus();
-	
 	var aniTo = {
+		'min-width': minw,
 		width: dp2ems.getFullWidth(this.$divPopup), 
 		height: dp2ems.getFullHeight(this.$divPopup),
 		opacity: this.$divPopup.css('opacity'),
 	};
 	var cssRestore = {
-		width: (this.options.divPopupWidth ? this.options.divPopupWidth : ''),
+		width: (this.options.divPopupWidth > 0 ? this.options.divPopupWidth : (this.options.divPopupWidth == -1 ? dp2ems.getFullWidth(this.$divSel) : '')),
 		height: (this.options.divPopupHeight ? this.options.divPopupHeight : ''),
 		opacity: this.$divPopup.css('opacity'),
 	};
 	var aniFrom = {
+		'min-width': '',
 		width: dp2ems.getFullWidth(this.$divSel),
 		height: dp2ems.getFullHeight(this.$divSel),
 		opacity: 0,
@@ -878,47 +969,17 @@ dp2ems.prototype.vOpenPopup = function(animate) {
 	if(doAnimate) {
 		this.$divPopup.data('opening', 1);
 		//temp fixes for smooth animation
-		var isConcrete = this.$divPopup.hasClass('dp2ems-concrete-height');
-		if(this.$divPopup.$bodyWrapper.css('min-height')) {
-			this.$divPopup.$bodyWrapper.data('_min-height', this.$divPopup.$bodyWrapper.css('min-height'));
-			this.$divPopup.$bodyWrapper.css('min-height', '');
-		}
-		if(!isConcrete)
-			this.$divPopup.addClass('dp2ems-concrete-height');
-		this.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
-			var $el = jQuery(el);
-			var w = $el.width(), h = $el.height();
-			$el.css({
-				'max-width': w,
-				'min-width': w,
-				'max-height': h,
-				'min-height': h,
-			});
-		});
+		this._vTempFixesBeforeAnimationOpCl();
 		//animate
 		var aniOpts = {
 			duration: this.options.animatePopupDuration[0], 
 			easing: this.options.animatePopupEasing[0],
 			complete: function() {
 				//revert temp fixes
-				if(!isConcrete)
-					self.$divPopup.removeClass('dp2ems-concrete-height');
-				if(self.$divPopup.$bodyWrapper.data('_min-height')) {
-					self.$divPopup.$bodyWrapper.css('min-height', self.$divPopup.$bodyWrapper.data('_min-height'));
-					self.$divPopup.$bodyWrapper.data('_min-height', '');
-				}
-				self.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
-					var $el = jQuery(el);
-					$el.css({
-						'max-width': '',
-						'min-width': '',
-						'max-height': '',
-						'min-height': '',
-					});
-				});
+				self._vRevertTempFixesAfterAnimationOpCl();
 				//restore state as before animation
 				self.$divPopup.css(cssRestore);
-				self.vFixBodyHeight();
+				self._vFixBodyHeight();
 				self.$divPopup.data('opening', 0);
 				//"dequeue" close task
 				if(self.$divPopup.data('to_close')) {
@@ -931,7 +992,7 @@ dp2ems.prototype.vOpenPopup = function(animate) {
 		};
 		this.$divPopup.css(aniFrom).animate(aniTo, aniOpts);
 	} else {
-		self.vFixBodyHeight();
+		self._vFixBodyHeight();
 	}
 };
 
@@ -944,17 +1005,20 @@ dp2ems.prototype.vClosePopup = function(animate) {
 		return;
 	var self = this;
 	
+	var minw = parseFloat(this.$divPopup.css('min-width'));
 	var aniTo = {
 		width: dp2ems.getFullWidth(this.$divSel),
 		height: dp2ems.getFullHeight(this.$divSel),
 		opacity: 0,
 	};
 	var cssRestore = {
-		width: (this.options.divPopupWidth ? this.options.divPopupWidth : ''),
+		'min-width': minw,
+		width: (this.options.divPopupWidth > 0 ? this.options.divPopupWidth : (this.options.divPopupWidth == -1 ? dp2ems.getFullWidth(this.$divSel) : '')),
 		height: (this.options.divPopupHeight ? this.options.divPopupHeight : ''),
 		opacity: this.$divPopup.css('opacity'),
 	};
 	var aniFrom = {
+		'min-width': '',
 		width: dp2ems.getFullWidth(this.$divPopup), 
 		height: dp2ems.getFullHeight(this.$divPopup),
 		opacity: this.$divPopup.css('opacity'),
@@ -972,44 +1036,14 @@ dp2ems.prototype.vClosePopup = function(animate) {
 	if(doAnimate) {
 		self.$divPopup.data('closing', 1);
 		//temp fixes for smooth animation
-		var isConcrete = this.$divPopup.hasClass('dp2ems-concrete-height');
-		if(this.$divPopup.$bodyWrapper.css('min-height')) {
-			this.$divPopup.$bodyWrapper.data('_min-height', this.$divPopup.$bodyWrapper.css('min-height'));
-			this.$divPopup.$bodyWrapper.css('min-height', '');
-		}
-		if(!isConcrete)
-			this.$divPopup.addClass('dp2ems-concrete-height');
-		this.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
-			var $el = jQuery(el);
-			var w = $el.width(), h = $el.height();
-			$el.css({
-				'max-width': w,
-				'min-width': w,
-				'max-height': h,
-				'min-height': h,
-			});
-		});
+		this._vTempFixesBeforeAnimationOpCl();
 		//animate
 		var aniOpts = {
 			duration: this.options.animatePopupDuration[1], 
 			easing: this.options.animatePopupEasing[1],
 			complete: function() {
 				//revert temp fixes
-				if(!isConcrete)
-					self.$divPopup.removeClass('dp2ems-concrete-height');
-				if(self.$divPopup.$bodyWrapper.data('_min-height')) {
-					self.$divPopup.$bodyWrapper.css('min-height', self.$divPopup.$bodyWrapper.data('_min-height'));
-					self.$divPopup.$bodyWrapper.data('_min-height', '');
-				}
-				self.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
-					var $el = jQuery(el);
-					$el.css({
-						'max-width': '',
-						'min-width': '',
-						'max-height': '',
-						'min-height': '',
-					});
-				});
+				self._vRevertTempFixesAfterAnimationOpCl();
 				//restore state as before animation
 				self.$divPopup.css(cssRestore);
 				self.$divPopup.addClass('hidden');
@@ -1030,6 +1064,73 @@ dp2ems.prototype.vClosePopup = function(animate) {
 	}
 };
 
+dp2ems.prototype._vTempFixesBeforeAnimationOpCl = function() {
+	var self = this;
+	var bodyHeight = dp2ems.getFullHeight(this.$divPopup.$body, true);
+	var bodyWrapperHeight = dp2ems.getFullHeight(this.$divPopup.$bodyWrapper, true);
+	var tmp = [];
+	this.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
+		var $el = jQuery(el);
+		var w = dp2ems.getFloatWidth($el), h = dp2ems.getFloatHeight($el);
+		tmp.push([ $el, w, h ]);
+	});
+	for(var i = 0 ; i < tmp.length ; i++) {
+		tmp[i][0].css({
+			'max-width': tmp[i][1],
+			'min-width': tmp[i][1],
+			'max-height': tmp[i][2],
+			'min-height': tmp[i][2],
+		});
+	}
+	var isConcrete = this.$divPopup.hasClass('dp2ems-concrete-height');
+	this.$divPopup.data('_isConcrete', isConcrete);
+	if(this.$divPopup.$bodyWrapper.css('min-height'))
+		this.$divPopup.$bodyWrapper.data('_min-height', this.$divPopup.$bodyWrapper.css('min-height')).css('min-height', '');
+	if(this.$divPopup.$bodyWrapper.css('min-width'))
+		this.$divPopup.$bodyWrapper.data('_min-width', this.$divPopup.$bodyWrapper.css('min-width')).css('min-width', '');
+	if(this.$divPopup.$bodyWrapper.css('max-width'))
+		this.$divPopup.$bodyWrapper.data('_max-width', this.$divPopup.$bodyWrapper.css('max-width')).css('max-width', '');
+	this.$divPopup.$bodyWrapper.addClass('dp2ems-body-wrapper-flex');
+	this.$divPopup.$body.css('flex-grow', bodyHeight);
+	this.$divPopup.$bodyAniHelper.css('flex-grow', bodyWrapperHeight - bodyHeight);
+	if(!isConcrete)
+		this.$divPopup.addClass('dp2ems-concrete-height');
+};
+
+dp2ems.prototype._vRevertTempFixesAfterAnimationOpCl = function() {
+	var self = this;
+	var isConcrete = this.$divPopup.data('_isConcrete');
+	if(!isConcrete)
+		this.$divPopup.removeClass('dp2ems-concrete-height');
+	if(this.$divPopup.$bodyWrapper.data('_min-height'))
+		this.$divPopup.$bodyWrapper.css('min-height', this.$divPopup.$bodyWrapper.data('_min-height')).data('_min-height', '');
+	if(this.$divPopup.$bodyWrapper.data('_min-width'))
+		this.$divPopup.$bodyWrapper.css('min-width', this.$divPopup.$bodyWrapper.data('_min-width')).data('_min-width', '');
+	if(this.$divPopup.$bodyWrapper.data('_max-width'))
+		this.$divPopup.$bodyWrapper.css('max-width', this.$divPopup.$bodyWrapper.data('_max-width')).data('_max-width', '');
+	this.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
+		var $el = jQuery(el);
+		$el.css({
+			'max-width': '',
+			'min-width': (self.options.divPopupLabelsMinWidth > 0 ? self.options.divPopupLabelsMinWidth : ''),
+			'max-height': '',
+			'min-height': '',
+		});
+	});
+	this.$divPopup.$bodyWrapper.removeClass('dp2ems-body-wrapper-flex');
+}
+
+dp2ems.prototype._vBodyFlexOn = function() {
+	var bodyHeight = dp2ems.getFullHeight(this.$divPopup.$body, true);
+	var bodyWrapperHeight = dp2ems.getFullHeight(this.$divPopup.$bodyWrapper, true);
+	this.$divPopup.$bodyWrapper.addClass('dp2ems-body-wrapper-flex');
+	this.$divPopup.$body.css('flex-grow', bodyHeight);
+	this.$divPopup.$bodyAniHelper.css('flex-grow', bodyWrapperHeight - bodyHeight);
+};
+dp2ems.prototype._vBodyFlexOff = function() {
+	this.$divPopup.$bodyWrapper.removeClass('dp2ems-body-wrapper-flex');
+};
+
 //render
 //
 dp2ems.prototype.vConvertSelectOnce = function() {
@@ -1040,6 +1141,7 @@ dp2ems.prototype.vConvertSelectOnce = function() {
 	//replace original <select> with our custom sel & popup divs
 	this.$sel.hide();
 	this.$sel.wrap(this.htmlForWrapper());
+	this.$divWrapper = this.$sel.parent();
 	this._allowZeroSelection(); //TIP: need to fix after wrap() call
 	this.$divSel = jQuery(this.htmlForSel());
 	this.$divPopup = jQuery(this.htmlForPopup());
@@ -1076,6 +1178,7 @@ dp2ems.prototype.vConvertSelectOnce = function() {
 	this.$divPopup.$bodyWrapper = this.$divPopup.find(".dp2ems-body-wrapper");
 	this.$divPopup.$body = this.$divPopup.find(".dp2ems-body:not(.dp2ems-body-ghost)");
 	this.$divPopup.$bodyGhost = this.$divPopup.find(".dp2ems-body-ghost");
+	this.$divPopup.$bodyAniHelper = this.$divPopup.find(".dp2ems-body-ani-helper");
 	this.$divPopup.$msg = this.$divPopup.find(".dp2ems-msg");
 	this.$divPopup.$msgSpan = this.$divPopup.find(".dp2ems-msg span");
 	this.$divPopup.$index = this.$divPopup.find(".dp2ems-index");
@@ -1114,32 +1217,42 @@ dp2ems.prototype.vConvertSelectOnce = function() {
 		$list.attr('tabindex', this.options.areInnerCtrlsFocuable ? 0 : -1);
 	
 	//apply sizes options
-	if(this.options.autoWidth) {
+	if(this.options.divSelWidth == -2)
+		this.$divSel.css('width', dp2ems.getFullWidth(this.$sel));
+	else if(this.options.divSelWidth == -1)
 		this.$divSel.addClass('dp2ems-select-auto-width');
-		this.$divPopup.addClass('dp2ems-popup-auto-width');
-	}
-	if(this.options.divSelWidth)
-		this.$divSel.css('width', parseInt(this.options.divSelWidth));
-	if(this.options.divSelHeight)
-		this.$divSel.css('height', parseInt(this.options.divSelHeight));
+	else if(this.options.divSelWidth > 0)
+		this.$divSel.css('width', parseFloat(this.options.divSelWidth));
+	if(this.options.divSelHeight == -2)
+		this.$divSel.css('height', dp2ems.getFullHeight(this.$sel));
+	else if(this.options.divSelHeight == -1)
+		this.$divSel.addClass('dp2ems-select-auto-height');
+	else if(this.options.divSelHeight > 0)
+		this.$divSel.css('height', parseFloat(this.options.divSelHeight));
 	if(this.options.divSelPaddingLeft) {
 		setTimeout(function() {
-			self.$divSel.css('padding-left', parseInt(self.options.divSelPaddingLeft));
-			self.$divSel.css('padding-right', parseInt(self.options.divSelPaddingLeft) + dp2ems.getFullWidth(self.$divSel.find('.cuselFrameRight')) - 8);
+			self.$divSel.css('padding-left', parseFloat(self.options.divSelPaddingLeft));
+			self.$divSel.css('padding-right', parseFloat(self.options.divSelPaddingLeft) + dp2ems.getFullWidth(self.$divSel.find('.cuselFrameRight'), true) - 8);
 		}, 5);
 	}
 	if(this.options.divSelIsMultiline)
 		this.$divSel.addClass('dp2ems-select-multiline');
 	if(this.options.divSelClasses)
 		this.$divSel.addClass(this.options.divSelClasses);
-	if(this.options.divPopupWidth)
-		this.$divPopup.css('width', parseInt(this.options.divPopupWidth));
-	if(this.options.divPopupHeight) {
+	if(this.options.divPopupWidth == -2)
+		this.$divPopup.addClass('dp2ems-popup-auto-width');
+	else if(this.options.divPopupWidth == -1)
+		this.$divPopup.css('width', dp2ems.getFullWidth(this.$divSel));
+	else if(this.options.divPopupWidth > 0)
+		this.$divPopup.css('width', parseFloat(this.options.divPopupWidth));
+	if(this.options.divPopupHeight > 0) {
 		this.$divPopup.addClass('dp2ems-concrete-height');
-		this.$divPopup.css('height', parseInt(this.options.divPopupHeight));
+		this.$divPopup.css('height', parseFloat(this.options.divPopupHeight));
 	}
 	if(this.options.divPopupClasses)
 		this.$divPopup.addClass(this.options.divPopupClasses);
+	if(this.options.divWrapperClasses)
+		this.$divWrapper.addClass(this.options.divWrapperClasses);
 };
 
 dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
@@ -1165,9 +1278,12 @@ dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 	
 	//render page w/ or w/o animation
 	var doAnimate = (animate == true && page != oldPage && page >= 0 && oldPage >= 0 && this.options.animatePageDuration && !this.$divPopup.$body.is(':empty'));
+	var isFullRows = this.getUsedGridRowsForPage(page) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
+	var wasFullRows = this.getUsedGridRowsForPage(oldPage) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
 	if(!doAnimate) {
 		this.$divPopup.$bodyGhost.html('');
 		this.vRenderPageTo(tmp, this.$divPopup.$body);
+		var r = self._vPreFixBodyHeight(false);
 		callback();
 	} else {
 		var w = this.$divPopup.$body.width();
@@ -1176,26 +1292,27 @@ dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 		if(isSimultAnims) {
 			this.vRenderPageTo(tmp, this.$divPopup.$bodyGhost);
 		} else {
-			this.$divPopup.$bodyGhost.removeClass('dp2ems-hidden').css({
-				width: w, 'min-width': w,'max-width': w, 
-				height: h, 'min-height': h, 'max-height': h,
+			this.$divPopup.data('changing-page', 1).data('changing-page-from', oldPage).data('changing-page-to', page).addClass('dp2ems-animating-change-page');
+			this.vRenderPageTo(tmp, this.$divPopup.$bodyGhost);
+			this.$divPopup.$bodyGhost.removeClass('dp2ems-hidden');
+			this.$divPopup.$bodyGhost.css({
+				width: w,
 				top: 0,
 				left: (page > oldPage ? w : -w)
 			});
-			this.vRenderPageTo(tmp, this.$divPopup.$bodyGhost);
-			var bodyWrapperNewH = Math.max( dp2ems.getFullHeight(this.$divPopup.$bodyGhost), dp2ems.getFullHeight(this.$divPopup.$body) );
-			var bodyWrapperOldH = dp2ems.getFullHeight(this.$divPopup.$bodyWrapper);
+			
+			var r = self._vPreFixBodyHeight(true);
 			this.$divPopup.$bodyWrapper.css({
-				height: bodyWrapperOldH
+				height: r.bodyWrapperOldH
 			});
 			this.$divPopup.$body.addClass('dp2ems-body-ghost').removeClass('dp2ems-hidden').css({
-				width: w, 'min-width': w,'max-width': w, 
-				height: h, 'min-height': h, 'max-height': h,
+				width: w,
+				height: h,
 				top: 0,
 				left: 0
 			});
 			var bodyWrapperAniTo = {
-				height: bodyWrapperNewH
+				height: r.bodyWrapperNewH
 			};
 			var bodyAniTo = {
 				left: (page > oldPage ? -w : w)
@@ -1207,14 +1324,14 @@ dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 				height: '',
 			};
 			var bodyCssRestore = {
-				width: '', 'min-width': '','max-width': '', 
-				height: '', 'min-height': '', 'max-height': '',
+				width: '',
+				height: (r.gh_ ? r.gh_ : ''),
 				top: '',
 				left: ''
 			};
 			var bodyGhostCssRestore = {
-				width: '', 'min-width': '','max-width': '', 
-				height: '', 'min-height': '', 'max-height': '',
+				width: '',
+				height: '',
 				top: '',
 				left: ''
 			};
@@ -1235,7 +1352,8 @@ dp2ems.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 				self.$divPopup.$bodyGhost = $tmp;
 				self.$divPopup.$bodyGhost.addClass('dp2ems-hidden');
 				self.$divPopup.$body.removeClass('dp2ems-hidden');
-				self.vFixBodyHeight();
+				self._vFixBodyHeight();
+				self.$divPopup.data('changing-page', 0).removeData('changing-page-from').removeData('changing-page-to').removeClass('dp2ems-animating-change-page');
 				callback();
 			};
 			var onOneComplete = function() {
@@ -1263,9 +1381,9 @@ dp2ems.prototype.vRenderPageTo = function(tmp, $body) {
 	$body.html(tmp.html);
 	
 	//add dynamic styles
-	$body.find('.dp2ems-row .dp2ems-el').css('width', (1.0 * 100 / this.options.gridColumns)+'%');
-	$body.find('.dp2ems-col').css('width', (1.0 * 100 / this.options.gridColumns)+'%');
-	$body.find('.dp2ems-col .dp2ems-el').css('height', (1.0 * 100 / this.options.gridRows)+'%');
+	$body.find('.dp2ems-row .dp2ems-el').css('width', (1.0 * 100 / this.getMaxUsedGridColumns())+'%');
+	$body.find('.dp2ems-col').css('width', (1.0 * 100 / this.getMaxUsedGridColumns())+'%');
+	$body.find('.dp2ems-col .dp2ems-el').css('height', (1.0 * 100 / this.getMaxUsedGridRows())+'%');
 	
 	//customize checkboxes
 	var $checkboxes = $body.$checkboxes();
@@ -1274,7 +1392,10 @@ dp2ems.prototype.vRenderPageTo = function(tmp, $body) {
 	if(this.options.areInnerCtrlsFocuable)
 		$checkboxes.filter('.prch2-hidden').next('label').next('.prch2-label').attr('tabindex', this.options.areInnerCtrlsFocuable ? 0 : -1);
 	
-	this.vFixBodyHeight();
+	if(this.options.divPopupLabelsMinWidth > 0)
+		$body.find('.prch2-text-wrapper').css('min-width', this.options.divPopupLabelsMinWidth);
+	
+	this._vFixBodyHeight();
 };
 
 dp2ems.prototype.vRenderValStr = function(str) {
@@ -1333,7 +1454,7 @@ dp2ems.prototype.vPostRenderPagesList = function(animate) {
 	var $dots = this.$divPopup.$pagesList.$dotsWrappers();
 	var $currDot = this.$divPopup.$pagesList.$currDotWrapper();
 	var currDotI = $dots.index($currDot);
-	var dotW = $dots.length ? dp2ems.getFullWidth($dots.first()) : 0;
+	var dotW = $dots.length ? dp2ems.getFullWidth($dots.first(), true) : 0;
 	var dotsCnt = $dots.length;
 	var maxDotCnt = dotW ? Math.floor(1.0 * dotsVW / dotW) : 0;
 	if(dotW && dotsCnt > maxDotCnt) {
@@ -1349,7 +1470,9 @@ dp2ems.prototype.vPostRenderPagesList = function(animate) {
 		if((rngStart + rngLen) < dotsCnt)
 			$dotsToHide = $dotsToHide.add( $dots.slice(rngStart + rngLen, dotsCnt) );
 		var $visDots = $dots.not($dotsToHide);
-		var offs = $visDots.first().position().left;
+		var offs = 0;
+		if($visDots.length)
+			offs = $visDots.first().position().left;
 		if((rngStart + rngLen) == dotsCnt)
 			offs = dotsCnt * dotW - dotsVW;
 		var doAnimate = this.options.animatePageDuration > 0 && (animate === undefined || animate == true);
@@ -1375,23 +1498,66 @@ dp2ems.prototype.vPostRenderPagesList = function(animate) {
 
 //upd view after some actions
 //
+
+/**
+ * If option 'tryToKeepConstPopupHeight' is set, keep body height const (only for full rows) (if labels on page are shorter, there will be more distance between elements).
+ * If option 'reserveForPopupHeight' is set and on curr page there is "deficit" of rows, add % of reserve to these rows.
+ * (This fixes will force body to keep 'width' css-style)
+ */
+dp2ems.prototype._vPreFixBodyHeight = function(applyToBodyGhost) {
+	var $trgBody = (applyToBodyGhost ? this.$divPopup.$bodyGhost : this.$divPopup.$body);
+	var isFullRows = this.getUsedGridRowsForPage(this.currPage) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
+	var bodyWrapperOldH = dp2ems.getFullHeight(this.$divPopup.$bodyWrapper, true);
+	$trgBody.css('height', '');
+	var gh1 = dp2ems.getFullHeight($trgBody, true);
+	var gh = $trgBody.height();
+	var gh1_ = 0, gh_ = 0; //forced height
+	if(!isFullRows && this.options.reserveForPopupHeight < 0) {
+		var dh = this.getUsedGridRowsForPage(this.currPage) / this.getMaxUsedGridRows() * -1 * this.options.reserveForPopupHeight;
+		gh1_ = gh1 + dh;
+	}
+	if(this.options.tryToKeepConstPopupHeight && isFullRows && gh1 && gh1 < bodyWrapperOldH) {
+		gh1_ = bodyWrapperOldH;
+	}
+	if(gh1_) {
+		gh1 = gh1_;
+		gh_ = gh1_ - dp2ems.getHeightOverhead($trgBody, true);
+		gh = gh_;
+	}
+	if(gh)
+		$trgBody.css('height', gh);
+	var bh1 = dp2ems.getFullHeight(this.$divPopup.$body, true);
+	var bodyWrapperNewH = Math.max(bh1, gh1);
+	
+	var r = {gh1: gh1, gh: gh, gh1_: gh1_, gh_: gh_, bodyWrapperOldH: bodyWrapperOldH, bodyWrapperNewH: bodyWrapperNewH};
+	return r;
+};
+
 /**
  * If on new page there are less options than on old one, popup height will normally decrease - we don't want that, so fix!
+ * This fix will force bodyWrapper to keep 'min-height' css-style.
+ * Also if option 'tryToKeepConstPopupHeight' is set, body will keep const height (only for full rows) via 'width' css-style.
  */
-dp2ems.prototype.vFixBodyHeight = function($divToRender) {
+dp2ems.prototype._vFixBodyHeight = function() {
 	var self = this;
-	if($divToRender === undefined)
-		$divToRender = self.$divPopup.$bodyWrapper;
+	var $divToRender = self.$divPopup.$bodyWrapper;
 	if(this.$divPopup.hasClass('dp2ems-concrete-height')) {
 	} else {
-		var h = parseInt($divToRender.height());
-		var minh = parseInt($divToRender.css('min-height'));
-		var _minh = parseInt($divToRender.data('_min-height'));
+		var isFullRows = this.getUsedGridRowsForPage(this.currPage) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
+		
+		var r = self._vPreFixBodyHeight(false);
+		
+		var h = parseFloat($divToRender.height());
+		var w = parseFloat($divToRender.width());
+		var minh = parseFloat($divToRender.css('min-height'));
+		var _minh = parseFloat($divToRender.data('_min-height'));
+		var minw = parseFloat($divToRender.css('min-width'));
 		if(isNaN(_minh)) _minh = 0;
 		if(isNaN(minh)) minh = 0;
+		if(isNaN(minw)) minw = 0;
 		if(self.$divPopup.$msg.hasClass('visible') && self.$divPopup.$body.is(':empty')) {
 			//body is empty and msg is not
-			var msgH = dp2ems.getFullHeight(self.$divPopup.$msg);
+			var msgH = dp2ems.getFullHeight(self.$divPopup.$msg, true);
 			if(!_minh) {
 				$divToRender.css('min-height', (minh-msgH)+'px');
 				$divToRender.data('_min-height', minh+'px');
@@ -1402,8 +1568,19 @@ dp2ems.prototype.vFixBodyHeight = function($divToRender) {
 				minh = _minh;
 				$divToRender.css('min-height', minh+'px');
 			}
-			if(!minh || h > minh)
-				$divToRender.css('min-height', h+'px');
+			if(!minh || h > minh) {
+				minh = h;
+				$divToRender.css('min-height', minh+'px');
+			}
+			/** don't need (?), see _vPreFixBodyHeight() above **
+			if(this.options.tryToKeepConstPopupHeight && minh && isFullRows) {
+				self.$divPopup.$body.css('height', minh - dp2ems.getHeightOverhead(this.$divPopup.$body, true));
+			}
+			*/
+		}
+		if(!minw && w /* || w > minw*/ && this.options.divPopupWidth == 0) {
+			$divToRender.css('min-width', w+'px');
+			$divToRender.css('max-width', w+'px');
 		}
 	}
 };
@@ -1451,6 +1628,7 @@ dp2ems.prototype.vAfterUpdateItems = function() {
 	
 	this.$divPopup.$ctrlClearAll.toggle( this.getItemsCountWoAll() > 0 );
 	this.$divPopup.$ctrlShowSelection.toggle( this.getItemsCountWoAll() > 0 );
+	this.$divPopup.$ctrlSaveSelection.toggle( this.getItemsCountWoAll() > 0 );
 	this.$divPopup.$bodyWrapper.toggle( this.items.length > 0 );
 };
 
@@ -1475,25 +1653,27 @@ dp2ems.prototype.htmlForPopup = function() {
 	
 	var divPopupHtml = '';
 	divPopupHtml += "<div class='hidden dp2ems-popup " + classAreaPopup + (this.isMultiple ? "" : " dp2ems-popup-single") + "'>";
-		divPopupHtml += "<div class='dp2ems-close'>";
-		divPopupHtml += "</div>";
+		if(this.options.showCloseCross) {
+			divPopupHtml += "<div class='dp2ems-close'></div>";
+		}
 		if(this.options.showSearch) {
 			divPopupHtml += "<div class='dp2ems-head'>";
 				divPopupHtml += "<input class='dp2ems-search' type='text' placeholder='" + this.strings.inputPlaceholder + "'/>";
-				if(!(this.options.hidePageControlsWhenThereisPegeList && this.options.showPagesList)) {
+				if(!(this.options.hidePageControlsWhenThereIsPegeList && this.options.showPagesList)) {
 					divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-left'></div>";
 					divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-right'></div>";
 				}
 			divPopupHtml += "</div>";
 		}
 		divPopupHtml += "<div class='dp2ems-msg'><span></span></div>";
-		divPopupHtml += "<div class='dp2ems-body-wrapper'>";
-			divPopupHtml += "<div class='dp2ems-body " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'dp2ems-body-dir-horz' : 'dp2ems-body-dir-vert') + " dp2ems-body-cols-x dp2ems-body-cols-" + this.options.gridColumns + " dp2ems-body-rows-x dp2ems-body-rows-" + this.options.gridRows + "'>";
+		divPopupHtml += "<div class='dp2ems-body-wrapper " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'dp2ems-dir-horz' : 'dp2ems-dir-vert') + " dp2ems-cols-x dp2ems-cols-" + this.options.gridColumns + " dp2ems-rows-x dp2ems-rows-" + this.options.gridRows + "'>";
+			divPopupHtml += "<div class='dp2ems-body'>";
 				//... look at this.vRenderPage(page)
 			divPopupHtml += "</div>";
-			divPopupHtml += "<div class='dp2ems-body dp2ems-body-ghost dp2ems-hidden " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'dp2ems-body-dir-horz' : 'dp2ems-body-dir-vert') + " dp2ems-body-cols-x dp2ems-body-cols-" + this.options.gridColumns + " dp2ems-body-rows-x dp2ems-body-rows-" + this.options.gridRows + "'>";
+			divPopupHtml += "<div class='dp2ems-body dp2ems-body-ghost dp2ems-hidden'>";
 				//... look at this.vRenderPage(page)
 			divPopupHtml += "</div>";
+			divPopupHtml += "<div class='dp2ems-body-ani-helper'></div>";
 		divPopupHtml += "</div>";
 		if(this.options.showPagesList) {
 			divPopupHtml += "<div class='dp2ems-pages-list'>";
@@ -1502,20 +1682,22 @@ dp2ems.prototype.htmlForPopup = function() {
 		}
 		if(this.options.showControls) {
 			divPopupHtml += "<div class='dp2ems-ctrls'>";
-				if(!(this.options.hidePageControlsWhenThereisPegeList && this.options.showPagesList)) {
+				if(!(this.options.hidePageControlsWhenThereIsPegeList && this.options.showPagesList)) {
 					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrls-pag'>";
 						divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-left'></div>";
 						divPopupHtml += "<div class='dp2ems-btn dp2ems-btn-right'></div>";
 						divPopupHtml += "<div class='dp2ems-clr'></div>";
 					divPopupHtml += "</div>";
 				}
-				divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-clear-all'>" + textClearAll + "</div>";
-				if(this.isMultiple && !this.options.hideShowSelectionControl)
+				if(this.options.showCtrlClearAll)
+					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-clear-all'>" + textClearAll + "</div>";
+				if(this.isMultiple && this.options.showCtrlShowSelection)
 					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-show-selection'>" + textShowSelection + "</div>";
-				if(!this.isMultiple)
+				if(!this.isMultiple && this.options.showCtrlGotoSelection)
 					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-goto-selection'>" + textGotoSelection + "</div>";
 				divPopupHtml += "<div class='dp2ems-ctrl-space'></div>";
-				divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
+				if(this.options.showCtrlSaveSelection)
+					divPopupHtml += "<div class='dp2ems-ctrl dp2ems-ctrl-link dp2ems-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
 			divPopupHtml += "</div>";
 		}
 		if(this.options.showIndex) {
@@ -1582,7 +1764,7 @@ dp2ems.prototype.htmlForPage = function(page) {
 		};
 		
 		var renderRowStart = function(self, html, r) {
-			var html = "<div class='dp2ems-row dp2ems-body-rows-x dp2ems-body-rows-" + self.options.gridRows + "' id='dp2ems-row-" + r + "'>";
+			var html = "<div class='dp2ems-row dp2ems-body-rows-x dp2ems-body-rows-" + self.getMaxUsedGridRows() + "' id='dp2ems-row-" + r + "'>";
 			return html;
 		};
 		var renderRowEnd = function(self, html, r) {
@@ -1821,9 +2003,8 @@ dp2ems.prototype.doUpdateItems = function() {
 //
 dp2ems.prototype.doOpenPopup = function() {
 	dp2ems.doCloseAppPopups();
-	if(!this.isMultiple) {
+	if(!this.isMultiple && this.selectedItemsInds.length)
 		this.doGotoSelection(false);
-	}
 	this.vOpenPopup();
 };
 dp2ems.prototype.doClosePopup = function() {
@@ -1899,7 +2080,7 @@ dp2ems.prototype.doRenderPagesList = function() {
 		});
 		this.$divPopup.$pagesList.$dots().click(function() {
 			var p = parseInt(jQuery(this).attr('page'));
-			if(self.canGoToPage(p))
+			if(self.canGoToPage(p) && p != self.currPage)
 				self.doGotoPage(p, true);
 		});
 	}
