@@ -17,7 +17,9 @@
 
 /**
  * TODO:
- * [d] docs
+ * [d] docs: installation (include js, css); examples; descrtption of options, methods
+ * [+] scroll instead of dots
+ * [+] changing pages on mobile devices with swipe
  * [+] choose optional position of popup according to potiotion of select on window
  * [+] disable controls (ctrlGotoSelection, ctrlShowSelection, ctrlClearAll) if need to
  *
