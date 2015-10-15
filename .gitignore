@@ -43,8 +43,8 @@ Temporary Items
 .apdisk
 
 #
-# jqes
+# grisel
 #
-demo_domplus.html
-grisel_setup_domplus.js
-grisel_domplus.css
+#demo_domplus.html
+#grisel_setup_domplus.js
+#grisel_domplus.css
