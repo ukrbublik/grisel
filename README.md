@@ -15,14 +15,14 @@ Customizable. Has cool animations. Useful for big list of options.
 <img src='http://fat.gfycat.com/DelightfulPoliteAardwolf.gif'  /><br>
 
 <h3>Getting started:</h3>
-........ what to include
+todo........ what to include (prettyCheckboxes2 first?)
 
 <h3>Using:</h3>
-........ add class 'grisel' to select, 'data-' attributes
+todo........ add class 'grisel' to select, 'data-' attributes
 ... what methods are usable, how to update list of options
 
 <h3>Options:</h3>
-........ options & langs
+todo........ options & langs
 
 <h3>Examples:</h3>
 See demo.html
@@ -78,5 +78,9 @@ to open, Esc to close. Popup will autoclose when looses focus.</li>
 <li><b>2015-10-12 - v2.2.1</b><br>
 <ul>
 <li>Changed name to grisel.</li>
+</ul>
+<li><b>2015-10-15 - v2.2.2</b><br>
+<ul>
+<li>Fixes for pusblishing.</li>
 </ul>
 </ul>
