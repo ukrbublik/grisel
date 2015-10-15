@@ -10,7 +10,7 @@ grisel.defaultOptions = jQuery.extend(grisel.defaultOptions, {
 	'gridDirectionHorizontal': false,
 	//1 - force group by rows (not cols) in html for vertical direction (to make all elements in one row having equal height)
 	'useRowsStyleForVerticalDirection': true,
-	'openOnHover': true, //todo
+	'openOnHover': false,
 	'areInnerCtrlsFocuable': false,
 	//when set to 2: for 3+ selected values text will be "X values", for 1-2 - "valA, valB", for 0 - one of allStr/anyStr/allStrDefault;
 	//when set to -1: always "X values"
@@ -54,11 +54,11 @@ grisel.defaultOptions = jQuery.extend(grisel.defaultOptions, {
 	//animation:
 	//
 	//'animatePopupDuration': [250, 300],
-	'animatePopupDuration': [0, 0], //todo
+	'animatePopupDuration': [0, 0],
 	'isElasticPopupAnimation': [1, 0],
 	'animatePopupEasing': ['easeOutBack', 'easeInOutBack'],
 	//'animatePageDuration': 150,
-	'animatePageDuration': 0, //todo
+	'animatePageDuration': 0,
 	'animatePageEasing': 'swing',
 	
 	//"legacy" options (made for domplus.com.ua)
@@ -73,7 +73,7 @@ grisel.defaultOptions = jQuery.extend(grisel.defaultOptions, {
 grisel.optionsBySelId = {
 	's_district': {
 		'gridRows': 4,
-		'gridColumns': 2,
+		'gridColumns': 3,
 	},
 	's_city': {
 	},
@@ -81,7 +81,7 @@ grisel.optionsBySelId = {
 	},
 	's_district_region': {
 		'gridRows': 4,
-		'gridColumns': 2,
+		'gridColumns': 3,
 	},
 	's_street': {
 		'divPopupWidth': 0,
