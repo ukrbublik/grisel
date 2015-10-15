@@ -1,14 +1,15 @@
 /**
- * jqes
- * 
- * Pretty looking and highly customizable multi-select (or single-select) control (over standard <select>). 
- * Features search and filter by first letter.
- * Useful for big list of options.
+ * grisel
  *
- * Requires: browser with CSS3 support, jQuery, jQuery UI (effects, icons)
+ * Custom select control.
+ * Represents options as paginated grid.
+ * Features search and filter by first letter.
+ * Customizable. Has cool animations. Useful for big list of options.
+ *
+ * Requires: browser with CSS3 support (for flex), jQuery, jQuery easing plugin
  *
  * @version 2.2.1
- * @homepage https://github.com/ukrbublik/jqes
+ * @homepage https://github.com/ukrbublik/grisel
  * @author ukrbublik
  * @license MIT
  *
@@ -17,23 +18,28 @@
 
 /**
  * TODO:
+ * [!] showSelectedItemsBeforeSearched - show selected always first (not only when searching)
+ * [+] destroy method
  * [d] docs: installation (include js, css); examples; descrtption of options, methods
  * [+] scroll instead of dots
- * [+] changing pages on mobile devices with swipe
+ * [+] changing pages on mobile devices with swipe (http://kenwheeler.github.io/slick/)
+ * [+] modify look on mobile devices - full-screen popup for small screens, for tablets - ?
  * [+] choose optional position of popup according to potiotion of select on window
  * [+] disable controls (ctrlGotoSelection, ctrlShowSelection, ctrlClearAll) if need to
+ * [+] sort options?
  *
  * Maybe later:
  * [b] sometimes at first run (clear cache, try different broser etc.) - bad width (equals to width of window) - why???
+ * [+] different icons for every option (example: countries)
  * [+] skins with different colors?
  * [+] groups of options?
- * [?] for smooth animation without workarounds use html2canvas (http://html2canvas.hertzen.com/)
+ *
  */
 
 //
-// Class jqes
+// Class grisel
 //
-function jqes(s, options, strings, lang) {
+function grisel(s, options, strings, lang) {
 	/**
 	 * Vars
 	 */
@@ -87,22 +93,25 @@ function jqes(s, options, strings, lang) {
 		if(this.$sel.attr('class'))
 			selClasses = this.$sel.attr('class').split(' ');
 		
-		if(!jqes.canInit(this.$sel)) {
+		if(!grisel.canInit(this.$sel)) {
 			this.isBadInst = true;
 			return null;
 		}
-		if(jqes.isInited(this.$sel))
-			return jqes.getInstance(this.selId);
+		if(grisel.isInited(this.$sel))
+			return grisel.getInstance(this.selId);
+		
+		//Lang
+		this.lang = _lang ? _lang : grisel.defaultLang;
 		
 		//Build options
-		this.options = jQuery.extend({}, jqes.defaultOptions);
+		this.options = jQuery.extend({}, grisel.defaultOptions);
 		for(var i = 0 ; i < selClasses.length ; i++) {
-			if(typeof jqes.optionsBySelClass[selClasses[i]] != 'undefined')
-				this.options = jQuery.extend(this.options, jqes.optionsBySelClass[selClasses[i]]);
+			if(typeof grisel.optionsBySelClass[selClasses[i]] != 'undefined')
+				this.options = jQuery.extend(this.options, grisel.optionsBySelClass[selClasses[i]]);
 		}
-		if(typeof jqes.optionsBySelId[this.selId] != 'undefined')
-			this.options = jQuery.extend(this.options, jqes.optionsBySelId[this.selId]);
-		var optionsKeys = Object.keys(jqes.defaultOptions);
+		if(typeof grisel.optionsBySelId[this.selId] != 'undefined')
+			this.options = jQuery.extend(this.options, grisel.optionsBySelId[this.selId]);
+		var optionsKeys = Object.keys(grisel.defaultOptions);
 		for(var i = 0 ; i < optionsKeys.length ; i++) {
 			var k = optionsKeys[i], v = this.$sel.data(k);
 			if(v !== undefined)
@@ -111,24 +120,21 @@ function jqes(s, options, strings, lang) {
 		if(_options)
 			this.options = jQuery.extend(this.options, _options);
 		
-		//Lang
-		this.lang = _lang ? _lang : jqes.defaultLang;
-		
 		//Build strings
-		this.strings = jQuery.extend({}, jqes.defaultStrings[this.lang]);
+		this.strings = jQuery.extend({}, grisel.defaultStrings[this.lang]);
 		for(var i = 0 ; i < selClasses.length ; i++) {
-			if(typeof jqes.stringsBySelClass[selClasses[i]] != 'undefined' && typeof jqes.stringsBySelClass[selClasses[i]][this.lang] != 'undefined')
-				this.strings = jQuery.extend(this.strings, jqes.stringsBySelClass[selClasses[i]][this.lang]);
+			if(typeof grisel.stringsBySelClass[selClasses[i]] != 'undefined' && typeof grisel.stringsBySelClass[selClasses[i]][this.lang] != 'undefined')
+				this.strings = jQuery.extend(this.strings, grisel.stringsBySelClass[selClasses[i]][this.lang]);
 		}
-		if(typeof jqes.stringsBySelId[this.selId] != 'undefined' && typeof jqes.stringsBySelId[this.selId][this.lang] != 'undefined')
-			this.strings = jQuery.extend(this.strings, jqes.stringsBySelId[this.selId][this.lang]);
+		if(typeof grisel.stringsBySelId[this.selId] != 'undefined' && typeof grisel.stringsBySelId[this.selId][this.lang] != 'undefined')
+			this.strings = jQuery.extend(this.strings, grisel.stringsBySelId[this.selId][this.lang]);
 		if(_strings)
 			this.strings = jQuery.extend(this.strings, _strings);
 		
 		//Init
 		this.doInitOnce();
 		
-		jqes._instances[this.selId] = this;
+		grisel._instances[this.selId] = this;
 		
 		return this;
 	};
@@ -138,9 +144,9 @@ function jqes(s, options, strings, lang) {
 
 // ------------------------------------------------ Strings
 
-jqes.defaultLang = 'ru';
+grisel.defaultLang = 'ru';
 
-jqes.defaultStrings = {
+grisel.defaultStrings = {
 	'ru': {
 		'indexAll': 'Все',
 		'ctrlSaveSelection': 'Сохранить',
@@ -176,14 +182,14 @@ jqes.defaultStrings = {
 		'maxSelectionMsg': 'You reached max number of selected elements.<br>Please save your selection',
 	}
 };
-jqes.stringsBySelClass = {
+grisel.stringsBySelClass = {
 };
-jqes.stringsBySelId = {
+grisel.stringsBySelId = {
 };
 
 // ------------------------------------------------ Options
 
-jqes.defaultOptions = {
+grisel.defaultOptions = {
 	'gridRows': 5,
 	'gridColumns': 3,
 	'minPagesForExt': 3,
@@ -252,23 +258,23 @@ jqes.defaultOptions = {
 	//only for showSelectedItemsBeforeSearched==1
 	'maxSelectionLimit': 3*5,
 };
-jqes.optionsBySelClass = {
+grisel.optionsBySelClass = {
 };
-jqes.optionsBySelId = {
+grisel.optionsBySelId = {
 };
 
 // ------------------------------------------------ Static stuff
 
-jqes._instances = {};
+grisel._instances = {};
 
-jqes.getInstance = function(selId) {
-	var inst = jqes._instances[selId];
+grisel.getInstance = function(selId) {
+	var inst = grisel._instances[selId];
 	if(inst === undefined)
 		inst = null;
 	return inst;
 };
 
-jqes.fCharToGroup = function(fChar) {
+grisel.fCharToGroup = function(fChar) {
 	var gr = fChar;
 	var chLC = fChar.toLowerCase();
 	if(fChar >= '0' && fChar <= '9')
@@ -278,7 +284,7 @@ jqes.fCharToGroup = function(fChar) {
 	return gr;
 };
 
-jqes.isFCharInGroup = function(fChar, gr) {
+grisel.isFCharInGroup = function(fChar, gr) {
 	var chLC = fChar.toLowerCase();
 	if(gr == '0-9')
 		return (fChar >= '0' && fChar <= '9');
@@ -289,23 +295,23 @@ jqes.isFCharInGroup = function(fChar, gr) {
 };
 
 //helpers
-jqes.getFullWidth = function($el, width_margin) {
-	return parseFloat($el.width()) + jqes.getWidthOverhead($el, width_margin);
+grisel.getFullWidth = function($el, width_margin) {
+	return parseFloat($el.width()) + grisel.getWidthOverhead($el, width_margin);
 };
-jqes.getFullHeight = function($el, width_margin) {
-	return parseFloat($el.height()) + jqes.getHeightOverhead($el, width_margin);
+grisel.getFullHeight = function($el, width_margin) {
+	return parseFloat($el.height()) + grisel.getHeightOverhead($el, width_margin);
 };
-jqes.getWidthOverhead = function($el, width_margin) {
+grisel.getWidthOverhead = function($el, width_margin) {
 	if(width_margin === undefined)
 		width_margin = false;
 	return parseFloat($el.css('padding-left')) + parseFloat($el.css('padding-right')) + parseFloat($el.css('border-left-width')) + parseFloat($el.css('border-right-width')) + (width_margin ? parseFloat($el.css('margin-left')) + parseFloat($el.css('margin-right')) : 0);
 };
-jqes.getHeightOverhead = function($el, width_margin) {
+grisel.getHeightOverhead = function($el, width_margin) {
 	if(width_margin === undefined)
 		width_margin = false;
 	return parseFloat($el.css('padding-top')) + parseFloat($el.css('padding-bottom')) + parseFloat($el.css('border-top-width')) + parseFloat($el.css('border-bottom-width')) + (width_margin ? parseFloat($el.css('margin-top')) + parseFloat($el.css('margin-bottom')) : 0);
 };
-jqes.getFloatWidth = function($el) {
+grisel.getFloatWidth = function($el) {
 	var rect = $el[0].getBoundingClientRect();
 	var width;
 	if (rect.width) { //IE9+
@@ -315,7 +321,7 @@ jqes.getFloatWidth = function($el) {
 	}
 	return width;
 };
-jqes.getFloatHeight = function($el) {
+grisel.getFloatHeight = function($el) {
 	var rect = $el[0].getBoundingClientRect();
 	var height;
 	if (rect.height) { //IE9+
@@ -326,7 +332,7 @@ jqes.getFloatHeight = function($el) {
 	return height;
 };
 
-jqes.localizeCntName = function(cnt, cnt_names) {
+grisel.localizeCntName = function(cnt, cnt_names) {
 	var i;
 	if(cnt > 10 && cnt < 20)
 		i = 2;
@@ -344,12 +350,12 @@ jqes.localizeCntName = function(cnt, cnt_names) {
 /**
  * Build human string representing current selection
  */
-jqes.prototype.selectedItemsToStr = function(arr, areAll) {
+grisel.prototype.selectedItemsToStr = function(arr, areAll) {
 	var val = '';
 	if(this.isMultiple && arr.length == 0 || areAll)
 		val = (this.strings.allStr != '' ? this.strings.allStr : (this.anyStr != '' ? this.anyStr : this.strings.allStrDefault[this.isMultiple ? 0 : 1]));
 	else if(this.isMultiple && this.options.maxCntToShowListAsValStr >= 0 && arr.length > this.options.maxCntToShowListAsValStr)
-		val = this.strings.cntFmt.replace('{cnt}', arr.length).replace('{cnt_name}', jqes.localizeCntName(arr.length, this.strings.cntNames));
+		val = this.strings.cntFmt.replace('{cnt}', arr.length).replace('{cnt_name}', grisel.localizeCntName(arr.length, this.strings.cntNames));
 	else if(arr.length)
 		val = arr.join(', ');
 	else if(!this.isMultiple && arr.length == 0)
@@ -360,7 +366,7 @@ jqes.prototype.selectedItemsToStr = function(arr, areAll) {
 /**
  * Load model from original <select>
  */
-jqes.prototype.getOptsFromSelect = function(initial /* = false*/) {
+grisel.prototype.getOptsFromSelect = function(initial /* = false*/) {
 	var opts = [];
 	var $optns = this.$sel.find("option");
 	var self = this;
@@ -400,7 +406,7 @@ jqes.prototype.getOptsFromSelect = function(initial /* = false*/) {
 /**
  * Sync model from original <select>
  */
-jqes.prototype.mSyncFromSelect = function(initial /* = false*/) {
+grisel.prototype.mSyncFromSelect = function(initial /* = false*/) {
 	this.$sel.data('syncing_from', 1);
 	
 	//sync items
@@ -428,7 +434,7 @@ jqes.prototype.mSyncFromSelect = function(initial /* = false*/) {
 		}
 		if(!opt[2] && opt[0].length) {
 			var fChar = opt[0][0];
-			var gr = jqes.fCharToGroup(fChar);
+			var gr = grisel.fCharToGroup(fChar);
 			if(typeof this.firstChars[gr] == 'undefined')
 				this.firstChars[gr] = 1;
 			else
@@ -444,7 +450,7 @@ jqes.prototype.mSyncFromSelect = function(initial /* = false*/) {
 	this.$sel.data('syncing_from', 0);
 };
 
-jqes.prototype._allowZeroSelection = function() {
+grisel.prototype._allowZeroSelection = function() {
 	if(!this.isMultiple && this.anyOpt === false && this.areAllSelected) {
 		this.$sel.val('');
 	}
@@ -455,7 +461,7 @@ jqes.prototype._allowZeroSelection = function() {
  *
  * lite == 1 - only check "selected" flags, lite == 0 - check all options and its order
  */
-jqes.prototype.mSyncToSelect = function(lite) {
+grisel.prototype.mSyncToSelect = function(lite) {
 	this.$sel.data('syncing_to', 1);
 	
 	//tmp (will be reversed)
@@ -587,7 +593,7 @@ jqes.prototype.mSyncToSelect = function(lite) {
 
 // ------------------------------------------------ Model - filtering
 
-jqes.prototype.mFilterItemsBySearchString = function(str) {
+grisel.prototype.mFilterItemsBySearchString = function(str) {
 	if(str == '') {
 		this.visibleItemsInds = false;
 		this.visibleItems = false;
@@ -627,7 +633,7 @@ jqes.prototype.mFilterItemsBySearchString = function(str) {
 	}
 };
 
-jqes.prototype.mFilterItemsByFirstChar = function(gr) {
+grisel.prototype.mFilterItemsByFirstChar = function(gr) {
 	if(gr == '') {
 		this.visibleItemsInds = false;
 		this.visibleItems = false;
@@ -642,7 +648,7 @@ jqes.prototype.mFilterItemsByFirstChar = function(gr) {
 			var it = this.items[i];
 			if(it.length > 0) {
 				var fChar = it[0];
-				if(jqes.isFCharInGroup(fChar, gr) && this.anyItemInd != i) {
+				if(grisel.isFCharInGroup(fChar, gr) && this.anyItemInd != i) {
 					this.visibleItemsInds.push(i);
 					this.visibleItems.push(it);
 				}
@@ -651,7 +657,7 @@ jqes.prototype.mFilterItemsByFirstChar = function(gr) {
 	}
 };
 
-jqes.prototype.mFilterItemsBySelected = function() {
+grisel.prototype.mFilterItemsBySelected = function() {
 	//copy selectedItems to visibleItems
 	this.visibleItemsInds = [];
 	this.visibleItems = [];
@@ -669,33 +675,33 @@ jqes.prototype.mFilterItemsBySelected = function() {
 	this.selectedAndFilteredItemsInds = false;
 };
 
-jqes.prototype.mFilterItemsByNone = function() {
+grisel.prototype.mFilterItemsByNone = function() {
 	this.visibleItemsInds = false;
 	this.visibleItems = false;
 	this.selectedAndFilteredItems = false;
 	this.selectedAndFilteredItemsInds = false;
 };
-jqes.prototype.mSetFilterByFirstChar = function(gr) {
+grisel.prototype.mSetFilterByFirstChar = function(gr) {
 	this.filterFChar = gr;
 	this.filterStr = '';
 	this.fitlerBySel = false;
 };
-jqes.prototype.mSetFilterBySelected = function(sel) {
+grisel.prototype.mSetFilterBySelected = function(sel) {
 	this.filterFChar = '';
 	this.filterStr = '';
 	this.fitlerBySel = sel;
 };
-jqes.prototype.mSetFilterBySearchString = function(str) {
+grisel.prototype.mSetFilterBySearchString = function(str) {
 	this.filterFChar = '';
 	this.filterStr = str;
 	this.fitlerBySel = false;
 };
-jqes.prototype.mSetNoFilter = function() {
+grisel.prototype.mSetNoFilter = function() {
 	this.filterFChar = '';
 	this.filterStr = '';
 	this.fitlerBySel = false;
 };
-jqes.prototype.getFilterMode = function() {
+grisel.prototype.getFilterMode = function() {
 	var mode = '';
 	if(this.fitlerBySel) {
 		mode = 'sel';
@@ -708,11 +714,11 @@ jqes.prototype.getFilterMode = function() {
 	}
 	return mode;
 };
-jqes.prototype.isNoFilter = function() {
+grisel.prototype.isNoFilter = function() {
 	return this.getFilterMode() == '';
 };
 
-jqes.prototype.mSortSelectedItems = function() {
+grisel.prototype.mSortSelectedItems = function() {
 	this.selectedItems.sort();
 	var self = this;
 	this.selectedItemsInds.sort(function(ind1, ind2) {
@@ -724,7 +730,7 @@ jqes.prototype.mSortSelectedItems = function() {
 
 // ------------------------------------------------ Model - changings
 
-jqes.prototype.mSelectItem = function(info) {
+grisel.prototype.mSelectItem = function(info) {
 	var ind = info.ind, text = info.text, isSel = info.isSel;
 	var changed = false;
 	var oldAreAllSelected = this.areAllSelected;
@@ -772,7 +778,7 @@ jqes.prototype.mSelectItem = function(info) {
 	return ch_stat;
 };
 
-jqes.prototype.mUpdSelection = function() {
+grisel.prototype.mUpdSelection = function() {
 	//flag - are all options selected (not by a-n-y option)?
 	var tmp = true;
 	//flag - is any option selected?
@@ -802,46 +808,46 @@ jqes.prototype.mUpdSelection = function() {
 
 // ------------------------------------------------ Model - getting slices of items list
 
-jqes.prototype.getVisibleItems = function() {
+grisel.prototype.getVisibleItems = function() {
 	return this.visibleItems !== false ?  this.visibleItems : this.items;
 };
-jqes.prototype.getVisibleOpt = function(i) {
+grisel.prototype.getVisibleOpt = function(i) {
 	return this.visibleItemsInds !== false ?  this.opts[ this.visibleItemsInds[i] ] : this.opts[i];
 };
-jqes.prototype.getVisibleOptInd = function(i) {
+grisel.prototype.getVisibleOptInd = function(i) {
 	return this.visibleItemsInds !== false ?  this.visibleItemsInds[i] : i;
 };
 
-jqes.prototype.getPages = function() {
+grisel.prototype.getPages = function() {
 	return Math.ceil( 1.0 * this.getVisibleItems().length / (this.options.gridRows * this.options.gridColumns) );
 };
 
-jqes.prototype.getTotalPages = function() {
+grisel.prototype.getTotalPages = function() {
 	return Math.ceil( 1.0 * this.items.length / (this.options.gridRows * this.options.gridColumns) );
 };
 
-jqes.prototype.getItemsCountWoAll = function() {
+grisel.prototype.getItemsCountWoAll = function() {
 	return this.items.length - (this.anyItemInd != -1 ? 1 : 0);
 };
 
-jqes.prototype.canGoToPage = function(page) {
+grisel.prototype.canGoToPage = function(page) {
 	return (page == -1 && this.getPages() == 0 || page >= 0 && page < this.getPages()) && !(this.$divPopup.data('changing-page') && this.$divPopup.data('changing-page-from') == page);
 };
 
-jqes.prototype.getMaxUsedGridRows = function() {
+grisel.prototype.getMaxUsedGridRows = function() {
 	return Math.min( this.options.gridRows, !this.options.gridDirectionHorizontal ? this.items.length : Math.ceil(1.0 * this.items.length / this.options.gridColumns) );
 };
-jqes.prototype.getMaxUsedGridColumns = function() {
+grisel.prototype.getMaxUsedGridColumns = function() {
 	return Math.min( this.options.gridColumns, this.options.gridDirectionHorizontal ? this.items.length : Math.ceil(1.0 * this.items.length / this.options.gridRows) );
 };
-jqes.prototype.getUsedGridRowsForPage = function(page) {
+grisel.prototype.getUsedGridRowsForPage = function(page) {
 	return Math.min( this.options.gridRows, !this.options.gridDirectionHorizontal ? this.getVisibleItemsCntForPage(page) : Math.ceil(1.0 * this.getVisibleItemsCntForPage(page) / this.options.gridColumns) );
 };
-jqes.prototype.getUsedGridColumnsForPage = function(page) {
+grisel.prototype.getUsedGridColumnsForPage = function(page) {
 	return Math.min( this.options.gridColumns, this.options.gridDirectionHorizontal ? this.getVisibleItemsCntForPage(page) : Math.ceil(1.0 * this.getVisibleItemsCntForPage(page) / this.options.gridRows) );
 };
 
-jqes.prototype.getItemsRangeForPage = function(page) {
+grisel.prototype.getItemsRangeForPage = function(page) {
 	var rng = false;
 	if(this.canGoToPage(page) && page >= 0) {
 		var len = (this.options.gridRows * this.options.gridColumns);
@@ -852,7 +858,7 @@ jqes.prototype.getItemsRangeForPage = function(page) {
 	}
 	return rng;
 };
-jqes.prototype.getVisibleItemsCntForPage = function(page) {
+grisel.prototype.getVisibleItemsCntForPage = function(page) {
 	if(page === undefined)
 		page = this.currPage;
 	var rng = this.getItemsRangeForPage(page);
@@ -862,11 +868,11 @@ jqes.prototype.getVisibleItemsCntForPage = function(page) {
 	return cnt;
 };
 
-jqes.prototype.getSearchedCnt = function() {
+grisel.prototype.getSearchedCnt = function() {
 	return this.getFilterMode() == 'search' ? this.getVisibleItems().length - this.selectedItems.length + this.selectedAndFilteredItems.length : -1;
 };
 
-jqes.prototype.getPageForInd = function(ind) {
+grisel.prototype.getPageForInd = function(ind) {
 	var page = -1;
 	var pos = this.visibleItemsInds !== false ?  this.visibleItemsInds.indexOf(ind) : ind;
 	if(pos != -1 && this.getSearchedCnt() == 0 && !this.options.showSelectedItemsWhenNoFound)
@@ -876,7 +882,7 @@ jqes.prototype.getPageForInd = function(ind) {
 	return page;
 };
 
-jqes.prototype.getPageForCurrSel = function() {
+grisel.prototype.getPageForCurrSel = function() {
 	var page = -1;
 	for(var i = 0 ; i < this.selectedItemsInds.length ; i++) {
 		var ind = this.selectedItemsInds[i];
@@ -887,41 +893,41 @@ jqes.prototype.getPageForCurrSel = function() {
 	return page;
 };
 
-jqes.prototype.getFirstPage = function() {
+grisel.prototype.getFirstPage = function() {
 	return this.getPages() > 0 ? 0 : -1;
 };
 
 // ------------------------------------------------ View
 
-jqes.prototype.isExtView = function() {
+grisel.prototype.isExtView = function() {
 	return this.getTotalPages() >= this.options.minPagesForExt;
 };
-jqes.prototype.isFullExtView = function() {
+grisel.prototype.isFullExtView = function() {
 	return this.options.isExt == 1 || this.options.isExt == -1 && this.isExtView();
 };
-jqes.prototype.isCompactExtView = function() {
+grisel.prototype.isCompactExtView = function() {
 	return this.options.isExt == 0 || this.options.isExt == -1 && !this.isExtView();
 };
 
-jqes.canInit = function($sel) {
+grisel.canInit = function($sel) {
 	var selId = $sel.attr('id');
 	var ok = (selId && jQuery('#'+selId).length == 1 && $sel.is('select'));
 	return ok;
 };
-jqes.isInited = function($sel) {
+grisel.isInited = function($sel) {
 	var $divSel = $sel.next();
 	var $divEms = $sel.next().next();
-	var is = $sel.is(':hidden') && $divSel.is('.jqes-select') && $divEms.is('.jqes-popup');
+	var is = $sel.is(':hidden') && $divSel.is('.grisel-select') && $divEms.is('.grisel-popup');
 	return is;
 };
 
 //open, close
 //
-jqes.prototype.isPopupOpened = function() {
+grisel.prototype.isPopupOpened = function() {
 	return !this.$divPopup.hasClass('hidden');
 };
 
-jqes.prototype.vOpenPopup = function(animate) {
+grisel.prototype.vOpenPopup = function(animate) {
 	var canOpen = !this.isPopupOpened() && !this.$divPopup.data('opening') && !this.$divPopup.data('closing');
 	//"queue" open task
 	if(this.$divPopup.data('closing'))
@@ -930,7 +936,7 @@ jqes.prototype.vOpenPopup = function(animate) {
 		return;
 	var self = this;
 	
-	var minw = Math.max(parseFloat(this.$divPopup.css('min-width')), jqes.getFullWidth(this.$divSel));
+	var minw = Math.max(parseFloat(this.$divPopup.css('min-width')), grisel.getFullWidth(this.$divSel));
 	this.$divPopup.css('min-width', minw);
 	this.$divPopup.removeClass('hidden');
 	var isFullRows = this.getUsedGridRowsForPage(this.currPage) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
@@ -943,30 +949,61 @@ jqes.prototype.vOpenPopup = function(animate) {
 	}
 	this.onShowPopup();
 	this.$divPopup.focus();
+	var	w_to = grisel.getFullWidth(this.$divPopup),
+		h_to = grisel.getFullHeight(this.$divPopup),
+		w_from = grisel.getFullWidth(this.$divSel),
+		h_from = grisel.getFullHeight(this.$divSel),
+		l_to = 0,
+		t_to = 0,
+		l_from = 0,
+		t_from = 0;
 	var aniTo = {
-		'min-width': minw,
-		width: jqes.getFullWidth(this.$divPopup), 
-		height: jqes.getFullHeight(this.$divPopup),
-		opacity: this.$divPopup.css('opacity'),
+		width: w_to, 
+		height: h_to,
+		left: l_to,
+		top: t_to,
+		opacity: 1,
 	};
 	var cssRestore = {
-		width: (this.options.divPopupWidth > 0 ? this.options.divPopupWidth : (this.options.divPopupWidth == -1 ? jqes.getFullWidth(this.$divSel) : '')),
+		'min-width': minw,
+		width: (this.options.divPopupWidth > 0 ? this.options.divPopupWidth : (this.options.divPopupWidth == -1 ? w_from : '')),
 		height: (this.options.divPopupHeight ? this.options.divPopupHeight : ''),
-		opacity: this.$divPopup.css('opacity'),
+		opacity: 1,
 	};
 	var aniFrom = {
 		'min-width': '',
-		width: jqes.getFullWidth(this.$divSel),
-		height: jqes.getFullHeight(this.$divSel),
+		width: w_from,
+		height: h_from,
+		left: l_from,
+		top: t_from,
 		opacity: 0,
 	};
+	var aniOnComplete = function() {
+		//revert temp fixes
+		self._vRevertTempFixesAfterAnimationOpCl();
+		//restore state as before animation
+		self.$divPopup.css(cssRestore);
+		self._vFixBodyHeight();
+		self.$divPopup.data('opening', 0);
+		//"dequeue" close task
+		if(self.$divPopup.data('to_close')) {
+			self.$divPopup.data('to_close', 0);
+			setTimeout(function() {
+				self.vClosePopup();
+			}, 1);
+		}
+	};
+	var aniOpts = {
+		duration: this.options.animatePopupDuration[0], 
+		easing: this.options.animatePopupEasing[0],
+		complete: aniOnComplete
+	};
 	if(this.options.isElasticPopupAnimation[0]) {
-		aniTo.left = this.$divPopup.css('left');
-		aniTo.top = this.$divPopup.css('top');
-		aniFrom.left = Math.min(jqes.getFullWidth(this.$divSel), jqes.getFullWidth(this.$divPopup) / 2);
-		aniFrom.top = jqes.getFullHeight(this.$divSel);
-		aniFrom.width = Math.max(1, jqes.getFullWidth(this.$divSel) - aniFrom.left);
-		aniFrom.height = Math.max(1, jqes.getFullHeight(this.$divSel) - aniFrom.top);
+		//todo
+		aniFrom.left = Math.min(w_from, w_to / 2);
+		aniFrom.top = h_from;
+		aniFrom.width = Math.max(1, w_from - aniFrom.left);
+		aniFrom.height = Math.max(1, h_from - aniFrom.top);
 	}
 	
 	var doAnimate = this.options.animatePopupDuration[0] > 0 && (animate === undefined || animate == true);
@@ -975,32 +1012,14 @@ jqes.prototype.vOpenPopup = function(animate) {
 		//temp fixes for smooth animation
 		this._vTempFixesBeforeAnimationOpCl();
 		//animate
-		var aniOpts = {
-			duration: this.options.animatePopupDuration[0], 
-			easing: this.options.animatePopupEasing[0],
-			complete: function() {
-				//revert temp fixes
-				self._vRevertTempFixesAfterAnimationOpCl();
-				//restore state as before animation
-				self.$divPopup.css(cssRestore);
-				self._vFixBodyHeight();
-				self.$divPopup.data('opening', 0);
-				//"dequeue" close task
-				if(self.$divPopup.data('to_close')) {
-					self.$divPopup.data('to_close', 0);
-					setTimeout(function() {
-						self.vClosePopup();
-					}, 1);
-				}
-			}
-		};
-		this.$divPopup.css(aniFrom).animate(aniTo, aniOpts);
+		this.$divPopup.css(aniFrom);
+		this.$divPopup.animate(aniTo, aniOpts);
 	} else {
 		self._vFixBodyHeight();
 	}
 };
 
-jqes.prototype.vClosePopup = function(animate) {
+grisel.prototype.vClosePopup = function(animate) {
 	var canClose = this.isPopupOpened() && !this.$divPopup.data('opening') && !this.$divPopup.data('closing');
 	//"queue" close task
 	if(this.$divPopup.data('opening'))
@@ -1010,30 +1029,64 @@ jqes.prototype.vClosePopup = function(animate) {
 	var self = this;
 	
 	var minw = parseFloat(this.$divPopup.css('min-width'));
+	var	w_from = grisel.getFullWidth(this.$divPopup),
+		h_from = grisel.getFullHeight(this.$divPopup),
+		w_to = grisel.getFullWidth(this.$divSel),
+		h_to = grisel.getFullHeight(this.$divSel),
+		l_to = 0,
+		t_to = 0,
+		l_from = 0,
+		t_from = 0;
 	var aniTo = {
-		width: jqes.getFullWidth(this.$divSel),
-		height: jqes.getFullHeight(this.$divSel),
+		width: w_to,
+		height: h_to,
+		left: l_to,
+		top: t_to,
 		opacity: 0,
 	};
 	var cssRestore = {
 		'min-width': minw,
-		width: (this.options.divPopupWidth > 0 ? this.options.divPopupWidth : (this.options.divPopupWidth == -1 ? jqes.getFullWidth(this.$divSel) : '')),
+		width: (this.options.divPopupWidth > 0 ? this.options.divPopupWidth : (this.options.divPopupWidth == -1 ? w_to : '')),
 		height: (this.options.divPopupHeight ? this.options.divPopupHeight : ''),
-		opacity: this.$divPopup.css('opacity'),
+		opacity: 1,
+		left: 0, 
+		top: 0
 	};
 	var aniFrom = {
 		'min-width': '',
-		width: jqes.getFullWidth(this.$divPopup), 
-		height: jqes.getFullHeight(this.$divPopup),
-		opacity: this.$divPopup.css('opacity'),
+		width: w_from, 
+		height: h_from,
+		left: l_from,
+		top: t_from,
+		opacity: 1,
+	};
+	var aniOnComplete = function() {
+		//revert temp fixes
+		self._vRevertTempFixesAfterAnimationOpCl();
+		//restore state as before animation
+		self.$divPopup.css(cssRestore);
+		self.$divPopup.addClass('hidden');
+		self.onHidePopup();
+		self.$divPopup.data('closing', 0);
+		//"dequeue" open task
+		if(self.$divPopup.data('to_open')) {
+			self.$divPopup.data('to_open', 0);
+			setTimeout(function() {
+				self.vOpenPopup();
+			}, 1);
+		}
+	};
+	var aniOpts = {
+		duration: this.options.animatePopupDuration[1], 
+		easing: this.options.animatePopupEasing[1],
+		complete: aniOnComplete
 	};
 	if(this.options.isElasticPopupAnimation[1]) {
-		aniFrom.left = this.$divPopup.css('left');
-		aniFrom.top = this.$divPopup.css('top');
-		aniTo.left = Math.min(jqes.getFullWidth(this.$divSel), jqes.getFullWidth(this.$divPopup) / 2);
-		aniTo.top = jqes.getFullHeight(this.$divSel);
-		aniTo.width = Math.max(1, jqes.getFullWidth(this.$divSel) - aniTo.left);
-		aniTo.height = Math.max(1, jqes.getFullHeight(this.$divSel) - aniTo.top);
+		//todo
+		aniTo.left = Math.min(w_to, w_from / 2);
+		aniTo.top = h_to;
+		aniTo.width = Math.max(1, w_to - aniTo.left);
+		aniTo.height = Math.max(1, h_to - aniTo.top);
 	}
 	
 	var doAnimate = this.options.animatePopupDuration[1] > 0 && (animate === undefined || animate == true)
@@ -1042,40 +1095,21 @@ jqes.prototype.vClosePopup = function(animate) {
 		//temp fixes for smooth animation
 		this._vTempFixesBeforeAnimationOpCl();
 		//animate
-		var aniOpts = {
-			duration: this.options.animatePopupDuration[1], 
-			easing: this.options.animatePopupEasing[1],
-			complete: function() {
-				//revert temp fixes
-				self._vRevertTempFixesAfterAnimationOpCl();
-				//restore state as before animation
-				self.$divPopup.css(cssRestore);
-				self.$divPopup.addClass('hidden');
-				self.onHidePopup();
-				self.$divPopup.data('closing', 0);
-				//"dequeue" open task
-				if(self.$divPopup.data('to_open')) {
-					self.$divPopup.data('to_open', 0);
-					setTimeout(function() {
-						self.vOpenPopup();
-					}, 1);
-				}
-			}
-		};
-		this.$divPopup.css(aniFrom).animate(aniTo, aniOpts);
+		this.$divPopup.css(aniFrom);
+		this.$divPopup.animate(aniTo, aniOpts);
 	} else {
 		this.$divPopup.addClass('hidden');
 	}
 };
 
-jqes.prototype._vTempFixesBeforeAnimationOpCl = function() {
+grisel.prototype._vTempFixesBeforeAnimationOpCl = function() {
 	var self = this;
-	var bodyHeight = jqes.getFullHeight(this.$divPopup.$body, true);
-	var bodyWrapperHeight = jqes.getFullHeight(this.$divPopup.$bodyWrapper, true);
+	var bodyHeight = grisel.getFullHeight(this.$divPopup.$body, true);
+	var bodyWrapperHeight = grisel.getFullHeight(this.$divPopup.$bodyWrapper, true);
 	var tmp = [];
 	this.$divPopup.$body.find('.prch2-text-wrapper').each(function(i, el) {
 		var $el = jQuery(el);
-		var w = jqes.getFloatWidth($el), h = jqes.getFloatHeight($el);
+		var w = grisel.getFloatWidth($el), h = grisel.getFloatHeight($el);
 		tmp.push([ $el, w, h ]);
 	});
 	for(var i = 0 ; i < tmp.length ; i++) {
@@ -1086,7 +1120,7 @@ jqes.prototype._vTempFixesBeforeAnimationOpCl = function() {
 			'min-height': tmp[i][2],
 		});
 	}
-	var isConcrete = this.$divPopup.hasClass('jqes-concrete-height');
+	var isConcrete = this.$divPopup.hasClass('grisel-concrete-height');
 	this.$divPopup.data('_isConcrete', isConcrete);
 	if(this.$divPopup.$bodyWrapper.css('min-height'))
 		this.$divPopup.$bodyWrapper.data('_min-height', this.$divPopup.$bodyWrapper.css('min-height')).css('min-height', '');
@@ -1094,18 +1128,18 @@ jqes.prototype._vTempFixesBeforeAnimationOpCl = function() {
 		this.$divPopup.$bodyWrapper.data('_min-width', this.$divPopup.$bodyWrapper.css('min-width')).css('min-width', '');
 	if(this.$divPopup.$bodyWrapper.css('max-width'))
 		this.$divPopup.$bodyWrapper.data('_max-width', this.$divPopup.$bodyWrapper.css('max-width')).css('max-width', '');
-	this.$divPopup.$bodyWrapper.addClass('jqes-body-wrapper-flex');
+	this.$divPopup.$bodyWrapper.addClass('grisel-body-wrapper-flex');
 	this.$divPopup.$body.css('flex-grow', bodyHeight);
 	this.$divPopup.$bodyAniHelper.css('flex-grow', bodyWrapperHeight - bodyHeight);
 	if(!isConcrete)
-		this.$divPopup.addClass('jqes-concrete-height');
+		this.$divPopup.addClass('grisel-concrete-height');
 };
 
-jqes.prototype._vRevertTempFixesAfterAnimationOpCl = function() {
+grisel.prototype._vRevertTempFixesAfterAnimationOpCl = function() {
 	var self = this;
 	var isConcrete = this.$divPopup.data('_isConcrete');
 	if(!isConcrete)
-		this.$divPopup.removeClass('jqes-concrete-height');
+		this.$divPopup.removeClass('grisel-concrete-height');
 	if(this.$divPopup.$bodyWrapper.data('_min-height'))
 		this.$divPopup.$bodyWrapper.css('min-height', this.$divPopup.$bodyWrapper.data('_min-height')).data('_min-height', '');
 	if(this.$divPopup.$bodyWrapper.data('_min-width'))
@@ -1121,24 +1155,24 @@ jqes.prototype._vRevertTempFixesAfterAnimationOpCl = function() {
 			'min-height': '',
 		});
 	});
-	this.$divPopup.$bodyWrapper.removeClass('jqes-body-wrapper-flex');
+	this.$divPopup.$bodyWrapper.removeClass('grisel-body-wrapper-flex');
 }
 
-jqes.prototype._vBodyFlexOn = function() {
-	var bodyHeight = jqes.getFullHeight(this.$divPopup.$body, true);
-	var bodyWrapperHeight = jqes.getFullHeight(this.$divPopup.$bodyWrapper, true);
-	this.$divPopup.$bodyWrapper.addClass('jqes-body-wrapper-flex');
+grisel.prototype._vBodyFlexOn = function() {
+	var bodyHeight = grisel.getFullHeight(this.$divPopup.$body, true);
+	var bodyWrapperHeight = grisel.getFullHeight(this.$divPopup.$bodyWrapper, true);
+	this.$divPopup.$bodyWrapper.addClass('grisel-body-wrapper-flex');
 	this.$divPopup.$body.css('flex-grow', bodyHeight);
 	this.$divPopup.$bodyAniHelper.css('flex-grow', bodyWrapperHeight - bodyHeight);
 };
-jqes.prototype._vBodyFlexOff = function() {
-	this.$divPopup.$bodyWrapper.removeClass('jqes-body-wrapper-flex');
+grisel.prototype._vBodyFlexOff = function() {
+	this.$divPopup.$bodyWrapper.removeClass('grisel-body-wrapper-flex');
 };
 
 //render
 //
-jqes.prototype.vConvertSelectOnce = function() {
-	if(jqes.isInited(this.$sel))
+grisel.prototype.vConvertSelectOnce = function() {
+	if(grisel.isInited(this.$sel))
 		return false;
 	var self = this;
 	
@@ -1154,46 +1188,46 @@ jqes.prototype.vConvertSelectOnce = function() {
 	
 	//create references to all html elements we need later
 	this.$divSel.$span = this.$divSel.find('span');
-	this.$divPopup.$close = this.$divPopup.find('.jqes-close');
-	this.$divPopup.$head = this.$divPopup.find('.jqes-head');
-	this.$divPopup.$search = this.$divPopup.find('.jqes-search');
-	this.$divPopup.$pagesList = this.$divPopup.find('.jqes-pages-list');
-	this.$divPopup.$pagesList.$dotsViewContainer = function() { return self.$divPopup.$pagesList.find('.jqes-pages-dots-wrapper') };
-	this.$divPopup.$pagesList.$dotsContainer = function() { return self.$divPopup.$pagesList.find('.jqes-pages-dots') };
-	this.$divPopup.$pagesList.$dotsWrappers = function() { return self.$divPopup.$pagesList.find('.jqes-page-dot-wrapper') };
-	this.$divPopup.$pagesList.$currDotWrapper = function() { return self.$divPopup.$pagesList.find('.jqes-page-dot-wrapper.jqes-page-dot-current') };
-	this.$divPopup.$pagesList.$dots = function() { return self.$divPopup.$pagesList.find('.jqes-page-dot-wrapper .jqes-page-dot') };
-	this.$divPopup.$pagesList.$currDot = function() { return self.$divPopup.$pagesList.find('.jqes-page-dot-wrapper.jqes-page-dot-current .jqes-page-dot') };
-	this.$divPopup.$pagesList.$ctrlPrev = function() { return self.$divPopup.$pagesList.find('.jqes-pages-prev') };
-	this.$divPopup.$pagesList.$ctrlNext = function() { return self.$divPopup.$pagesList.find('.jqes-pages-next') };
-	this.$divPopup.$pagesList.$ctrlFirst = function() { return self.$divPopup.$pagesList.find('.jqes-pages-first') };
-	this.$divPopup.$pagesList.$ctrlLast = function() { return self.$divPopup.$pagesList.find('.jqes-pages-last') };
-	this.$divPopup.$pagesList.$gradLeft = function() { return self.$divPopup.$pagesList.find('.jqes-pages-grad-left') };
-	this.$divPopup.$pagesList.$gradRight = function() { return self.$divPopup.$pagesList.find('.jqes-pages-grad-right') };
-	this.$divPopup.$ctrlsWrapper = this.$divPopup.find('.jqes-ctrls');
-	this.$divPopup.$ctrls = function() { return self.$divPopup.$ctrlsWrapper.find('> .jqes-ctrl') };
-	this.$divPopup.$ctrlPages = this.$divPopup.find('.jqes-ctrls-pag');
-	this.$divPopup.$ctrlClearAll = this.$divPopup.find('.jqes-ctrl-clear-all');
-	this.$divPopup.$ctrlShowSelection = this.$divPopup.find('.jqes-ctrl-show-selection');
-	this.$divPopup.$ctrlGotoSelection = this.$divPopup.find('.jqes-ctrl-goto-selection');
-	this.$divPopup.$ctrlSaveSelection = this.$divPopup.find('.jqes-ctrl-save-selection');
-	this.$divPopup.$btnLeft = this.$divPopup.find('.jqes-btn-left');
-	this.$divPopup.$btnRight = this.$divPopup.find('.jqes-btn-right');
-	this.$divPopup.$bodyWrapper = this.$divPopup.find(".jqes-body-wrapper");
-	this.$divPopup.$body = this.$divPopup.find(".jqes-body:not(.jqes-body-ghost)");
-	this.$divPopup.$bodyGhost = this.$divPopup.find(".jqes-body-ghost");
-	this.$divPopup.$bodyAniHelper = this.$divPopup.find(".jqes-body-ani-helper");
-	this.$divPopup.$msg = this.$divPopup.find(".jqes-msg");
-	this.$divPopup.$msgSpan = this.$divPopup.find(".jqes-msg span");
-	this.$divPopup.$index = this.$divPopup.find(".jqes-index");
-	this.$divPopup.$indexChars = function() { return self.$divPopup.$index.find('.jqes-char') };
+	this.$divPopup.$close = this.$divPopup.find('.grisel-close');
+	this.$divPopup.$head = this.$divPopup.find('.grisel-head');
+	this.$divPopup.$search = this.$divPopup.find('.grisel-search');
+	this.$divPopup.$pagesList = this.$divPopup.find('.grisel-pages-list');
+	this.$divPopup.$pagesList.$dotsViewContainer = function() { return self.$divPopup.$pagesList.find('.grisel-pages-dots-wrapper') };
+	this.$divPopup.$pagesList.$dotsContainer = function() { return self.$divPopup.$pagesList.find('.grisel-pages-dots') };
+	this.$divPopup.$pagesList.$dotsWrappers = function() { return self.$divPopup.$pagesList.find('.grisel-page-dot-wrapper') };
+	this.$divPopup.$pagesList.$currDotWrapper = function() { return self.$divPopup.$pagesList.find('.grisel-page-dot-wrapper.grisel-page-dot-current') };
+	this.$divPopup.$pagesList.$dots = function() { return self.$divPopup.$pagesList.find('.grisel-page-dot-wrapper .grisel-page-dot') };
+	this.$divPopup.$pagesList.$currDot = function() { return self.$divPopup.$pagesList.find('.grisel-page-dot-wrapper.grisel-page-dot-current .grisel-page-dot') };
+	this.$divPopup.$pagesList.$ctrlPrev = function() { return self.$divPopup.$pagesList.find('.grisel-pages-prev') };
+	this.$divPopup.$pagesList.$ctrlNext = function() { return self.$divPopup.$pagesList.find('.grisel-pages-next') };
+	this.$divPopup.$pagesList.$ctrlFirst = function() { return self.$divPopup.$pagesList.find('.grisel-pages-first') };
+	this.$divPopup.$pagesList.$ctrlLast = function() { return self.$divPopup.$pagesList.find('.grisel-pages-last') };
+	this.$divPopup.$pagesList.$gradLeft = function() { return self.$divPopup.$pagesList.find('.grisel-pages-grad-left') };
+	this.$divPopup.$pagesList.$gradRight = function() { return self.$divPopup.$pagesList.find('.grisel-pages-grad-right') };
+	this.$divPopup.$ctrlsWrapper = this.$divPopup.find('.grisel-ctrls');
+	this.$divPopup.$ctrls = function() { return self.$divPopup.$ctrlsWrapper.find('> .grisel-ctrl') };
+	this.$divPopup.$ctrlPages = this.$divPopup.find('.grisel-ctrls-pag');
+	this.$divPopup.$ctrlClearAll = this.$divPopup.find('.grisel-ctrl-clear-all');
+	this.$divPopup.$ctrlShowSelection = this.$divPopup.find('.grisel-ctrl-show-selection');
+	this.$divPopup.$ctrlGotoSelection = this.$divPopup.find('.grisel-ctrl-goto-selection');
+	this.$divPopup.$ctrlSaveSelection = this.$divPopup.find('.grisel-ctrl-save-selection');
+	this.$divPopup.$btnLeft = this.$divPopup.find('.grisel-btn-left');
+	this.$divPopup.$btnRight = this.$divPopup.find('.grisel-btn-right');
+	this.$divPopup.$bodyWrapper = this.$divPopup.find(".grisel-body-wrapper");
+	this.$divPopup.$body = this.$divPopup.find(".grisel-body:not(.grisel-body-ghost)");
+	this.$divPopup.$bodyGhost = this.$divPopup.find(".grisel-body-ghost");
+	this.$divPopup.$bodyAniHelper = this.$divPopup.find(".grisel-body-ani-helper");
+	this.$divPopup.$msg = this.$divPopup.find(".grisel-msg");
+	this.$divPopup.$msgSpan = this.$divPopup.find(".grisel-msg span");
+	this.$divPopup.$index = this.$divPopup.find(".grisel-index");
+	this.$divPopup.$indexChars = function() { return self.$divPopup.$index.find('.grisel-char') };
 	this.$divPopup.$body.$checkboxes = this.$divPopup.$bodyGhost.$checkboxes = function() { return jQuery(this).find("input[type=checkbox], input[type=radio]") };
 	this.$divPopup.getCheckboxInfo = function($checkbox) {
 		var info = {};
 		info.text = $checkbox.next('label').text();
 		info.ind = parseInt($checkbox.attr('realInd'));
 		info.isSel = $checkbox.is(':checked');
-		info.isAny = $checkbox.is('.jqes-checkbox-any');
+		info.isAny = $checkbox.is('.grisel-checkbox-any');
 		return info;
 	};
 	this.$divPopup.getCharInfo = function($char) {
@@ -1222,35 +1256,35 @@ jqes.prototype.vConvertSelectOnce = function() {
 	
 	//apply sizes options
 	if(this.options.divSelWidth == -2)
-		this.$divSel.css('width', jqes.getFullWidth(this.$sel));
+		this.$divSel.css('width', grisel.getFullWidth(this.$sel));
 	else if(this.options.divSelWidth == -1)
-		this.$divSel.addClass('jqes-select-auto-width');
+		this.$divSel.addClass('grisel-select-auto-width');
 	else if(this.options.divSelWidth > 0)
 		this.$divSel.css('width', parseFloat(this.options.divSelWidth));
 	if(this.options.divSelHeight == -2)
-		this.$divSel.css('height', jqes.getFullHeight(this.$sel));
+		this.$divSel.css('height', grisel.getFullHeight(this.$sel));
 	else if(this.options.divSelHeight == -1)
-		this.$divSel.addClass('jqes-select-auto-height');
+		this.$divSel.addClass('grisel-select-auto-height');
 	else if(this.options.divSelHeight > 0)
 		this.$divSel.css('height', parseFloat(this.options.divSelHeight));
 	if(this.options.divSelPaddingLeft) {
 		setTimeout(function() {
 			self.$divSel.css('padding-left', parseFloat(self.options.divSelPaddingLeft));
-			self.$divSel.css('padding-right', parseFloat(self.options.divSelPaddingLeft) + jqes.getFullWidth(self.$divSel.find('.cuselFrameRight'), true) - 8);
+			self.$divSel.css('padding-right', parseFloat(self.options.divSelPaddingLeft) + grisel.getFullWidth(self.$divSel.find('.cuselFrameRight'), true) - 8);
 		}, 5);
 	}
 	if(this.options.divSelIsMultiline)
-		this.$divSel.addClass('jqes-select-multiline');
+		this.$divSel.addClass('grisel-select-multiline');
 	if(this.options.divSelClasses)
 		this.$divSel.addClass(this.options.divSelClasses);
 	if(this.options.divPopupWidth == -2)
-		this.$divPopup.addClass('jqes-popup-auto-width');
+		this.$divPopup.addClass('grisel-popup-auto-width');
 	else if(this.options.divPopupWidth == -1)
-		this.$divPopup.css('width', jqes.getFullWidth(this.$divSel));
+		this.$divPopup.css('width', grisel.getFullWidth(this.$divSel));
 	else if(this.options.divPopupWidth > 0)
 		this.$divPopup.css('width', parseFloat(this.options.divPopupWidth));
 	if(this.options.divPopupHeight > 0) {
-		this.$divPopup.addClass('jqes-concrete-height');
+		this.$divPopup.addClass('grisel-concrete-height');
 		this.$divPopup.css('height', parseFloat(this.options.divPopupHeight));
 	}
 	if(this.options.divPopupClasses)
@@ -1259,14 +1293,14 @@ jqes.prototype.vConvertSelectOnce = function() {
 		this.$divWrapper.addClass(this.options.divWrapperClasses);
 };
 
-jqes.prototype.vRenderPage = function(page, oldPage, animate, callback) {
+grisel.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 	var self = this;
 	
 	//enable/disable, show/hide controls
-	this.$divPopup.$btnLeft.toggleClass('jqes-enabled', (page > 0));
-	this.$divPopup.$btnRight.toggleClass('jqes-enabled', (page >= 0 && page < (this.getPages() - 1)));
-	this.$divPopup.$btnLeft.toggleClass('jqes-disabled', !(page > 0));
-	this.$divPopup.$btnRight.toggleClass('jqes-disabled', !(page >= 0 && page < (this.getPages() - 1)));
+	this.$divPopup.$btnLeft.toggleClass('grisel-enabled', (page > 0));
+	this.$divPopup.$btnRight.toggleClass('grisel-enabled', (page >= 0 && page < (this.getPages() - 1)));
+	this.$divPopup.$btnLeft.toggleClass('grisel-disabled', !(page > 0));
+	this.$divPopup.$btnRight.toggleClass('grisel-disabled', !(page >= 0 && page < (this.getPages() - 1)));
 	this.$divPopup.$ctrlPages.toggle( this.getPages() > 1 && !this.isFullExtView() );
 	this.$divPopup.$ctrlsWrapper.toggle( this.$divPopup.$ctrls().filter(function() { return $(this).css("display") != "none" }).length > 0 );
 	
@@ -1296,9 +1330,9 @@ jqes.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 		if(isSimultAnims) {
 			this.vRenderPageTo(tmp, this.$divPopup.$bodyGhost);
 		} else {
-			this.$divPopup.data('changing-page', 1).data('changing-page-from', oldPage).data('changing-page-to', page).addClass('jqes-animating-change-page');
+			this.$divPopup.data('changing-page', 1).data('changing-page-from', oldPage).data('changing-page-to', page).addClass('grisel-animating-change-page');
 			this.vRenderPageTo(tmp, this.$divPopup.$bodyGhost);
-			this.$divPopup.$bodyGhost.removeClass('jqes-hidden');
+			this.$divPopup.$bodyGhost.removeClass('grisel-hidden');
 			this.$divPopup.$bodyGhost.css({
 				width: w,
 				top: 0,
@@ -1309,7 +1343,7 @@ jqes.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 			this.$divPopup.$bodyWrapper.css({
 				height: r.bodyWrapperOldH
 			});
-			this.$divPopup.$body.addClass('jqes-body-ghost').removeClass('jqes-hidden').css({
+			this.$divPopup.$body.addClass('grisel-body-ghost').removeClass('grisel-hidden').css({
 				width: w,
 				height: h,
 				top: 0,
@@ -1340,36 +1374,36 @@ jqes.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 				left: ''
 			};
 			var aniCnt = 0;
-			var onAllComplete = function() {
-				var isSimultAnims = !self.$divPopup.$body.hasClass('jqes-body-ghost');
+			var aniOnAllComplete = function() {
+				var isSimultAnims = !self.$divPopup.$body.hasClass('grisel-body-ghost');
 				if(isSimultAnims) {
 					//fix
 					var $tmp = self.$divPopup.$body;
 					self.$divPopup.$body = self.$divPopup.$bodyGhost;
 					self.$divPopup.$bodyGhost = $tmp;
 				}
-				self.$divPopup.$bodyGhost.removeClass('jqes-body-ghost').css(bodyCssRestore);
+				self.$divPopup.$bodyGhost.removeClass('grisel-body-ghost').css(bodyCssRestore);
 				self.$divPopup.$body.css(bodyGhostCssRestore);
 				self.$divPopup.$bodyWrapper.css(bodyWrapperCssRestore);
 				var $tmp = self.$divPopup.$body;
 				self.$divPopup.$body = self.$divPopup.$bodyGhost;
 				self.$divPopup.$bodyGhost = $tmp;
-				self.$divPopup.$bodyGhost.addClass('jqes-hidden');
-				self.$divPopup.$body.removeClass('jqes-hidden');
+				self.$divPopup.$bodyGhost.addClass('grisel-hidden');
+				self.$divPopup.$body.removeClass('grisel-hidden');
 				self._vFixBodyHeight();
-				self.$divPopup.data('changing-page', 0).removeData('changing-page-from').removeData('changing-page-to').removeClass('jqes-animating-change-page');
+				self.$divPopup.data('changing-page', 0).removeData('changing-page-from').removeData('changing-page-to').removeClass('grisel-animating-change-page');
 				callback();
 			};
-			var onOneComplete = function() {
+			var aniOnOneComplete = function() {
 				aniCnt--;
 				if(aniCnt == 0)
-					onAllComplete();
+					aniOnAllComplete();
 			};
 			var aniOpts = {
 				duration: this.options.animatePageDuration, 
 				easing: this.options.animatePageEasing,
 				queue: false,
-				complete: onOneComplete
+				complete: aniOnOneComplete
 			};
 			this.$divPopup.$bodyWrapper.animate(bodyWrapperAniTo, aniOpts);
 			aniCnt++;
@@ -1381,13 +1415,13 @@ jqes.prototype.vRenderPage = function(page, oldPage, animate, callback) {
 	}
 };
 
-jqes.prototype.vRenderPageTo = function(tmp, $body) {
+grisel.prototype.vRenderPageTo = function(tmp, $body) {
 	$body.html(tmp.html);
 	
 	//add dynamic styles
-	$body.find('.jqes-row .jqes-el').css('width', (1.0 * 100 / this.getMaxUsedGridColumns())+'%');
-	$body.find('.jqes-col').css('width', (1.0 * 100 / this.getMaxUsedGridColumns())+'%');
-	$body.find('.jqes-col .jqes-el').css('height', (1.0 * 100 / this.getMaxUsedGridRows())+'%');
+	$body.find('.grisel-row .grisel-el').css('width', (1.0 * 100 / this.getMaxUsedGridColumns())+'%');
+	$body.find('.grisel-col').css('width', (1.0 * 100 / this.getMaxUsedGridColumns())+'%');
+	$body.find('.grisel-col .grisel-el').css('height', (1.0 * 100 / this.getMaxUsedGridRows())+'%');
 	
 	//customize checkboxes
 	var $checkboxes = $body.$checkboxes();
@@ -1402,11 +1436,11 @@ jqes.prototype.vRenderPageTo = function(tmp, $body) {
 	this._vFixBodyHeight();
 };
 
-jqes.prototype.vRenderValStr = function(str) {
+grisel.prototype.vRenderValStr = function(str) {
 	this.$divSel.$span.text(str);
 };
 
-jqes.prototype.vRenderFirstChars = function() {
+grisel.prototype.vRenderFirstChars = function() {
 	if(this.options.showIndex) {
 		var html = this.htmlForFirstChars();
 		this.$divPopup.$index.html(html);
@@ -1420,7 +1454,7 @@ jqes.prototype.vRenderFirstChars = function() {
 	}
 };
 
-jqes.prototype.vRenderPagesList = function() {
+grisel.prototype.vRenderPagesList = function() {
 	if(this.options.showPagesList) {
 		var html = this.htmlForPagesList();
 		this.$divPopup.$pagesList.html(html);
@@ -1431,21 +1465,21 @@ jqes.prototype.vRenderPagesList = function() {
 	}
 };
 
-jqes.prototype.vPostRenderPagesList = function(animate) {
+grisel.prototype.vPostRenderPagesList = function(animate) {
 	if(!this.$divPopup.$pagesList.is(':visible'))
 		return;
 	
 	//change classes
-	this.$divPopup.$pagesList.$ctrlFirst().toggleClass('jqes-enabled', this.currPage > 0);
-	this.$divPopup.$pagesList.$ctrlFirst().toggleClass('jqes-disabled', !(this.currPage > 0));
-	this.$divPopup.$pagesList.$ctrlPrev().toggleClass('jqes-enabled', this.currPage > 0);
-	this.$divPopup.$pagesList.$ctrlPrev().toggleClass('jqes-disabled', !(this.currPage > 0));
-	this.$divPopup.$pagesList.$ctrlLast().toggleClass('jqes-enabled', this.currPage >= 0 && this.currPage < (this.getPages()-1));
-	this.$divPopup.$pagesList.$ctrlLast().toggleClass('jqes-disabled', !(this.currPage >= 0 && this.currPage < (this.getPages()-1)));
-	this.$divPopup.$pagesList.$ctrlNext().toggleClass('jqes-enabled', this.currPage >= 0 && this.currPage < (this.getPages()-1));
-	this.$divPopup.$pagesList.$ctrlNext().toggleClass('jqes-disabled', !(this.currPage >= 0 && this.currPage < (this.getPages()-1)));
-	this.$divPopup.$pagesList.$dotsWrappers().filter('.jqes-page-dot-current').not("[page="+this.currPage+"]").removeClass('jqes-page-dot-current');
-	this.$divPopup.$pagesList.$dotsWrappers().filter("[page="+this.currPage+"]").not('.jqes-page-dot-current').addClass('jqes-page-dot-current');
+	this.$divPopup.$pagesList.$ctrlFirst().toggleClass('grisel-enabled', this.currPage > 0);
+	this.$divPopup.$pagesList.$ctrlFirst().toggleClass('grisel-disabled', !(this.currPage > 0));
+	this.$divPopup.$pagesList.$ctrlPrev().toggleClass('grisel-enabled', this.currPage > 0);
+	this.$divPopup.$pagesList.$ctrlPrev().toggleClass('grisel-disabled', !(this.currPage > 0));
+	this.$divPopup.$pagesList.$ctrlLast().toggleClass('grisel-enabled', this.currPage >= 0 && this.currPage < (this.getPages()-1));
+	this.$divPopup.$pagesList.$ctrlLast().toggleClass('grisel-disabled', !(this.currPage >= 0 && this.currPage < (this.getPages()-1)));
+	this.$divPopup.$pagesList.$ctrlNext().toggleClass('grisel-enabled', this.currPage >= 0 && this.currPage < (this.getPages()-1));
+	this.$divPopup.$pagesList.$ctrlNext().toggleClass('grisel-disabled', !(this.currPage >= 0 && this.currPage < (this.getPages()-1)));
+	this.$divPopup.$pagesList.$dotsWrappers().filter('.grisel-page-dot-current').not("[page="+this.currPage+"]").removeClass('grisel-page-dot-current');
+	this.$divPopup.$pagesList.$dotsWrappers().filter("[page="+this.currPage+"]").not('.grisel-page-dot-current').addClass('grisel-page-dot-current');
 	
 	//show/hide
 	this.$divPopup.$pagesList.$ctrlFirst().toggle( this.getPages() > 2 );
@@ -1458,7 +1492,7 @@ jqes.prototype.vPostRenderPagesList = function(animate) {
 	var $dots = this.$divPopup.$pagesList.$dotsWrappers();
 	var $currDot = this.$divPopup.$pagesList.$currDotWrapper();
 	var currDotI = $dots.index($currDot);
-	var dotW = $dots.length ? jqes.getFullWidth($dots.first(), true) : 0;
+	var dotW = $dots.length ? grisel.getFullWidth($dots.first(), true) : 0;
 	var dotsCnt = $dots.length;
 	var maxDotCnt = dotW ? Math.floor(1.0 * dotsVW / dotW) : 0;
 	if(dotW && dotsCnt > maxDotCnt) {
@@ -1508,12 +1542,12 @@ jqes.prototype.vPostRenderPagesList = function(animate) {
  * If option 'reserveForPopupHeight' is set and on curr page there is "deficit" of rows, add % of reserve to these rows.
  * (This fixes will force body to keep 'width' css-style)
  */
-jqes.prototype._vPreFixBodyHeight = function(applyToBodyGhost) {
+grisel.prototype._vPreFixBodyHeight = function(applyToBodyGhost) {
 	var $trgBody = (applyToBodyGhost ? this.$divPopup.$bodyGhost : this.$divPopup.$body);
 	var isFullRows = this.getUsedGridRowsForPage(this.currPage) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
-	var bodyWrapperOldH = jqes.getFullHeight(this.$divPopup.$bodyWrapper, true);
+	var bodyWrapperOldH = grisel.getFullHeight(this.$divPopup.$bodyWrapper, true);
 	$trgBody.css('height', '');
-	var gh1 = jqes.getFullHeight($trgBody, true);
+	var gh1 = grisel.getFullHeight($trgBody, true);
 	var gh = $trgBody.height();
 	var gh1_ = 0, gh_ = 0; //forced height
 	if(!isFullRows && this.options.reserveForPopupHeight < 0) {
@@ -1525,12 +1559,12 @@ jqes.prototype._vPreFixBodyHeight = function(applyToBodyGhost) {
 	}
 	if(gh1_) {
 		gh1 = gh1_;
-		gh_ = gh1_ - jqes.getHeightOverhead($trgBody, true);
+		gh_ = gh1_ - grisel.getHeightOverhead($trgBody, true);
 		gh = gh_;
 	}
 	if(gh)
 		$trgBody.css('height', gh);
-	var bh1 = jqes.getFullHeight(this.$divPopup.$body, true);
+	var bh1 = grisel.getFullHeight(this.$divPopup.$body, true);
 	var bodyWrapperNewH = Math.max(bh1, gh1);
 	
 	var r = {gh1: gh1, gh: gh, gh1_: gh1_, gh_: gh_, bodyWrapperOldH: bodyWrapperOldH, bodyWrapperNewH: bodyWrapperNewH};
@@ -1542,10 +1576,10 @@ jqes.prototype._vPreFixBodyHeight = function(applyToBodyGhost) {
  * This fix will force bodyWrapper to keep 'min-height' css-style.
  * Also if option 'tryToKeepConstPopupHeight' is set, body will keep const height (only for full rows) via 'width' css-style.
  */
-jqes.prototype._vFixBodyHeight = function() {
+grisel.prototype._vFixBodyHeight = function() {
 	var self = this;
 	var $divToRender = self.$divPopup.$bodyWrapper;
-	if(this.$divPopup.hasClass('jqes-concrete-height')) {
+	if(this.$divPopup.hasClass('grisel-concrete-height')) {
 	} else {
 		var isFullRows = this.getUsedGridRowsForPage(this.currPage) == this.getMaxUsedGridRows() && this.getMaxUsedGridRows() == this.options.gridRows;
 		
@@ -1561,7 +1595,7 @@ jqes.prototype._vFixBodyHeight = function() {
 		if(isNaN(minw)) minw = 0;
 		if(self.$divPopup.$msg.hasClass('visible') && self.$divPopup.$body.is(':empty')) {
 			//body is empty and msg is not
-			var msgH = jqes.getFullHeight(self.$divPopup.$msg, true);
+			var msgH = grisel.getFullHeight(self.$divPopup.$msg, true);
 			if(!_minh) {
 				$divToRender.css('min-height', (minh-msgH)+'px');
 				$divToRender.data('_min-height', minh+'px');
@@ -1578,7 +1612,7 @@ jqes.prototype._vFixBodyHeight = function() {
 			}
 			/** don't need (?), see _vPreFixBodyHeight() above **
 			if(this.options.tryToKeepConstPopupHeight && minh && isFullRows) {
-				self.$divPopup.$body.css('height', minh - jqes.getHeightOverhead(this.$divPopup.$body, true));
+				self.$divPopup.$body.css('height', minh - grisel.getHeightOverhead(this.$divPopup.$body, true));
 			}
 			*/
 		}
@@ -1589,7 +1623,7 @@ jqes.prototype._vFixBodyHeight = function() {
 	}
 };
 
-jqes.prototype.vAfterFilterChange = function() {
+grisel.prototype.vAfterFilterChange = function() {
 	var self = this;
 	this.$divPopup.$ctrlShowSelection.toggleClass('selected', this.fitlerBySel);
 	this.$divPopup.$indexChars().each(function(ind, el) {
@@ -1600,15 +1634,15 @@ jqes.prototype.vAfterFilterChange = function() {
 		this.$divPopup.$search.val(this.filterStr);
 };
 
-jqes.prototype.vAfterSingleChanged = function($chkbx) {
+grisel.prototype.vAfterSingleChanged = function($chkbx) {
 	var $inputToUncheck = this.$divPopup.$body.find("input"+(this.selectedItemsInds.length ? "[realind!="+this.selectedItemsInds[0]+"]" : "")+":checked").not($chkbx);
 	$inputToUncheck.prop('checked', false).trigger('change');
 };
 
-jqes.prototype.vAfterAllSelectedChanged = function($chkbx) {
-	var $inputAnyChecked = this.$divPopup.$body.find("input.jqes-checkbox-any:checked").not($chkbx);
-	var $inputAnyUnhecked = this.$divPopup.$body.find("input.jqes-checkbox-any:not(:checked)").not($chkbx);
-	var $inputsNotAnyChecked = this.$divPopup.$body.find("input:not(.jqes-checkbox-any):checked").not($chkbx);
+grisel.prototype.vAfterAllSelectedChanged = function($chkbx) {
+	var $inputAnyChecked = this.$divPopup.$body.find("input.grisel-checkbox-any:checked").not($chkbx);
+	var $inputAnyUnhecked = this.$divPopup.$body.find("input.grisel-checkbox-any:not(:checked)").not($chkbx);
+	var $inputsNotAnyChecked = this.$divPopup.$body.find("input:not(.grisel-checkbox-any):checked").not($chkbx);
 	
 	if(this.areAllSelected) {
 		//if no options are selected, check only a-n-y option
@@ -1623,11 +1657,11 @@ jqes.prototype.vAfterAllSelectedChanged = function($chkbx) {
 	this._allowZeroSelection();
 };
 
-jqes.prototype.vAfterUpdateItems = function() {
-	var classAreaPopup = (this.isFullExtView() ? 'jqes-popup-ext' : (this.isCompactExtView() ? 'jqes-popup-comp' : 'jqes-popup-norm'));
-	this.$divPopup.removeClass('jqes-popup-ext');
-	this.$divPopup.removeClass('jqes-popup-comp');
-	this.$divPopup.removeClass('jqes-popup-norm');
+grisel.prototype.vAfterUpdateItems = function() {
+	var classAreaPopup = (this.isFullExtView() ? 'grisel-popup-ext' : (this.isCompactExtView() ? 'grisel-popup-comp' : 'grisel-popup-norm'));
+	this.$divPopup.removeClass('grisel-popup-ext');
+	this.$divPopup.removeClass('grisel-popup-comp');
+	this.$divPopup.removeClass('grisel-popup-norm');
 	this.$divPopup.addClass(classAreaPopup);
 	
 	this.$divPopup.$ctrlClearAll.toggle( this.getItemsCountWoAll() > 0 );
@@ -1638,17 +1672,17 @@ jqes.prototype.vAfterUpdateItems = function() {
 
 // ------------------------------------------------ View - generate html for rendering
 
-jqes.prototype.htmlForSel = function() {
-	var divSelHtml = "<div class='jqes-select" + (this.isMultiple ? "" : " jqes-select-single") + "'><div class='jqes-select-text'><span>" + this.valStr + "</span></div><div class='cuselFrameRight'></div></div>";
+grisel.prototype.htmlForSel = function() {
+	var divSelHtml = "<div class='grisel-select" + (this.isMultiple ? "" : " grisel-select-single") + "'><div class='grisel-select-text'><span>" + this.valStr + "</span></div><div class='cuselFrameRight'></div></div>";
 	return divSelHtml;
 };
 
-jqes.prototype.htmlForWrapper = function() {
-	return "<div class='jqes-wrapper'></div>";
+grisel.prototype.htmlForWrapper = function() {
+	return "<div class='grisel-wrapper'></div>";
 };
 
-jqes.prototype.htmlForPopup = function() {
-	var classAreaPopup = (this.isFullExtView() ? 'jqes-popup-ext' : (this.isCompactExtView() ? 'jqes-popup-comp' : 'jqes-popup-norm'));
+grisel.prototype.htmlForPopup = function() {
+	var classAreaPopup = (this.isFullExtView() ? 'grisel-popup-ext' : (this.isCompactExtView() ? 'grisel-popup-comp' : 'grisel-popup-norm'));
 	
 	var textClearAll = 		this.strings.ctrlClearAll instanceof Array		? this.strings.ctrlClearAll[this.isMultiple ? 0 : 1]		: this.strings.ctrlClearAll;
 	var textShowSelection =	this.strings.ctrlShowSelection instanceof Array	? this.strings.ctrlShowSelection[this.isMultiple ? 0 : 1]	: this.strings.ctrlShowSelection;
@@ -1656,56 +1690,56 @@ jqes.prototype.htmlForPopup = function() {
 	var textSaveSelection =	this.strings.ctrlSaveSelection instanceof Array ? this.strings.ctrlSaveSelection[this.isMultiple ? 0 : 1]	: this.strings.ctrlSaveSelection;
 	
 	var divPopupHtml = '';
-	divPopupHtml += "<div class='hidden jqes-popup " + classAreaPopup + (this.isMultiple ? "" : " jqes-popup-single") + "'>";
+	divPopupHtml += "<div class='hidden grisel-popup " + classAreaPopup + (this.isMultiple ? "" : " grisel-popup-single") + "'>";
 		if(this.options.showCloseCross) {
-			divPopupHtml += "<div class='jqes-close'></div>";
+			divPopupHtml += "<div class='grisel-close'></div>";
 		}
 		if(this.options.showSearch) {
-			divPopupHtml += "<div class='jqes-head'>";
-				divPopupHtml += "<input class='jqes-search' type='text' placeholder='" + this.strings.inputPlaceholder + "'/>";
+			divPopupHtml += "<div class='grisel-head'>";
+				divPopupHtml += "<input class='grisel-search' type='text' placeholder='" + this.strings.inputPlaceholder + "'/>";
 				if(!(this.options.hidePageControlsWhenThereIsPegeList && this.options.showPagesList)) {
-					divPopupHtml += "<div class='jqes-btn jqes-btn-left'></div>";
-					divPopupHtml += "<div class='jqes-btn jqes-btn-right'></div>";
+					divPopupHtml += "<div class='grisel-btn grisel-btn-left'></div>";
+					divPopupHtml += "<div class='grisel-btn grisel-btn-right'></div>";
 				}
 			divPopupHtml += "</div>";
 		}
-		divPopupHtml += "<div class='jqes-msg'><span></span></div>";
-		divPopupHtml += "<div class='jqes-body-wrapper " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'jqes-dir-horz' : 'jqes-dir-vert') + " jqes-cols-x jqes-cols-" + this.options.gridColumns + " jqes-rows-x jqes-rows-" + this.options.gridRows + "'>";
-			divPopupHtml += "<div class='jqes-body'>";
+		divPopupHtml += "<div class='grisel-msg'><span></span></div>";
+		divPopupHtml += "<div class='grisel-body-wrapper " + (this.options.gridDirectionHorizontal || this.options.useRowsStyleForVerticalDirection ? 'grisel-dir-horz' : 'grisel-dir-vert') + " grisel-cols-x grisel-cols-" + this.options.gridColumns + " grisel-rows-x grisel-rows-" + this.options.gridRows + "'>";
+			divPopupHtml += "<div class='grisel-body'>";
 				//... look at this.vRenderPage(page)
 			divPopupHtml += "</div>";
-			divPopupHtml += "<div class='jqes-body jqes-body-ghost jqes-hidden'>";
+			divPopupHtml += "<div class='grisel-body grisel-body-ghost grisel-hidden'>";
 				//... look at this.vRenderPage(page)
 			divPopupHtml += "</div>";
-			divPopupHtml += "<div class='jqes-body-ani-helper'></div>";
+			divPopupHtml += "<div class='grisel-body-ani-helper'></div>";
 		divPopupHtml += "</div>";
 		if(this.options.showPagesList) {
-			divPopupHtml += "<div class='jqes-pages-list'>";
+			divPopupHtml += "<div class='grisel-pages-list'>";
 				//... look at this.vRenderPagesList()
 			divPopupHtml += "</div>";
 		}
 		if(this.options.showControls) {
-			divPopupHtml += "<div class='jqes-ctrls'>";
+			divPopupHtml += "<div class='grisel-ctrls'>";
 				if(!(this.options.hidePageControlsWhenThereIsPegeList && this.options.showPagesList)) {
-					divPopupHtml += "<div class='jqes-ctrl jqes-ctrls-pag'>";
-						divPopupHtml += "<div class='jqes-btn jqes-btn-left'></div>";
-						divPopupHtml += "<div class='jqes-btn jqes-btn-right'></div>";
-						divPopupHtml += "<div class='jqes-clr'></div>";
+					divPopupHtml += "<div class='grisel-ctrl grisel-ctrls-pag'>";
+						divPopupHtml += "<div class='grisel-btn grisel-btn-left'></div>";
+						divPopupHtml += "<div class='grisel-btn grisel-btn-right'></div>";
+						divPopupHtml += "<div class='grisel-clr'></div>";
 					divPopupHtml += "</div>";
 				}
 				if(this.options.showCtrlClearAll)
-					divPopupHtml += "<div class='jqes-ctrl jqes-ctrl-link jqes-ctrl-clear-all'>" + textClearAll + "</div>";
+					divPopupHtml += "<div class='grisel-ctrl grisel-ctrl-link grisel-ctrl-clear-all'>" + textClearAll + "</div>";
 				if(this.isMultiple && this.options.showCtrlShowSelection)
-					divPopupHtml += "<div class='jqes-ctrl jqes-ctrl-link jqes-ctrl-show-selection'>" + textShowSelection + "</div>";
+					divPopupHtml += "<div class='grisel-ctrl grisel-ctrl-link grisel-ctrl-show-selection'>" + textShowSelection + "</div>";
 				if(!this.isMultiple && this.options.showCtrlGotoSelection)
-					divPopupHtml += "<div class='jqes-ctrl jqes-ctrl-link jqes-ctrl-goto-selection'>" + textGotoSelection + "</div>";
-				divPopupHtml += "<div class='jqes-ctrl-space'></div>";
+					divPopupHtml += "<div class='grisel-ctrl grisel-ctrl-link grisel-ctrl-goto-selection'>" + textGotoSelection + "</div>";
+				divPopupHtml += "<div class='grisel-ctrl-space'></div>";
 				if(this.options.showCtrlSaveSelection)
-					divPopupHtml += "<div class='jqes-ctrl jqes-ctrl-link jqes-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
+					divPopupHtml += "<div class='grisel-ctrl grisel-ctrl-link grisel-ctrl-save-selection'>" + textSaveSelection + "<div class='cuselFrameRightUp'></div></div>";
 			divPopupHtml += "</div>";
 		}
 		if(this.options.showIndex) {
-			divPopupHtml += "<div class='jqes-index'" + ">";
+			divPopupHtml += "<div class='grisel-index'" + ">";
 				//... look at this.vRenderFirstChars()
 			divPopupHtml += "</div>";
 		}
@@ -1713,7 +1747,7 @@ jqes.prototype.htmlForPopup = function() {
 	return divPopupHtml;
 }
 
-jqes.prototype.htmlForPage = function(page) {
+grisel.prototype.htmlForPage = function(page) {
 	var msg = '';
 	var html = '';
 	var rng = this.getItemsRangeForPage(page);
@@ -1751,15 +1785,15 @@ jqes.prototype.htmlForPage = function(page) {
 			var name = self.selId + '_items';
 			var text = opt[0];
 			var checked = opt[2] ? self.areAllSelected : opt[1];
-			html += "<div class='jqes-el'>";
-				html += "<input type='"+(self.isMultiple ? 'checkbox' : 'radio')+"' class='" + (opt[2] ? "jqes-checkbox-any" : "") + "' realInd='" + realInd + "' name='" + name + "' id='" + id + "' " + (checked ? " checked" : "") + ">";
-				html += "<label for='" + id + "' _class='" + (opt[2] ? "jqes-label-any" : "") + "'>" + text + "</label>";
+			html += "<div class='grisel-el'>";
+				html += "<input type='"+(self.isMultiple ? 'checkbox' : 'radio')+"' class='" + (opt[2] ? "grisel-checkbox-any" : "") + "' realInd='" + realInd + "' name='" + name + "' id='" + id + "' " + (checked ? " checked" : "") + ">";
+				html += "<label for='" + id + "' _class='" + (opt[2] ? "grisel-label-any" : "") + "'>" + text + "</label>";
 			html += "</div>";
 			return html;
 		};
 		
 		var renderColStart = function(self, html, c) {
-			var html = "<div class='jqes-col' id='jqes-col-" + c + "'>";
+			var html = "<div class='grisel-col' id='grisel-col-" + c + "'>";
 			return html;
 		};
 		var renderColEnd = function(self, html, c) {
@@ -1768,7 +1802,7 @@ jqes.prototype.htmlForPage = function(page) {
 		};
 		
 		var renderRowStart = function(self, html, r) {
-			var html = "<div class='jqes-row jqes-body-rows-x jqes-body-rows-" + self.getMaxUsedGridRows() + "' id='jqes-row-" + r + "'>";
+			var html = "<div class='grisel-row grisel-body-rows-x grisel-body-rows-" + self.getMaxUsedGridRows() + "' id='grisel-row-" + r + "'>";
 			return html;
 		};
 		var renderRowEnd = function(self, html, r) {
@@ -1817,44 +1851,44 @@ jqes.prototype.htmlForPage = function(page) {
 	return {html: html, msg: msg};
 };
 
-jqes.prototype.htmlForPagesList = function() {
+grisel.prototype.htmlForPagesList = function() {
 	var html = '';
 	
 	if(this.getPages() > 0) {
-		html += "<div class='jqes-pages-ctrl jqes-pages-first "+(this.currPage > 0 ? 'jqes-enabled' : 'jqes-disabled')+"'><span class='ui-icon ui-icon-seek-first'></span></div>";
-		html += "<div class='jqes-pages-ctrl jqes-pages-prev "+(this.currPage > 0 ? 'jqes-enabled' : 'jqes-disabled')+"'><span class='ui-icon ui-icon-triangle-1-w'></span></div>";
+		html += "<div class='grisel-pages-ctrl grisel-pages-first "+(this.currPage > 0 ? 'grisel-enabled' : 'grisel-disabled')+"'><span class='grisel-ui-icon grisel-ui-icon-seek-first'></span></div>";
+		html += "<div class='grisel-pages-ctrl grisel-pages-prev "+(this.currPage > 0 ? 'grisel-enabled' : 'grisel-disabled')+"'><span class='grisel-ui-icon grisel-ui-icon-triangle-1-w'></span></div>";
 		
-		html += "<div class='jqes-pages-dots-wrapper'>";
-			html += "<div class='jqes-pages-grad-left'></div>";
-			html += "<div class='jqes-pages-dots'>";
+		html += "<div class='grisel-pages-dots-wrapper'>";
+			html += "<div class='grisel-pages-grad-left'></div>";
+			html += "<div class='grisel-pages-dots'>";
 				for(var p = 0 ; p < this.getPages() ; p++) {
-					html += "<div class='jqes-page-dot-wrapper"+ (p == this.currPage ? " jqes-page-dot-current" : "") +"' id='jqes-page-dot-wrapper-"+p+"' page='"+p+"'>";
-						html += "<div class='jqes-page-dot' page='"+p+"'>";
-							html += "<div class='jqes-page-dot-inner'></div>";
+					html += "<div class='grisel-page-dot-wrapper"+ (p == this.currPage ? " grisel-page-dot-current" : "") +"' id='grisel-page-dot-wrapper-"+p+"' page='"+p+"'>";
+						html += "<div class='grisel-page-dot' page='"+p+"'>";
+							html += "<div class='grisel-page-dot-inner'></div>";
 						html += "</div>";
 					html += "</div>";
 				}
 			html += "</div>";
-			html += "<div class='jqes-pages-grad-right'></div>";
+			html += "<div class='grisel-pages-grad-right'></div>";
 		html += "</div>";
 		
-		html += "<div class='jqes-pages-ctrl jqes-pages-next "+(this.currPage >= 0 && this.currPage < (this.getPages()-1) ? 'jqes-enabled' : 'jqes-disabled')+"'><span class='ui-icon ui-icon-triangle-1-e'></span></div>";
-		html += "<div class='jqes-pages-ctrl jqes-pages-last "+(this.currPage >= 0 && this.currPage < (this.getPages()-1) ? 'jqes-enabled' : 'jqes-disabled')+"'><span class='ui-icon ui-icon-seek-end'></span></div>";
+		html += "<div class='grisel-pages-ctrl grisel-pages-next "+(this.currPage >= 0 && this.currPage < (this.getPages()-1) ? 'grisel-enabled' : 'grisel-disabled')+"'><span class='grisel-ui-icon grisel-ui-icon-triangle-1-e'></span></div>";
+		html += "<div class='grisel-pages-ctrl grisel-pages-last "+(this.currPage >= 0 && this.currPage < (this.getPages()-1) ? 'grisel-enabled' : 'grisel-disabled')+"'><span class='grisel-ui-icon grisel-ui-icon-seek-end'></span></div>";
 	}
 	
 	return html;
 };
 
-jqes.prototype.htmlForFirstChars = function() {
+grisel.prototype.htmlForFirstChars = function() {
 	var html = '';
 	
 	var cntAll = this.items.length;
 	var fCharAll = '';
-	html += "<div class='jqes-char' fChar='" + fCharAll + "' fCharCnt='" + cntAll + "'>" + this.strings.indexAll + "</div>";
+	html += "<div class='grisel-char' fChar='" + fCharAll + "' fCharCnt='" + cntAll + "'>" + this.strings.indexAll + "</div>";
 	
 	for(var fChar in this.firstChars) if (this.firstChars.hasOwnProperty(fChar)) {
 		var cnt = this.firstChars[fChar];
-		html += "<div class='jqes-char' fChar='" + fChar + "' fCharCnt='" + cnt + "'>" + fChar + "</div>";
+		html += "<div class='grisel-char' fChar='" + fChar + "' fCharCnt='" + cnt + "'>" + fChar + "</div>";
 	}
 	return html;
 };
@@ -1863,8 +1897,8 @@ jqes.prototype.htmlForFirstChars = function() {
 
 //init
 //
-jqes.prototype.doInitOnce = function() {
-	if(jqes.isInited(this.$sel))
+grisel.prototype.doInitOnce = function() {
+	if(grisel.isInited(this.$sel))
 		return false;
 	var self = this;
 	
@@ -1888,8 +1922,8 @@ jqes.prototype.doInitOnce = function() {
 	});
 };
 
-jqes.prototype.doPrepareHtmlOnce = function() {
-	if(jqes.isInited(this.$sel))
+grisel.prototype.doPrepareHtmlOnce = function() {
+	if(grisel.isInited(this.$sel))
 		return false;
 	
 	//render - replace original <select> with new sel & popup divs
@@ -1990,7 +2024,7 @@ jqes.prototype.doPrepareHtmlOnce = function() {
 
 //sync from original <select> if has been updated
 //
-jqes.prototype.doUpdateItems = function() {
+grisel.prototype.doUpdateItems = function() {
 	this.mSyncFromSelect(false);
 	
 	this.vAfterUpdateItems();
@@ -2005,31 +2039,31 @@ jqes.prototype.doUpdateItems = function() {
 
 //open, close
 //
-jqes.prototype.doOpenPopup = function() {
-	jqes.doCloseAppPopups();
+grisel.prototype.doOpenPopup = function() {
+	grisel.doCloseAppPopups();
 	if(!this.isMultiple && this.selectedItemsInds.length)
 		this.doGotoSelection(false);
 	this.vOpenPopup();
 };
-jqes.prototype.doClosePopup = function() {
+grisel.prototype.doClosePopup = function() {
 	this.vClosePopup();
 };
-jqes.prototype.doTogglePopup = function() {
+grisel.prototype.doTogglePopup = function() {
 	if(!this.isPopupOpened())
 		this.doOpenPopup();
 	else
 		this.doClosePopup();
 };
-jqes.doCloseAppPopups = function() {
-	for(var selId in jqes._instances) if (jqes._instances.hasOwnProperty(selId)) {
-		var inst = jqes._instances[selId];
+grisel.doCloseAppPopups = function() {
+	for(var selId in grisel._instances) if (grisel._instances.hasOwnProperty(selId)) {
+		var inst = grisel._instances[selId];
 		inst.doClosePopup();
 	}
 };
 
 //render
 //
-jqes.prototype.doGotoPage = function(page, animate) {
+grisel.prototype.doGotoPage = function(page, animate) {
 	var self = this;
 	
 	var oldPage = this.currPage;
@@ -2055,11 +2089,11 @@ jqes.prototype.doGotoPage = function(page, animate) {
 	
 };
 
-jqes.prototype.doRenderValStr = function() {
+grisel.prototype.doRenderValStr = function() {
 	this.vRenderValStr(this.valStr);
 };
 
-jqes.prototype.doRenderPagesList = function() {
+grisel.prototype.doRenderPagesList = function() {
 	if(this.options.showPagesList) {
 		var self = this;
 		
@@ -2090,7 +2124,7 @@ jqes.prototype.doRenderPagesList = function() {
 	}
 };
 
-jqes.prototype.doRenderFirstChars = function() {
+grisel.prototype.doRenderFirstChars = function() {
 	if(this.isFullExtView()) {
 		var self = this;
 		//render
@@ -2119,24 +2153,24 @@ jqes.prototype.doRenderFirstChars = function() {
 
 //filters
 //
-jqes.prototype.doSetFilterByFirstChar = function(gr) {
+grisel.prototype.doSetFilterByFirstChar = function(gr) {
 	this.mSetFilterByFirstChar(gr);
 	this.vAfterFilterChange();
 };
-jqes.prototype.doSetFilterBySelected = function(sel) {
+grisel.prototype.doSetFilterBySelected = function(sel) {
 	this.mSetFilterBySelected(sel);
 	this.vAfterFilterChange();
 };
-jqes.prototype.doSetFilterBySearchString = function(str) {
+grisel.prototype.doSetFilterBySearchString = function(str) {
 	this.mSetFilterBySearchString(str);
 	this.vAfterFilterChange();
 };
-jqes.prototype.doSetNoFilter = function() {
+grisel.prototype.doSetNoFilter = function() {
 	this.mSetNoFilter();
 	this.vAfterFilterChange();
 };
 
-jqes.prototype.doApplyFilter = function() {
+grisel.prototype.doApplyFilter = function() {
 	var mode = this.getFilterMode();
 	if(mode == 'sel') {
 		this.mFilterItemsBySelected();
@@ -2151,12 +2185,12 @@ jqes.prototype.doApplyFilter = function() {
 	this.doRenderPagesList();
 };
 
-jqes.prototype.doApplyFilterAndGotoFirstPage = function() {
+grisel.prototype.doApplyFilterAndGotoFirstPage = function() {
 	this.doApplyFilter();
 	this.doGotoPage(this.getFirstPage());
 };
 
-jqes.prototype.doGotoSelection = function(animate) {
+grisel.prototype.doGotoSelection = function(animate) {
 	var pageForSel = this.getPageForCurrSel();
 	var resetFilter = (pageForSel == -1 || this.getSearchedCnt() == 0);
 	if(resetFilter) {
@@ -2167,7 +2201,7 @@ jqes.prototype.doGotoSelection = function(animate) {
 	this.doGotoPage(pageForSel != -1 ? pageForSel : this.getFirstPage(), animate && !resetFilter);
 };
 
-jqes.prototype.doClearAll = function() {
+grisel.prototype.doClearAll = function() {
 	this.doUnselectAllItems();
 	this.doSetNoFilter();
 	this.doApplyFilterAndGotoFirstPage();
@@ -2177,7 +2211,7 @@ jqes.prototype.doClearAll = function() {
 
 //selection events
 //
-jqes.prototype.onSelectItem = function(info, $chkbx) {
+grisel.prototype.onSelectItem = function(info, $chkbx) {
 	var ch_stat = this.mSelectItem(info);
 	if(ch_stat > 0 && !this.isMultiple) {
 		this.vAfterSingleChanged($chkbx);
@@ -2192,7 +2226,7 @@ jqes.prototype.onSelectItem = function(info, $chkbx) {
 		this.doClosePopup();
 };
 
-jqes.prototype.onSelectionChanged = function() {
+grisel.prototype.onSelectionChanged = function() {
 	if(this.getFilterMode() == 'sel') {
 		this.mFilterItemsBySelected();
 		var page = this.currPage;
@@ -2219,7 +2253,7 @@ jqes.prototype.onSelectionChanged = function() {
 	}
 };
 
-jqes.prototype.doUnselectAllItems = function() {
+grisel.prototype.doUnselectAllItems = function() {
 	var oldAreAllSelected = this.areAllSelected;
 	this.areAllSelected = true;
 	if(oldAreAllSelected != this.areAllSelected) {
@@ -2232,36 +2266,36 @@ jqes.prototype.doUnselectAllItems = function() {
 //other events
 //
 //things that can be done only when popup is visible
-jqes.prototype.onShowPopup = function() {
+grisel.prototype.onShowPopup = function() {
 	this.vPostRenderPagesList(false);
 };
 
-jqes.prototype.onHidePopup = function() {
+grisel.prototype.onHidePopup = function() {
 };
 
 // ------------------------------------------------
 
 //
-// jQuery extensions for class jqes
+// jQuery extensions for class grisel
 //
 
-jQuery.fn.jqesInit = function() {
+jQuery.fn.griselInit = function() {
 	for(var i = 0 ; i < this.length ; i++) {
 		var $sel = jQuery(this[i]);
-		var ems = new jqes($sel);
+		var ems = new grisel($sel);
 	}
 	return this;
 };
 
-jQuery.fn.jqesUpdate = function() {
+jQuery.fn.griselUpdate = function() {
 	for(var i = 0 ; i < this.length ; i++) {
 		var $sel = jQuery(this[i]);
 		var selId = $sel.attr('id');
-		if(0 && !jqes.isInited($sel)) {
-			$sel.jqesInit();
+		if(0 && !grisel.isInited($sel)) {
+			$sel.griselInit();
 		}
-		if(jqes.isInited($sel)) {
-			var ems = jqes.getInstance(selId);
+		if(grisel.isInited($sel)) {
+			var ems = grisel.getInstance(selId);
 			if(ems)
 				ems.doUpdateItems();
 		}
@@ -2270,8 +2304,8 @@ jQuery.fn.jqesUpdate = function() {
 };
 
 jQuery( document ).ready(function() {
-	if (jQuery(".jqes, .dp2ems").size() > 0) {
-		jQuery(".jqes, .dp2ems").jqesInit();
+	if (jQuery(".grisel").size() > 0) {
+		jQuery(".grisel").griselInit();
 	}
 });
 

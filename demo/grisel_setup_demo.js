@@ -1,5 +1,5 @@
 
-jqes.defaultOptions = jQuery.extend(jqes.defaultOptions, {
+grisel.defaultOptions = jQuery.extend(grisel.defaultOptions, {
 	'divSelWidth': 300,
 	'divSelHeight': 30,
 	'divPopupWidth': 0,
@@ -8,7 +8,7 @@ jqes.defaultOptions = jQuery.extend(jqes.defaultOptions, {
 	'reserveForPopupHeight': 50,
 });
 
-jqes.optionsBySelId = {
+grisel.optionsBySelId = {
 	's_street': {
 	},
 	's_street2': {
@@ -28,12 +28,12 @@ jqes.optionsBySelId = {
 };
 
 
-jqes.defaultLang = 'ru';
+grisel.defaultLang = 'ru';
 
-jqes.defaultStrings = jQuery.extend(jqes.defaultStrings, {
+grisel.defaultStrings = jQuery.extend(grisel.defaultStrings, {
 });
 
-jqes.stringsBySelId = {
+grisel.stringsBySelId = {
 	's_street': {
 		'ru': {
 			'cntNames': ['улица', 'улицы', 'улиц'],

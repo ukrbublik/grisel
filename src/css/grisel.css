@@ -1,14 +1,15 @@
 /**
- * jqes
+ * grisel
  * 
- * Pretty looking and highly customizable multi-select (or single-select) control (over standard <select>). 
+ * Custom select control.
+ * Represents options as paginated grid.
  * Features search and filter by first letter.
- * Useful for big list of options.
+ * Customizable. Has cool animations. Useful for big list of options.
  *
- * Requires: browser with CSS3 support, jQuery, jQuery UI (effects, icons)
+ * Requires: browser with CSS3 support (for flex), jQuery, jQuery easing plugin
  *
  * @version 2.2.1
- * @homepage https://github.com/ukrbublik/jqes
+ * @homepage https://github.com/ukrbublik/grisel
  * @author ukrbublik
  * @license MIT
  *
@@ -16,8 +17,8 @@
  */
 
 /* common */
-.jqes-select,
-.jqes-popup {
+.grisel-select,
+.grisel-popup {
 font-family: Arial;
 }
 .cuselFrameRight {
@@ -29,7 +30,7 @@ height: 100%;
 width: 24px;
 background-position: right top;
 border: none;
-background: url('../images/tabs_arrow_orange.gif') center no-repeat !important;
+background: url('../images/arrow-down.gif') center no-repeat !important;
 }
 .cuselFrameRightUp {
 position: absolute;
@@ -40,22 +41,22 @@ height: 100%;
 width: 24px;
 background-position: right top;
 border: none;
-background: url('../images/tabs_arrow_orange_up.gif') center no-repeat !important;
+background: url('../images/arrow-up.gif') center no-repeat !important;
 }
-.jqes-hidden {
+.grisel-hidden {
 display: none !important;
 }
 
 /* wrapper */
-.jqes-wrapper {
+.grisel-wrapper {
 position: relative;
 }
 
 /* select */
-.jqes-select {
+.grisel-select {
 border: 1px solid #D9D7D7;
 color: #4E4E53;
-padding: 2px 21px 2px 5px; /* minimum, L-R can be adjusted*/ /* r = l + w(.jqes-select > .cuselFrameRight)==24 - 8 */
+padding: 2px 21px 2px 5px; /* minimum, L-R can be adjusted*/ /* r = l + w(.grisel-select > .cuselFrameRight)==24 - 8 */
 border-radius: 4px;
 position: relative;
 font-size: 12px;
@@ -66,40 +67,40 @@ cursor: pointer;
 outline: 0;
 -webkit-touch-callout: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
 }
-.jqes-select-single {
+.grisel-select-single {
 }
-.jqes-select-auto-width {
+.grisel-select-auto-width {
 width: auto;
 }
-.jqes-select-auto-height {
+.grisel-select-auto-height {
 height: 100%;
 }
-.jqes-select > .cuselFrameRight {
+.grisel-select > .cuselFrameRight {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 }
-.jqes-select > .jqes-select-text {
+.grisel-select > .grisel-select-text {
 width: 100%;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
 justify-content: center;
 }
-.jqes-select-text span {
+.grisel-select-text span {
 white-space: nowrap;
 overflow: hidden !important;
 text-overflow: ellipsis;
 }
-.jqes-select-multiline .jqes-select-text span {
+.grisel-select-multiline .grisel-select-text span {
 white-space: normal;
 }
-.jqes-select:hover {
+.grisel-select:hover {
 background: linear-gradient(to top, #ECECEC, white);
 }
-.jqes-select:active {
+.grisel-select:active {
 background: linear-gradient(to top, #B7B7B7, white);
 }
 
 /* popup area */
-.jqes-popup {
+.grisel-popup {
 box-shadow: 0 0 20px rgba(0, 0, 0, 0.31);
 background-color: #fff;
 border-radius: 4px;
@@ -112,65 +113,65 @@ padding: 30px;
 outline: 0;
 -webkit-touch-callout: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
 }
-.jqes-popup-single {
+.grisel-popup-single {
 }
-.jqes-popup-auto-width {
+.grisel-popup-auto-width {
 width: auto;
 right: 0;
 }
-.jqes-popup.hidden {
+.grisel-popup.hidden {
 display: none !important;
 }
-.jqes-popup.jqes-concrete-height {
+.grisel-popup.grisel-concrete-height {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
 }
-.jqes-popup.jqes-concrete-height > div {
+.grisel-popup.grisel-concrete-height > div {
 }
-.jqes-popup.jqes-concrete-height .jqes-head,
-.jqes-popup.jqes-concrete-height .jqes-msg,
-.jqes-popup.jqes-concrete-height .jqes-pages-list,
-.jqes-popup.jqes-concrete-height .jqes-ctrls,
-.jqes-popup.jqes-concrete-height .jqes-index {
+.grisel-popup.grisel-concrete-height .grisel-head,
+.grisel-popup.grisel-concrete-height .grisel-msg,
+.grisel-popup.grisel-concrete-height .grisel-pages-list,
+.grisel-popup.grisel-concrete-height .grisel-ctrls,
+.grisel-popup.grisel-concrete-height .grisel-index {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 }
-.jqes-popup.jqes-concrete-height .jqes-body-wrapper {
+.grisel-popup.grisel-concrete-height .grisel-body-wrapper {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 }
-.jqes-ctrls-pag {
+.grisel-ctrls-pag {
 display: none;
 }
-.jqes-popup-norm {
+.grisel-popup-norm {
 padding: 30px 30px 17px;
 }
-.jqes-popup-norm .jqes-index,
-.jqes-popup-norm .jqes-head {
+.grisel-popup-norm .grisel-index,
+.grisel-popup-norm .grisel-head {
 display: none;
 }
-.jqes-popup-comp {
+.grisel-popup-comp {
 }
-.jqes-popup-comp .jqes-index,
-.jqes-popup-comp .jqes-head {
+.grisel-popup-comp .grisel-index,
+.grisel-popup-comp .grisel-head {
 display: none;
 }
-.jqes-popup-comp .jqes-ctrls-pag {
+.grisel-popup-comp .grisel-ctrls-pag {
 display: block;
 }
-.jqes-popup-comp  > .jqes-ctrls {
+.grisel-popup-comp  > .grisel-ctrls {
 margin-bottom: -10px;
 }
-.jqes-popup-single .jqes-ctrl-clear-all {
+.grisel-popup-single .grisel-ctrl-clear-all {
 /*display: none;*/
 }
-.jqes-popup-comp .jqes-ctrl-goto-selection {
+.grisel-popup-comp .grisel-ctrl-goto-selection {
 display: none;
 }
-.jqes-popup-ext {
+.grisel-popup-ext {
 padding: 30px;
 }
 
 /* popup close */
-.jqes-close {
+.grisel-close {
 width: 26px;
 height: 26px;
 position: absolute;
@@ -181,13 +182,13 @@ cursor: pointer;
 }
 
 /* popup head */
-.jqes-head {
+.grisel-head {
 height: 30px;
 margin-bottom: 25px;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 }
-.jqes-head .jqes-search {
+.grisel-head .grisel-search {
 height: 30px;
 box-sizing: border-box;
 border: 1px solid #D9D7D7;
@@ -195,7 +196,7 @@ border-radius: 4px;
 padding: 1px 10px;
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 }
-.jqes-btn {
+.grisel-btn {
 width: 30px;
 height: 28px;
 box-sizing: border-box;
@@ -204,35 +205,35 @@ border-radius: 4px;
 margin-left: 7px;
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 }
-.jqes-btn.jqes-enabled:hover {
+.grisel-btn.grisel-enabled:hover {
 background-color: #FFB193;
 border: 1px solid #FFF;
 }
-.jqes-btn.jqes-enabled:active {
+.grisel-btn.grisel-enabled:active {
 background-color: #EE4300;
 border: 1px solid #FFF;
 }
-.jqes-btn-left {
-background-image: url(../images/l-btn-icon.png);
+.grisel-btn-left {
+background-image: url(../images/btl-left.png);
 }
-.jqes-btn-left.jqes-enabled:hover {
-background-image: url(../images/l-btn-icon-hover.png);
+.grisel-btn-left.grisel-enabled:hover {
+background-image: url(../images/btl-left-hover.png);
 }
-.jqes-btn-right {
-background-image: url(../images/r-btn-icon.png);
+.grisel-btn-right {
+background-image: url(../images/btl-right.png);
 }
-.jqes-btn-right.jqes-enabled:hover {
-background-image: url(../images/r-btn-icon-hover.png);
+.grisel-btn-right.grisel-enabled:hover {
+background-image: url(../images/btl-right-hover.png);
 }
-.jqes-btn.jqes-disabled {
+.grisel-btn.grisel-disabled {
 opacity:0.3;
 }
 
 /* popup message */
-.jqes-msg {
+.grisel-msg {
 display: none;
 }
-.jqes-msg.visible {
+.grisel-msg.visible {
 display:block;
 font-size: 13px;
 color: #B03C3C;
@@ -240,10 +241,10 @@ margin-bottom: 15px;
 }
 
 /* popup body */
-.jqes-body {
+.grisel-body {
 overflow: hidden;
 }
-.jqes-body .prch2 {
+.grisel-body .prch2 {
 font-size: 13px;
 color: #808080;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
@@ -251,74 +252,74 @@ display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-
 margin: 0;
 width: 100%;
 }
-.jqes-body .prch2 .prch2-holderWrap {
+.grisel-body .prch2 .prch2-holderWrap {
 float: none;
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 }
-.jqes-body .prch2 .prch2-text-wrapper {
+.grisel-body .prch2 .prch2-text-wrapper {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 align-items: center;
 }
-.jqes-body .prch2 .prch2-text {
+.grisel-body .prch2 .prch2-text {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 line-height: 14px;
 word-wrap: break-word;
 }
-.jqes-body .prch2.checked {
+.grisel-body .prch2.checked {
 color: #000000;
 }
-.jqes-body .prch2:hover {
+.grisel-body .prch2:hover {
 color: #000000;
 cursor: pointer;
 }
 
 /* margins between elements */
-.jqes-checkbox-any {}
-.jqes-label-any {}
-.jqes-el {
+.grisel-checkbox-any {}
+.grisel-label-any {}
+.grisel-el {
 padding: 5px;
 -webkit-box-sizing: border-box;
 -moz-box-sizing: border-box;
 box-sizing: border-box;
 }
-.jqes-body {
+.grisel-body {
 margin: -5px;
 }
 
 /* horizontal direction */
-.jqes-dir-horz .jqes-body {
+.grisel-dir-horz .grisel-body {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
 /* to let elements occupy all heigt */
 justify-content: space-between;
 }
-.jqes-row {
+.grisel-row {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 }
-.jqes-row .jqes-el {
+.grisel-row .grisel-el {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 }
-.jqes-cols-x .jqes-row .jqes-el {
+.grisel-cols-x .grisel-row .grisel-el {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 /* width: ? %; - will be added by JS dynamically, see renderPageTo() */
 }
 
 /* vertical direction */
-.jqes-dir-vert .jqes-body {
+.grisel-dir-vert .grisel-body {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 }
-.jqes-col {
+.grisel-col {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
 }
-.jqes-col .jqes-el {
+.grisel-col .grisel-el {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 }
-.jqes-cols-x .jqes-col {
+.grisel-cols-x .grisel-col {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 /* width: ? %; - will be added by JS dynamically, see renderPageTo() */
 /* to let elements occupy all heigt */
@@ -326,88 +327,111 @@ justify-content: flex-start;
 }
 
 /* не работает? (пример: фильтр по Г, "Героев Сталинграда просп"), workaround - см. useRowsStyleForVerticalDirection */
-.jqes-rows-x .jqes-col .jqes-el {
+.grisel-rows-x .grisel-col .grisel-el {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 /* height: ? %; - will be added by JS dynamically, see renderPageTo() */
 }
 
 /* body ghost */
-.jqes-body-wrapper {
+.grisel-body-wrapper {
 position: relative;
 overflow: hidden;
 }
 
-.jqes-body-wrapper-flex {
+.grisel-body-wrapper-flex {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
 }
-.jqes-body-wrapper-flex .jqes-body {
+.grisel-body-wrapper-flex .grisel-body {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 flex-basis: 0;
 /* flex-grow: <will be set dynamically>; */
 overflow: visible;
 }
-.jqes-body-wrapper-flex .jqes-body-ani-helper {
+.grisel-body-wrapper-flex .grisel-body-ani-helper {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 flex-basis: 0;
 /* flex-grow: <will be set dynamically>; */
 }
 
-.jqes-body {
+.grisel-body {
 padding: 1px;
 overflow: visible;
 }
 
-.jqes-body-ghost {
+.grisel-body-ghost {
 position: absolute;
 overflow: visible;
 }
 
+/* some icons taken from jquery ui */
+.grisel-ui-icon {
+background-image: url(../images/ui-icons_ff7519_256x240.png); /* humanity theme */
+width: 16px;
+height: 16px;
+display: block;
+text-indent: -99999px;
+overflow: hidden;
+background-repeat: no-repeat;
+}
+.grisel-ui-icon-triangle-1-w {
+background-position: -96px -16px;
+}
+.grisel-ui-icon-triangle-1-e {
+background-position: -32px -16px;
+}
+.grisel-ui-icon-seek-end {
+background-position: -64px -160px;
+}
+.grisel-ui-icon-seek-first {
+background-position: -80px -160px;
+}
+
 /* pages list */
-.jqes-pages-list {
+.grisel-pages-list {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 justify-content: center;
 height: 16px;
 margin-top: 8px;
 }
-.jqes-pages-ctrl {
+.grisel-pages-ctrl {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 cursor: pointer;
 }
-.jqes-pages-ctrl.jqes-enabled:hover {
+.grisel-pages-ctrl.grisel-enabled:hover {
 box-shadow: 0 0 10px 1px #E2E2E2;
 }
-.jqes-pages-ctrl.jqes-enabled:active {
+.grisel-pages-ctrl.grisel-enabled:active {
 box-shadow: 0 0 10px 3px #E2E2E2;
 }
-.jqes-pages-ctrl.jqes-disabled {
+.grisel-pages-ctrl.grisel-disabled {
 opacity:0.3;
 }
-.jqes-pages-first {
+.grisel-pages-first {
 margin-right: 3px;
 }
-.jqes-pages-prev {
+.grisel-pages-prev {
 margin-right: 5px;
 }
-.jqes-pages-next {
+.grisel-pages-next {
 margin-left: 5px;
 }
-.jqes-pages-last {
+.grisel-pages-last {
 margin-left: 3px;
 }
-.jqes-pages-dots-wrapper {
+.grisel-pages-dots-wrapper {
 overflow: hidden;
 position: relative;
 }
-.jqes-pages-dots {
+.grisel-pages-dots {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 /*margin: 0 -1px;*/
-margin-top: 4px; /* = height(.jqes-pages-list) - height(.jqes-page-dot-wrapper) / 2 */
+margin-top: 4px; /* = height(.grisel-pages-list) - height(.grisel-page-dot-wrapper) / 2 */
 position: relative;
 }
-.jqes-pages-grad-left, .jqes-pages-grad-right {
+.grisel-pages-grad-left, .grisel-pages-grad-right {
 position: absolute;
 width: 20px;
 height: 16px;
@@ -415,34 +439,34 @@ top: 0;
 z-index: 2;
 pointer-events: none;
 }
-.jqes-pages-grad-left {
+.grisel-pages-grad-left {
 left: 0;
 background: linear-gradient(to left, transparent, white);
 }
-.jqes-pages-grad-right {
+.grisel-pages-grad-right {
 right: 0;
 background: linear-gradient(to right, transparent, white);
 }
-.jqes-page-dot-wrapper {
+.grisel-page-dot-wrapper {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 min-width: 9px;
 max-width: 9px;
 width: 9px;
 margin: 0 1px;
-margin-top: -5px; /* = -1 * (14 - width)  - don't need if .jqes-pages-dots has 'align-items: center' and there is no .jqes-pages-dots-wrapper ??? */
+margin-top: -5px; /* = -1 * (14 - width)  - don't need if .grisel-pages-dots has 'align-items: center' and there is no .grisel-pages-dots-wrapper ??? */
 }
-.jqes-page-dot {
+.grisel-page-dot {
 position: relative;
 display: inline-block;
 height: 100%;
 width: 100%;
 }
-.jqes-page-dot:before {
+.grisel-page-dot:before {
 content: "";
 display: block;
 margin-top: 100%;
 }
-.jqes-page-dot .jqes-page-dot-inner {
+.grisel-page-dot .grisel-page-dot-inner {
 position: absolute;
 top: 0;
 left: 0;
@@ -454,65 +478,65 @@ background-color: white;
 border: 1px solid #DADADA;
 cursor: pointer;
 }
-.jqes-page-dot-current .jqes-page-dot-inner {
+.grisel-page-dot-current .grisel-page-dot-inner {
 background-color: #FF7519;
 border-color: #FF7519;
 cursor: default;
 }
-.jqes-page-dot-inner:hover {
+.grisel-page-dot-inner:hover {
 border-color: #FF7519;
 }
-.jqes-page-dot-current .jqes-page-dot-inner:hover {
+.grisel-page-dot-current .grisel-page-dot-inner:hover {
 border-color: #FF7519;
 }
 
 /* popup controls */
-.jqes-ctrls {
+.grisel-ctrls {
 color: #EE4300;
 font-size: 13px;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 margin: 20px -5px 0 -5px;
 }
-.jqes-ctrls-pag {
+.grisel-ctrls-pag {
 }
-.jqes-ctrls-pag .jqes-btn {
+.grisel-ctrls-pag .grisel-btn {
 height: 20px;
 float: left;
 background-position: 0 -5px;
 }
-.jqes-ctrls-pag .jqes-btn-left {
+.grisel-ctrls-pag .grisel-btn-left {
 margin-left: 0;
 }
-.jqes-ctrls-pag .jqes-btn-right {
+.grisel-ctrls-pag .grisel-btn-right {
 background-position: 0 -6px;
 }
-.jqes-ctrl {
+.grisel-ctrl {
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 margin: 0 5px;
 }
-.jqes-ctrl-space {
+.grisel-ctrl-space {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 }
-.jqes-ctrl-link {
+.grisel-ctrl-link {
 text-decoration: underline;
 cursor: pointer;
 line-height: 20px;
 }
-.jqes-ctrl-link.selected {
+.grisel-ctrl-link.selected {
 font-weight: bold;
 text-decoration: underline;
 }
-.jqes-ctrl-save-selection {
+.grisel-ctrl-save-selection {
 position: relative;
 padding: 0 22px 0 0;
 }
-.jqes-clr {
+.grisel-clr {
 clear: both;
 }
 
 /* popup bottom index */
-.jqes-index {
+.grisel-index {
 margin: 15px -30px -30px;
 padding: 0 10px;
 background-color: #F90;
@@ -525,16 +549,16 @@ display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 justify-content: space-around;
 }
-.jqes-index .jqes-char {
+.grisel-index .grisel-char {
 color: #fff;
 float: left;
 font-size: 12px;
 text-align: center;
 cursor:pointer;
 }
-.jqes-index .jqes-char:first-child {
+.grisel-index .grisel-char:first-child {
 }
-.jqes-index .jqes-char.selected {
+.grisel-index .grisel-char.selected {
 font-weight: bold;
 text-decoration: underline;
 }

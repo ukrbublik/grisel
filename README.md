@@ -1,16 +1,34 @@
-# jqes
+# grisel
+<!-- jQuery-based custom select control, represents options as paginated grid, features search and filter by first letter. -->
 
-<h3>Description:</h3>
-Pretty looking and highly customizable multi-select (or single-select) control (over standard &lt;select&gt;).<br>
-Features search and filter by first letter.<br>
-Useful for big list of options.
+grisel (GRId_SELect) is a custom multi- or single-select control (over standard &lt;select&gt;).
+Represents options as paginated grid.
+Features search and filter by first letter.
+Customizable. Has cool animations. Useful for big list of options.
 
+<!--
 <h3>Screenshot:</h3>
 <img src='http://i59.tinypic.com/v7qblx.png'  />
+-->
 
-<h3>Demo:</h3>
+<h3>How it looks:</h3>
 <img src='http://fat.gfycat.com/DelightfulPoliteAardwolf.gif'  /><br>
+
+<h3>Getting started:</h3>
+........ what to include
+
+<h3>Using:</h3>
+........ add class 'grisel' to <select>, 'data-' attributes
+... what methods are usable, how to update list of options
+
+<h3>Options:</h3>
+........ options & langs
+
+<h3>Examples:</h3>
 See demo.html
+
+<h3>Browsers support:</h3>
+Requires browser with CSS3 support (for flex).
 
 <h3>Changelog:</h3>
 <ul>
@@ -31,13 +49,13 @@ See demo.html
 <li><b>2015-10-01 - v2.0</b><br>
 <ul>
 <li>Now you can open popup on click on selector and close by close btn.</li>
-<li>Now jqes is focusable, you can use Tab key to focus on selector, Enter
+<li>Now grisel is focusable, you can use Tab key to focus on selector, Enter
 to open, Esc to close. Popup will autoclose when looses focus.</li>
 <li>Added single selection option (zero selection is allowed).</li>
 <li>Modified CSS. Now fully flexible popup.</li>
 <li>Added animations of open/close popup.</li>
 <li>Added many-many options to customize.</li>
-<li>Modified demo to present different features of jqes.</li>
+<li>Modified demo to present different features of grisel.</li>
 </ul>
 </li>
 <li><b>2015-10-03 - v2.1</b><br>
@@ -59,6 +77,6 @@ to open, Esc to close. Popup will autoclose when looses focus.</li>
 </ul>
 <li><b>2015-10-12 - v2.2.1</b><br>
 <ul>
-<li>Changed name to jqes.</li>
+<li>Changed name to grisel.</li>
 </ul>
 </ul>
