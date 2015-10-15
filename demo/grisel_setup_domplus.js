@@ -76,6 +76,10 @@ grisel.optionsBySelId = {
 		'gridColumns': 3,
 	},
 	's_city': {
+		'divPopupWidth': 0,
+		'divPopupClasses': 'grisel-popup-domplus grisel-popup-wide1',
+		'divWrapperClasses': 'grisel-wrapper-wide1',
+		'minPagesForExt': 2,
 	},
 	's_city_block': {
 	},
@@ -87,6 +91,7 @@ grisel.optionsBySelId = {
 		'divPopupWidth': 0,
 		'divPopupClasses': 'grisel-popup-domplus grisel-popup-wide1',
 		'divWrapperClasses': 'grisel-wrapper-wide1',
+		'minPagesForExt': 2,
 	},
 	's_subway': {
 	},

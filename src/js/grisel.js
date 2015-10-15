@@ -2282,7 +2282,7 @@ grisel.prototype.onHidePopup = function() {
 jQuery.fn.griselInit = function() {
 	for(var i = 0 ; i < this.length ; i++) {
 		var $sel = jQuery(this[i]);
-		var ems = new grisel($sel);
+		var grs = new grisel($sel);
 	}
 	return this;
 };
@@ -2295,9 +2295,9 @@ jQuery.fn.griselUpdate = function() {
 			$sel.griselInit();
 		}
 		if(grisel.isInited($sel)) {
-			var ems = grisel.getInstance(selId);
-			if(ems)
-				ems.doUpdateItems();
+			var grs = grisel.getInstance(selId);
+			if(grs)
+				grs.doUpdateItems();
 		}
 	}
 	return this;
