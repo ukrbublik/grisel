@@ -1,9 +1,9 @@
 # grisel
 <!-- jQuery-based custom select control, represents options as paginated grid, features search and filter by first letter. -->
 
-grisel (GRId_SELect) is a custom multi- or single-select control (over standard &lt;select&gt;).
-Represents options as paginated grid.
-Features search and filter by first letter.
+<b>grisel (GRId_SELect)</b> is a custom multi- or single-select control (over standard &lt;select&gt;).<br>
+Represents options as paginated grid.<br>
+Features search and filter by first letter.<br>
 Customizable. Has cool animations. Useful for big list of options.
 
 <!--
@@ -18,7 +18,7 @@ Customizable. Has cool animations. Useful for big list of options.
 ........ what to include
 
 <h3>Using:</h3>
-........ add class 'grisel' to <select>, 'data-' attributes
+........ add class 'grisel' to select, 'data-' attributes
 ... what methods are usable, how to update list of options
 
 <h3>Options:</h3>
