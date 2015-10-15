@@ -1,0 +1,55 @@
+{
+  "name": "grisel",
+  "version": "2.2.3",
+  "title": "grisel (GRId_SELect)",
+  "description": "jQuery-based custom select control, represents options as paginated grid, features search and filter by first letter.",
+  "keywords": [
+	"ecosystem:jquery",
+    "jquery-plugin",
+    "jquery",
+    "plugins",
+    "dropdown",
+	"multiselect",
+	"select",
+	"form",
+	"control"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ukrbublik/grisel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ukrbublik/grisel/issues",
+	"email": "ukrbublik@gmail.com"
+  },
+  "author": {
+    "name": "Oblogin Denis",
+    "email": "ukrbublik@gmail.com",
+    "url": "https://github.com/ukrbublik"
+  },
+  "homepage": "https://github.com/ukrbublik/grisel",
+  "dependencies": {
+    "jquery": ">=1.6",
+	"jquery.easing": ">=1.3"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-copy": "^0.8.0",
+    "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-uglify": "^0.8.0"
+  },
+  "contributors": [
+    {
+      "name": "Oblogin Denis",
+      "email": "ukrbublik@gmail.com",
+      "url": "https://github.com/ukrbublik"
+    }
+  ],
+  "license": "MIT",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ]
+}

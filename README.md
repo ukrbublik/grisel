@@ -83,4 +83,8 @@ to open, Esc to close. Popup will autoclose when looses focus.</li>
 <ul>
 <li>Fixes for pusblishing.</li>
 </ul>
+<li><b>2015-10-15 - v2.2.3</b><br>
+<ul>
+<li>Switched to npm.</li>
+</ul>
 </ul>
