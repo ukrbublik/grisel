@@ -6,13 +6,11 @@
   "keywords": [
 	"ecosystem:jquery",
     "jquery-plugin",
-    "jquery",
-    "plugins",
-    "dropdown",
 	"multiselect",
 	"select",
-	"form",
-	"control"
+    "dropdown",
+    "jquery",
+	"ui"
   ],
   "repository": {
     "type": "git",

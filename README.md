@@ -15,12 +15,11 @@ Customizable. Has cool animations. Useful for big list of options.
 <img src='http://fat.gfycat.com/DelightfulPoliteAardwolf.gif'  /><br>
 
 <h3>Getting started:</h3>
-todo........ what to include (prettyCheckboxes2 first?)
+todo........ what to include
 
 <h3>Using:</h3>
 todo........ add class 'grisel' to select, 'data-' attributes<br>
 ... what methods are usable, how to update list of options<br>
-... write that .trigger('change') better than .griselUpdate()
 
 <h3>Options:</h3>
 todo........ options & langs

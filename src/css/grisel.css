@@ -244,7 +244,7 @@ margin-bottom: 15px;
 .grisel-body {
 overflow: hidden;
 }
-.grisel-body .prch2 {
+.grisel-body .prch2-label.prch2 {
 font-size: 13px;
 color: #808080;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
@@ -252,25 +252,25 @@ display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-
 margin: 0;
 width: 100%;
 }
-.grisel-body .prch2 .prch2-holderWrap {
+.grisel-body .prch2-label.prch2 .prch2-holderWrap {
 float: none;
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 }
-.grisel-body .prch2 .prch2-text-wrapper {
+.grisel-body .prch2-label.prch2 .prch2-text-wrapper {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
 align-items: center;
 }
-.grisel-body .prch2 .prch2-text {
+.grisel-body .prch2-label.prch2 .prch2-text {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 line-height: 14px;
 word-wrap: break-word;
 }
-.grisel-body .prch2.checked {
+.grisel-body .prch2-label.prch2.checked {
 color: #000000;
 }
-.grisel-body .prch2:hover {
+.grisel-body .prch2-label.prch2:hover {
 color: #000000;
 cursor: pointer;
 }

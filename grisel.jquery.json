@@ -4,12 +4,9 @@
   "title": "grisel (GRId_SELect)",
   "description": "jQuery-based custom select control, represents options as paginated grid, features search and filter by first letter.",
   "keywords": [
-    "jquery-plugin",
-    "jquery",
-    "plugins",
-    "dropdown",
 	"multiselect",
 	"select",
+    "dropdown",
 	"form",
 	"control"
   ],
