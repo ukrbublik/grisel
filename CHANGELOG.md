@@ -55,4 +55,8 @@ to open, Esc to close. Popup will autoclose when looses focus.</li>
 <ul>
 <li>Switched to npm.</li>
 </ul>
+<li><b>2015-11-03 - v2.2.4</b><br>
+<ul>
+<li>Option "showSelectedItemsBeforeSearched" replaced with "showSelectedItemsFirst".</li>
+</ul>
 </ul>

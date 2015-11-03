@@ -14,7 +14,7 @@ grisel.defaultOptions = jQuery.extend(grisel.defaultOptions, {
 	'areInnerCtrlsFocuable': false,
 	//when set to 2: for 3+ selected values text will be "X values", for 1-2 - "valA, valB", for 0 - one of allStr/anyStr/allStrDefault;
 	//when set to -1: always "X values"
-	'maxCntToShowListAsValStr': 3,
+	'maxCntToShowListAsValStr': 99999,
 	
 	//show/hide:
 	//
@@ -61,12 +61,12 @@ grisel.defaultOptions = jQuery.extend(grisel.defaultOptions, {
 	'animatePageDuration': 0,
 	'animatePageEasing': 'swing',
 	
-	//"legacy" options (made for domplus.com.ua)
+	//"legacy" options (made for domplus.ua)
 	//
 	'flushSearchStringAfterSelection': true,
-	'showSelectedItemsBeforeSearched': true,
 	'showSelectedItemsWhenNoFound': false, //or true?
-	//only for showSelectedItemsBeforeSearched==1
+	'showSelectedItemsFirst': true,
+	//only for showSelectedItemsFirst==1
 	'maxSelectionLimit': 3*5,
 });
 
@@ -74,6 +74,7 @@ grisel.optionsBySelId = {
 	's_district': {
 		'gridRows': 4,
 		'gridColumns': 3,
+		'showSelectedItemsFirst': false,
 	},
 	's_city': {
 		'divPopupWidth': 0,
@@ -82,10 +83,12 @@ grisel.optionsBySelId = {
 		'minPagesForExt': 2,
 	},
 	's_city_block': {
+		'showSelectedItemsFirst': false,
 	},
 	's_district_region': {
 		'gridRows': 4,
 		'gridColumns': 3,
+		'showSelectedItemsFirst': false,
 	},
 	's_street': {
 		'divPopupWidth': 0,
@@ -94,10 +97,13 @@ grisel.optionsBySelId = {
 		'minPagesForExt': 2,
 	},
 	's_subway': {
+		'showSelectedItemsFirst': false,
 	},
 	's_purpose': {
+		'showSelectedItemsFirst': false,
 	},
 	's_purpose_land': {
+		'showSelectedItemsFirst': false,
 	},
 };
 
@@ -119,7 +125,7 @@ grisel.defaultStrings = jQuery.extend(grisel.defaultStrings, {
 		'inputPlaceholder': 'Введите название',
 		'cntFmt': '{cnt} {cnt_name}',
 		'cntNames': ['значение', 'значения', 'значений'],
-		//only for showSelectedItemsBeforeSearched==1 ("legacy")
+		//only for maxSelectionLimit > 0 ("legacy")
 		'maxSelectionMsg': 'Количество выбранных Вами элементов достигло максимального значения.<br>Сохраните, пожалуйста, Ваш выбор',
 	}
 });

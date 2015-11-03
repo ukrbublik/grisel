@@ -8,7 +8,7 @@
  *
  * Requires: browser with CSS3 support (for flex), jQuery, jQuery easing plugin
  *
- * @version 2.2.3
+ * @version 2.2.4
  * @homepage https://github.com/ukrbublik/grisel
  * @author ukrbublik
  * @license MIT
@@ -18,7 +18,6 @@
 
 /**
  * TODO:
- * [!] showSelectedItemsBeforeSearched - show selected always first (not only when searching)
  * [+] destroy method
  * [d] docs: installation (include js, css); examples; descrtption of options, methods
  * [+] scroll instead of dots
@@ -62,8 +61,8 @@ function grisel(s, options, strings, lang) {
 	this.currPage = -1;
 	this.visibleItems = false; //array of string or false
 	this.visibleItemsInds = false; //array of indexes or false
-	this.selectedAndFilteredItems = false; //array of string or false
-	this.selectedAndFilteredItemsInds = false; //array of indexes or false
+	this.filteredItems = false; //array of string or false
+	this.filteredItemsInds = false; //array of indexes or false
 	this.filterStr = '';
 	this.filterFChar = '';
 	this.fitlerBySel = false;
@@ -161,7 +160,7 @@ grisel.defaultStrings = {
 		'inputPlaceholder': 'Введите название',
 		'cntFmt': '{cnt} {cnt_name}',
 		'cntNames': ['значение', 'значения', 'значений'],
-		//only for showSelectedItemsBeforeSearched==1 ("legacy")
+		//only for maxSelectionLimit > 0 ("legacy")
 		'maxSelectionMsg': 'Количество выбранных Вами элементов достигло максимального значения.<br>Сохраните, пожалуйста, Ваш выбор',
 	},
 	'en': {
@@ -178,7 +177,7 @@ grisel.defaultStrings = {
 		'inputPlaceholder': 'Enter a name',
 		'cntFmt': '{cnt} {cnt_name}',
 		'cntNames': ['value', 'values', 'values'],
-		//only for showSelectedItemsBeforeSearched==1 ("legacy")
+		//only for maxSelectionLimit > 0 ("legacy")
 		'maxSelectionMsg': 'You reached max number of selected elements.<br>Please save your selection',
 	}
 };
@@ -250,13 +249,13 @@ grisel.defaultOptions = {
 	'animatePageDuration': 150,
 	'animatePageEasing': 'swing',
 	
-	//"legacy" options (made for domplus.com.ua)
+	//"legacy" options (made for domplus.ua)
 	//
 	'flushSearchStringAfterSelection': false,
-	'showSelectedItemsBeforeSearched': false,
 	'showSelectedItemsWhenNoFound': false,
-	//only for showSelectedItemsBeforeSearched==1
-	'maxSelectionLimit': 3*5,
+	'showSelectedItemsFirst': false,
+	//only for showSelectedItemsFirst==1
+	'maxSelectionLimit': 0,
 };
 grisel.optionsBySelClass = {
 };
@@ -417,8 +416,8 @@ grisel.prototype.mSyncFromSelect = function(initial /* = false*/) {
 	this.items = [];
 	this.selectedItems = [];
 	this.selectedItemsInds = [];
-	//this.visibleItems = false; //TIP: will be done later in mSetNoFilter()
-	//this.visibleItemsInds = false;
+	//this.filteredItems = false; //TIP: will be done later in mSetNoFilter()
+	//this.filteredItemsInds = false;
 	this.firstChars = [];
 	for(var i = 0 ; i < this.opts.length ; i++) {
 		var opt = this.opts[i];
@@ -593,93 +592,99 @@ grisel.prototype.mSyncToSelect = function(lite) {
 
 // ------------------------------------------------ Model - filtering
 
-grisel.prototype.mFilterItemsBySearchString = function(str) {
-	if(str == '') {
-		this.visibleItemsInds = false;
-		this.visibleItems = false;
-		this.selectedAndFilteredItems = false;
-		this.selectedAndFilteredItemsInds = false;
-	} else {
-		this.visibleItemsInds = [];
+grisel.prototype.mBuildVisibleItems = function() {
+	if(this.isFullExtView() && this.options.showSelectedItemsFirst && this.getFilterMode() != 'sel') {
+		this.mSortSelectedItems();
 		this.visibleItems = [];
-		this.selectedAndFilteredItems = [];
-		this.selectedAndFilteredItemsInds = [];
-		if(this.options.showSelectedItemsBeforeSearched) {
-			this.mSortSelectedItems();
-			for(var i = 0 ; i < this.selectedItemsInds.length ; i++) {
-				var ind = this.selectedItemsInds[i];
-				var it = this.selectedItems[i];
+		this.visibleItemsInds = [];
+		
+		if(this.getFilterMode() == '' && !this.options.hideAny && this.anyItemInd != -1) {
+			var it = this.anyOpt;
+			var ind = this.anyItemInd;
+			this.visibleItemsInds.push(ind);
+			this.visibleItems.push(it);
+		}
+		for(var i = 0 ; i < this.selectedItemsInds.length ; i++) {
+			var ind = this.selectedItemsInds[i];
+			var it = this.selectedItems[i];
+			this.visibleItemsInds.push(ind);
+			this.visibleItems.push(it);
+		}
+		for(var i = 0 ; i < (this.filteredItemsInds !== false ? this.filteredItemsInds.length : this.opts.length) ; i++) {
+			var ind = (this.filteredItemsInds !== false ? this.filteredItemsInds[i] : i);
+			var it = (this.filteredItemsInds !== false ? this.filteredItems[i] : this.items[i]);
+			var si = this.selectedItemsInds.indexOf(ind);
+			if(si == -1 && ind != this.anyItemInd) {
 				this.visibleItemsInds.push(ind);
 				this.visibleItems.push(it);
 			}
 		}
+	} else {
+		this.visibleItems = false;
+		this.visibleItemsInds = false;
+	}
+};
+
+grisel.prototype.mFilterItemsBySearchString = function(str) {
+	if(str == '') {
+		this.filteredItemsInds = false;
+		this.filteredItems = false;
+	} else {
+		this.filteredItemsInds = [];
+		this.filteredItems = [];
 		for(var i = 0 ; i < this.items.length ; i++) {
 			var it = this.items[i];
 			if(i != this.anyItemInd && it.match(new RegExp('(^| )'+str, 'i'))) {
-				if(this.options.showSelectedItemsBeforeSearched) {
-					if(this.selectedItemsInds.indexOf(i) == -1) {
-						this.visibleItemsInds.push(i);
-						this.visibleItems.push(it);
-					} else {
-						this.selectedAndFilteredItemsInds.push(i);
-						this.selectedAndFilteredItems.push(it);
-					}
-				} else {
-					this.visibleItemsInds.push(i);
-					this.visibleItems.push(it);
-				}
+				this.filteredItemsInds.push(i);
+				this.filteredItems.push(it);
 			}
 		}
 	}
+	this.mBuildVisibleItems();
 };
 
 grisel.prototype.mFilterItemsByFirstChar = function(gr) {
 	if(gr == '') {
-		this.visibleItemsInds = false;
-		this.visibleItems = false;
-		this.selectedAndFilteredItems = false;
-		this.selectedAndFilteredItemsInds = false;
+		this.filteredItemsInds = false;
+		this.filteredItems = false;
 	} else {
-		this.visibleItemsInds = [];
-		this.visibleItems = [];
-		this.selectedAndFilteredItems = false;
-		this.selectedAndFilteredItemsInds = false;
+		this.filteredItemsInds = [];
+		this.filteredItems = [];
 		for(var i = 0 ; i < this.items.length ; i++) {
 			var it = this.items[i];
 			if(it.length > 0) {
 				var fChar = it[0];
 				if(grisel.isFCharInGroup(fChar, gr) && this.anyItemInd != i) {
-					this.visibleItemsInds.push(i);
-					this.visibleItems.push(it);
+					this.filteredItemsInds.push(i);
+					this.filteredItems.push(it);
 				}
 			}
 		}
 	}
+	this.mBuildVisibleItems();
 };
 
 grisel.prototype.mFilterItemsBySelected = function() {
-	//copy selectedItems to visibleItems
-	this.visibleItemsInds = [];
-	this.visibleItems = [];
+	//copy selectedItems to filteredItems
+	this.filteredItemsInds = [];
+	this.filteredItems = [];
 	if(this.areAllSelected && !this.options.hideAny && this.anyItemInd != -1) {
-		this.visibleItemsInds.push(this.anyItemInd);
-		this.visibleItems.push(this.items[this.anyItemInd]);
+		this.filteredItemsInds.push(this.anyItemInd);
+		this.filteredItems.push(this.items[this.anyItemInd]);
 	}
 	for(var i = 0 ; i < this.selectedItemsInds.length ; i++) {
 		var ind = this.selectedItemsInds[i];
 		var it = this.selectedItems[i];
-		this.visibleItemsInds.push(ind);
-		this.visibleItems.push(it);
+		this.filteredItemsInds.push(ind);
+		this.filteredItems.push(it);
 	}
-	this.selectedAndFilteredItems = false;
-	this.selectedAndFilteredItemsInds = false;
+	this.mBuildVisibleItems();
 };
 
 grisel.prototype.mFilterItemsByNone = function() {
-	this.visibleItemsInds = false;
-	this.visibleItems = false;
-	this.selectedAndFilteredItems = false;
-	this.selectedAndFilteredItemsInds = false;
+	this.filteredItemsInds = false;
+	this.filteredItems = false;
+	this.mBuildVisibleItems();
 };
 grisel.prototype.mSetFilterByFirstChar = function(gr) {
 	this.filterFChar = gr;
@@ -804,18 +809,26 @@ grisel.prototype.mUpdSelection = function() {
 				opt[1] = false;
 		}
 	}
+	this.mBuildVisibleItems();
 };
 
 // ------------------------------------------------ Model - getting slices of items list
 
-grisel.prototype.getVisibleItems = function() {
-	return this.visibleItems !== false ?  this.visibleItems : this.items;
+grisel.prototype.getFilteredItems = function() {
+	return this.filteredItems !== false ?  this.filteredItems : this.items;
 };
-grisel.prototype.getVisibleOpt = function(i) {
-	return this.visibleItemsInds !== false ?  this.opts[ this.visibleItemsInds[i] ] : this.opts[i];
+grisel.prototype.getVisibleItems = function() {
+	return this.visibleItems !== false ?  this.visibleItems : this.getFilteredItems();
+};
+grisel.prototype.getVisibleItemsInds = function() {
+	return this.visibleItemsInds !== false ?  this.visibleItemsInds : this.filteredItemsInds;
 };
 grisel.prototype.getVisibleOptInd = function(i) {
-	return this.visibleItemsInds !== false ?  this.visibleItemsInds[i] : i;
+	var inds = this.getVisibleItemsInds();
+	return inds !== false ? inds[i] : i;
+};
+grisel.prototype.getVisibleOpt = function(i) {
+	return this.opts[ this.getVisibleOptInd(i) ];
 };
 
 grisel.prototype.getPages = function() {
@@ -869,12 +882,12 @@ grisel.prototype.getVisibleItemsCntForPage = function(page) {
 };
 
 grisel.prototype.getSearchedCnt = function() {
-	return this.getFilterMode() == 'search' ? this.getVisibleItems().length - this.selectedItems.length + this.selectedAndFilteredItems.length : -1;
+	return this.getFilterMode() == 'search' ? this.filteredItems.length : -1;
 };
 
 grisel.prototype.getPageForInd = function(ind) {
 	var page = -1;
-	var pos = this.visibleItemsInds !== false ?  this.visibleItemsInds.indexOf(ind) : ind;
+	var pos = this.getVisibleOptInd(ind);
 	if(pos != -1 && this.getSearchedCnt() == 0 && !this.options.showSelectedItemsWhenNoFound)
 		pos = -1;
 	if(pos != -1)
@@ -1752,7 +1765,7 @@ grisel.prototype.htmlForPage = function(page) {
 	var html = '';
 	var rng = this.getItemsRangeForPage(page);
 	
-	if(this.getFilterMode() == 'search' && this.selectedItems.length >= this.options.maxSelectionLimit && this.options.showSelectedItemsBeforeSearched) {
+	if(this.options.maxSelectionLimit && this.selectedItems.length >= this.options.maxSelectionLimit && this.options.showSelectedItemsFirst) {
 		msg = this.strings.maxSelectionMsg;
 	}
 	
@@ -2089,6 +2102,10 @@ grisel.prototype.doGotoPage = function(page, animate) {
 	
 };
 
+grisel.prototype.doRenderCurrPage = function() {
+	this.doGotoPage(this.currPage);
+};
+
 grisel.prototype.doRenderValStr = function() {
 	this.vRenderValStr(this.valStr);
 };
@@ -2240,6 +2257,9 @@ grisel.prototype.onSelectionChanged = function() {
 				page = 0;
 		}
 		this.doGotoPage(page);
+	} else if(this.options.showSelectedItemsFirst) {
+		//re-render page
+		this.doRenderCurrPage();
 	}
 	
 	this.valStr = this.selectedItemsToStr(this.selectedItems, this.areAllSelected);
