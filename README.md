@@ -25,7 +25,7 @@ Customizable. Has cool animations. Useful for big list of options.
 <link type="text/css" rel="stylesheet" href="src/css/grisel.css" />
 ```
 2) Add class "grisel" to &lt;select&gt;'s you want to convert.<br>
-3) Customize options. Ezample:
+3) Customize options. Example:
 ```
 <script>
 grisel.defaultOptions = jQuery.extend(grisel.defaultOptions, {
@@ -81,7 +81,7 @@ Options list can contain special "any"-option, to be able to select all/any valu
 <tr><td>useRowsStyleForVerticalDirection</td><td>1 - force group by rows (not cols) in html for vertical direction (to make all elements in one row having equal height)<br>1 is highly recommended (also because of animation problems with cols)</td><td>true</td></tr>
 <tr><td>openOnHover</td><td>1 - open popup by hover on selector, 0 - open by click</td><td>false</td></tr>
 <tr><td>areInnerCtrlsFocuable</td><td>Add tabindex attribute for all controls (options, inputs, buttons) in popup?</td><td>false</td></tr>
-<tr><td>maxCntToShowListAsValStr</td><td>For example. When set to 4: for 5+ selected values selector text will be "X values", for 1-4 - "valA, valB, valC, valD", for 0 - one of allStr/anyStr/allStrDefault.<br>When set to -1: always "X values"</td><td>3</td></tr>
+<tr><td>maxCntToShowListAsValStr</td><td>For example. When set to 4: for 5+ selected values selector text will be "X values", for 1-4 - "valA, valB, valC, valD", for 0 - one of allStr option / text of "any"-option / allStrDefault option.<br>When set to -1: always "X values"</td><td>3</td></tr>
 
 <tr><td colspan='3'><b>Show/hide elements</b></td></tr>
 <tr><td>showPagesList</td><td></td><td>true</td></tr>
@@ -100,17 +100,17 @@ Options list can contain special "any"-option, to be able to select all/any valu
 <tr><td>divSelHeight</td><td>-2 - equal to &lt;select&gt;'s height, -1 - equal to wrapper's height, 0 - auto, &gt; 0 - concrete height</td><td>0</td></tr>
 <tr><td>divSelPaddingLeft</td><td>Left padding of selector's text, in px</td><td>8</td></tr>
 <tr><td>divSelIsMultiline</td><td>Show selector's text as multiline?</td><td>false</td></tr>
-<tr><td>divSelClasses</td><td>Optional list of classes for selector divided by ' '</td><td></td>''</tr>
+<tr><td>divSelClasses</td><td>Optional list of classes for selector divided by ' '</td><td>''</td></tr>
 <tr><td>divPopupWidth</td><td>-2 - equal to wrapper's width, -1 - equal to sel's width, 0 - auto, &gt; 0 - concrete width</td><td>0</td></tr>
 <tr><td>divPopupHeight</td><td>0 - use css, &gt; 0 - concrete height</td><td>0</td></tr>
 <tr><td>divPopupLabelsMinWidth</td><td>For auto popup width - set min checkbox/radio's labels width</td><td>0</td></tr>
-<tr><td>divPopupClasses</td><td>Optional list of classes for popup win divided by ' '</td><td></td>''</tr>
-<tr><td>divWrapperClasses</td><td>Optional list of classes for selector's wrapper divided by ' '</td><td></td>''</tr>
+<tr><td>divPopupClasses</td><td>Optional list of classes for popup win divided by ' '</td><td>''</td></tr>
+<tr><td>divWrapperClasses</td><td>Optional list of classes for selector's wrapper divided by ' '</td><td>''</td></tr>
 <tr><td>tryToKeepConstPopupHeight</td><td>When page with long labels appeared, keep new bigger popup height for all other pages</td><td>true</td></tr>
 <tr><td>reserveForPopupHeight</td><td>Reserve (once) more height for popup (for case of appearing long labels at next pages), in px</td><td>0</td></tr>
 
 <tr><td colspan='3'><b>Animation</b></td></tr>
-<tr><td>animatePopupDuration</td><td>Duration in ms for open & close</td><td>[600, 400]</td></tr>
+<tr><td>animatePopupDuration</td><td>Duration in ms for open & close animations</td><td>[600, 400]</td></tr>
 <tr><td>isElasticPopupAnimation</td><td>Is animation elastic for open & close? If yes, some tricks will be applied for smoother animation</td><td>[1, 0]</td></tr>
 <tr><td>animatePopupEasing</td><td>Easing function names for open & close animations</td><td>['easeOutElastic', 'easeInOutBack']</td></tr>
 <tr><td>animatePageDuration</td><td>Duration of animation of switching pages</td><td>150</td></tr>
@@ -126,8 +126,8 @@ Options list can contain special "any"-option, to be able to select all/any valu
 
 <h3>Strings:</h3>
 <table>
-<tr><th>Name</th><th>Description</th><th>Default for english</th></tr>
-<tr><td>indexAll</td><td>Button in index by first char at bottom, which clears filter by first char</td><td>'All'</td></tr>
+<tr><th>Keys</th><th>Description</th><th>Default value for english</th></tr>
+<tr><td>indexAll</td><td>First button in fisr char index at bottom, which clears filter by first char</td><td>'All'</td></tr>
 <tr><td>ctrlSaveSelection</td><td>Button that closes popup, like 'X' at bottom-right</td><td>'Save'</td></tr>
 <tr><td>ctrlGotoSelection</td><td>Button to goto page with selected option (for single-select)</td><td>'Go to selected'</td></tr>
 <tr><td>ctrlShowSelection</td><td>Button to show only selected options</td><td>'Show selected'</td></tr>
