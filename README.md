@@ -127,7 +127,7 @@ Options list can contain special "any"-option, to be able to select all/any valu
 <h3>Strings:</h3>
 <table>
 <tr><th>Keys</th><th>Description</th><th>Default value for english</th></tr>
-<tr><td>indexAll</td><td>First button in fisr char index at bottom, which clears filter by first char</td><td>'All'</td></tr>
+<tr><td>indexAll</td><td>First button in fisr char index, which clears filter by first char</td><td>'All'</td></tr>
 <tr><td>ctrlSaveSelection</td><td>Button that closes popup, like 'X' at bottom-right</td><td>'Save'</td></tr>
 <tr><td>ctrlGotoSelection</td><td>Button to goto page with selected option (for single-select)</td><td>'Go to selected'</td></tr>
 <tr><td>ctrlShowSelection</td><td>Button to show only selected options</td><td>'Show selected'</td></tr>
