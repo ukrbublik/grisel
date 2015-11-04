@@ -59,4 +59,8 @@ to open, Esc to close. Popup will autoclose when looses focus.</li>
 <ul>
 <li>Option "showSelectedItemsBeforeSearched" replaced with "showSelectedItemsFirst".</li>
 </ul>
+<li><b>2015-11-04 - v2.2.5</b><br>
+<ul>
+<li>Added documentation.</li>
+</ul>
 </ul>

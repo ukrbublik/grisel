@@ -8,7 +8,7 @@
  *
  * Requires: browser with CSS3 support (for flex), jQuery, jQuery easing plugin
  *
- * @version 2.2.4
+ * @version 2.2.5
  * @homepage https://github.com/ukrbublik/grisel
  * @author ukrbublik
  * @license MIT
@@ -19,7 +19,6 @@
 /**
  * TODO:
  * [+] destroy method
- * [d] docs: installation (include js, css); examples; descrtption of options, methods
  * [+] scroll instead of dots
  * [+] changing pages on mobile devices with swipe (http://kenwheeler.github.io/slick/)
  * [+] modify look on mobile devices - full-screen popup for small screens, for tablets - ?
@@ -146,39 +145,48 @@ function grisel(s, options, strings, lang) {
 grisel.defaultLang = 'ru';
 
 grisel.defaultStrings = {
+	'en': {
+		//Button in index by first char at bottom, which clears filter by first char
+		'indexAll': 'All',
+		//Button that closes popup, like 'X' at bottom-right
+		'ctrlSaveSelection': 'Save',
+		//Button to goto page with selected option (for single-select)
+		'ctrlGotoSelection': 'Go to selected',
+		//Button to show only selected options
+		'ctrlShowSelection': 'Show selected',
+		//Button to clear selection. First for multi-select, second for single-select
+		'ctrlClearAll': ['Clear all', 'Clear selection'],
+		//Selector text when all options are selected, for overriding in 'stringsBySelId', 'stringsBySelClass'
+		'allStr': '',
+		//Default selector text when all options are selected. First for multi-select, second for single-select
+		'allStrDefault': ['All', 'Any'],
+		//Text when no option is selected
+		'noSelectionMsg': 'No selected',
+		//Text when filter gaven't any results
+		'noResultsMsg': 'Nothing found',
+		//Placeholder text for search input
+		'inputPlaceholder': 'Enter a name',
+		//Template to format selector text
+		'cntFmt': '{cnt} {cnt_name}',
+		//Declensions of word 'value': for english - [singular, plural, plural], for russian - [ед.им., ед.род., мн.род.]
+		'cntNames': ['value', 'values', 'values'],
+		//Warning text when count of selected items > maxSelectionLimit
+		'maxSelectionMsg': 'You reached max number of selected elements.<br>Please save your selection',
+	},
 	'ru': {
 		'indexAll': 'Все',
 		'ctrlSaveSelection': 'Сохранить',
 		'ctrlGotoSelection': 'Перейти к выбранному',
 		'ctrlShowSelection': 'Показать выбранные',
-		'ctrlClearAll': ['Сбросить все', 'Сбросить выбор'], //[<for multiple>, <for single>]
+		'ctrlClearAll': ['Сбросить все', 'Сбросить выбор'],
 		'allStr': '',
 		'allStrDefault': ['Все', 'Любой'],
-		//only for hideAny == 1
 		'noSelectionMsg': 'Нет выбранных элементов',
 		'noResultsMsg': 'Не найдено, измените, пожалуйста, параметры поиска',
 		'inputPlaceholder': 'Введите название',
 		'cntFmt': '{cnt} {cnt_name}',
 		'cntNames': ['значение', 'значения', 'значений'],
-		//only for maxSelectionLimit > 0 ("legacy")
 		'maxSelectionMsg': 'Количество выбранных Вами элементов достигло максимального значения.<br>Сохраните, пожалуйста, Ваш выбор',
-	},
-	'en': {
-		'indexAll': 'All',
-		'ctrlSaveSelection': 'Save',
-		'ctrlGotoSelection': 'Go to selected',
-		'ctrlShowSelection': 'Show selected',
-		'ctrlClearAll': ['Ckear all', 'Clear selection'],
-		'allStr': '',
-		'allStrDefault': ['All', 'Any'],
-		//only for hideAny == 1
-		'noSelectionMsg': 'No selected',
-		'noResultsMsg': 'Nothing found',
-		'inputPlaceholder': 'Enter a name',
-		'cntFmt': '{cnt} {cnt_name}',
-		'cntNames': ['value', 'values', 'values'],
-		//only for maxSelectionLimit > 0 ("legacy")
-		'maxSelectionMsg': 'You reached max number of selected elements.<br>Please save your selection',
 	}
 };
 grisel.stringsBySelClass = {
@@ -189,72 +197,97 @@ grisel.stringsBySelId = {
 // ------------------------------------------------ Options
 
 grisel.defaultOptions = {
+	//General:
+	//
+	//Number of options rows in grid
 	'gridRows': 5,
+	//Number of options columns in grid
 	'gridColumns': 3,
+	//If list of options has pages >= this value, popup will be in extended view mode (with search and filter by first char)
 	'minPagesForExt': 3,
-	'isExt': -1, //-1 for auto (see minPagesForExt), 0/1 to force
+	//Show popup in extended view mode?
+	//-1 for auto applying extended mode (by option minPagesForExt), 1/0 to force extended mode on/off
+	'isExt': -1,
+	//Value attribute of special <oprion> "All values" (or "Any value") (if there is one in options)
 	'anyVal': 'a-n-y',
+	//Hide special "any"-option?
 	'hideAny': false,
+	//How options should be filled in grid?
 	//1 - fill items in left-to-right direction (horizontal) (in html group by rows), 0 - up-to-down direction (vertical) (in html group by cols)
 	'gridDirectionHorizontal': false,
-	//1 - force group by rows (not cols) in html for vertical direction (to make all elements in one row having equal height),
-	// highly recommended (also because of animation problems with cols)
+	//1 - force group by rows (not cols) in html for vertical direction (to make all elements in one row having equal height).
+	//1 is highly recommended (also because of animation problems with cols)
 	'useRowsStyleForVerticalDirection': true,
+	//1 - open popup by hover on selector, 0 - open by click
 	'openOnHover': false,
+	//Add tabindex attribute for all controls (options, inputs, buttons) in popup?
 	'areInnerCtrlsFocuable': false,
-	//when set to 2: for 3+ selected values text will be "X values", for 1-2 - "valA, valB", for 0 - one of allStr/anyStr/allStrDefault;
-	//when set to -1: always "X values"
+	//For example. When set to 4: for 5+ selected values selector text will be "X values", for 1-4 - "valA, valB, valC, valD", for 0 - one of allStr/anyStr/allStrDefault.
+	//When set to -1: always "X values"
 	'maxCntToShowListAsValStr': 3,
 	
-	//show/hide:
+	//Show/hide elements:
 	//
 	'showPagesList': true,
 	'showSearch': true,
 	'showIndex': true,
 	'showControls': true,
-	'hidePageControlsWhenThereIsPegeList': true,
+	'hidePageControlsWhenThereIsPageList': true,
 	'showCtrlSaveSelection': false,
 	'showCtrlShowSelection': true,
 	'showCtrlGotoSelection': true,
 	'showCtrlClearAll': true,
 	'showCloseCross': true,
 	
-	//sizes:
+	//Sizes:
 	//
 	//-2 - equal to <select>'s width, -1 - equal to wrapper's width, 0 - auto, > 0 - concrete width
 	'divSelWidth': 0,
 	//-2 - equal to <select>'s height, -1 - equal to wrapper's height, 0 - auto, > 0 - concrete height
 	'divSelHeight': 0,
+	//Left padding of selector's text, in px
 	'divSelPaddingLeft': 8,
+	//Show selector's text as multiline?
 	'divSelIsMultiline': false,
+	//Optional list of classes for selector divided by ' '
 	'divSelClasses': '',
 	//-2 - equal to wrapper's width, -1 - equal to sel's width, 0 - auto, > 0 - concrete width
 	'divPopupWidth': 0,
 	//0 - use css, > 0 - concrete height
 	'divPopupHeight': 0,
-	//for auto popup width - set min checkbox/radio's labels width
+	//For auto popup width - set min checkbox/radio's labels width
 	'divPopupLabelsMinWidth': 0,
+	//Optional list of classes for popup divided by ' '
 	'divPopupClasses': '',
+	//Optional list of classes for selector's wrapper divided by ' '
 	'divWrapperClasses': '',
-	//when page with long labels appeared, keep new bigger popup height for all other pages
+	//When page with long labels appeared, keep new bigger popup height for all other pages
 	'tryToKeepConstPopupHeight': true,
-	//reserve (once) more height for popup (for case of appearing long labels at next pages), in px
+	//Eeserve (once) more height for popup (for case of appearing long labels at next pages), in px
 	'reserveForPopupHeight': 0,
 	
-	//animation:
+	//Animation:
 	//
+	//Duration in ms for open & close
 	'animatePopupDuration': [600, 400],
+	//Is animation elastic for open & close? If yes, some tricks will be applied for smoother animation
 	'isElasticPopupAnimation': [1, 0],
+	//Easing function names for open & close animations
 	'animatePopupEasing': ['easeOutElastic', 'easeInOutBack'],
+	//Duration of animation of switching pages
 	'animatePageDuration': 150,
+	//Easing function name of animation of switching pages
 	'animatePageEasing': 'swing',
 	
-	//"legacy" options (made for domplus.ua)
+	//"Legacy" options (made for domplus.ua)
 	//
+	//When using search, clear search string after every selection
 	'flushSearchStringAfterSelection': false,
+	//When using search and no options found, show selected items anyway
 	'showSelectedItemsWhenNoFound': false,
+	//In options list show selected items first, but after "any"-option
 	'showSelectedItemsFirst': false,
-	//only for showSelectedItemsFirst==1
+	//Only for showSelectedItemsFirst==1. If count of selected items > this value, warning (see string "maxSelectionMsg") will be shown
 	'maxSelectionLimit': 0,
 };
 grisel.optionsBySelClass = {
@@ -1710,7 +1743,7 @@ grisel.prototype.htmlForPopup = function() {
 		if(this.options.showSearch) {
 			divPopupHtml += "<div class='grisel-head'>";
 				divPopupHtml += "<input class='grisel-search' type='text' placeholder='" + this.strings.inputPlaceholder + "'/>";
-				if(!(this.options.hidePageControlsWhenThereIsPegeList && this.options.showPagesList)) {
+				if(!(this.options.hidePageControlsWhenThereIsPageList && this.options.showPagesList)) {
 					divPopupHtml += "<div class='grisel-btn grisel-btn-left'></div>";
 					divPopupHtml += "<div class='grisel-btn grisel-btn-right'></div>";
 				}
@@ -1733,7 +1766,7 @@ grisel.prototype.htmlForPopup = function() {
 		}
 		if(this.options.showControls) {
 			divPopupHtml += "<div class='grisel-ctrls'>";
-				if(!(this.options.hidePageControlsWhenThereIsPegeList && this.options.showPagesList)) {
+				if(!(this.options.hidePageControlsWhenThereIsPageList && this.options.showPagesList)) {
 					divPopupHtml += "<div class='grisel-ctrl grisel-ctrls-pag'>";
 						divPopupHtml += "<div class='grisel-btn grisel-btn-left'></div>";
 						divPopupHtml += "<div class='grisel-btn grisel-btn-right'></div>";
@@ -1765,7 +1798,7 @@ grisel.prototype.htmlForPage = function(page) {
 	var html = '';
 	var rng = this.getItemsRangeForPage(page);
 	
-	if(this.options.maxSelectionLimit && this.selectedItems.length >= this.options.maxSelectionLimit && this.options.showSelectedItemsFirst) {
+	if(this.options.maxSelectionLimit && this.selectedItems.length > this.options.maxSelectionLimit && this.options.showSelectedItemsFirst) {
 		msg = this.strings.maxSelectionMsg;
 	}
 	

@@ -22,7 +22,7 @@ grisel.defaultOptions = jQuery.extend(grisel.defaultOptions, {
 	'showSearch': true,
 	'showIndex': true,
 	'showControls': true,
-	'hidePageControlsWhenThereIsPegeList': true,
+	'hidePageControlsWhenThereIsPageList': true,
 	'showCtrlSaveSelection': true,
 	'showCtrlShowSelection': false,
 	'showCtrlGotoSelection': false,
