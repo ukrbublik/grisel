@@ -61,7 +61,7 @@ grisel.defaultOptions = jQuery.extend(grisel.defaultOptions, {
 	'animatePageDuration': 0,
 	'animatePageEasing': 'swing',
 	
-	//"legacy" options (made for domplus.ua)
+	//"legacy" options (made for dom-plus.ua)
 	//
 	'flushSearchStringAfterSelection': true,
 	'showSelectedItemsWhenNoFound': false, //or true?

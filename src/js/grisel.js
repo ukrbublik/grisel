@@ -279,7 +279,7 @@ grisel.defaultOptions = {
 	//Easing function name of animation of switching pages
 	'animatePageEasing': 'swing',
 	
-	//"Legacy" options (made for domplus.ua)
+	//"Legacy" options (made for dom-plus.ua)
 	//
 	//When using search, clear search string after every selection
 	'flushSearchStringAfterSelection': false,

@@ -116,7 +116,7 @@ Options list can contain special "any"-option, to be able to select all/any valu
 <tr><td>animatePageDuration</td><td>Duration of animation of switching pages</td><td>150</td></tr>
 <tr><td>animatePageEasing</td><td>Easing function name of animation of switching pages</td><td>'swing'</td></tr>
 
-<tr><td colspan='3'><b>"Legacy" options (made for domplus.ua)</b></td></tr>
+<tr><td colspan='3'><b>"Legacy" options (made for dom-plus.ua)</b></td></tr>
 <tr><td>flushSearchStringAfterSelection</td><td>When using search, clear search string after every selection</td><td>false</td></tr>
 <tr><td>showSelectedItemsWhenNoFound</td><td>When using search and no options found, show selected items anyway</td><td>false</td></tr>
 <tr><td>showSelectedItemsFirst</td><td>In options list show selected items first, but after "any"-option</td><td>false</td></tr>
