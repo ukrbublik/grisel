@@ -8,7 +8,7 @@
  *
  * Requires: browser with CSS3 support (for flex), jQuery, jQuery easing plugin
  *
- * @version 2.2.5
+ * @version 2.2.6
  * @homepage https://github.com/ukrbublik/grisel
  * @author ukrbublik
  * @license MIT
@@ -146,7 +146,7 @@ grisel.defaultLang = 'ru';
 
 grisel.defaultStrings = {
 	'en': {
-		//Button in index by first char at bottom, which clears filter by first char
+		//First button in index by first char, which clears filter by first char
 		'indexAll': 'All',
 		//Button that closes popup, like 'X' at bottom-right
 		'ctrlSaveSelection': 'Save',
@@ -222,7 +222,7 @@ grisel.defaultOptions = {
 	'openOnHover': false,
 	//Add tabindex attribute for all controls (options, inputs, buttons) in popup?
 	'areInnerCtrlsFocuable': false,
-	//For example. When set to 4: for 5+ selected values selector text will be "X values", for 1-4 - "valA, valB, valC, valD", for 0 - one of allStr/anyStr/allStrDefault.
+	//For example. When set to 4: for 5+ selected values selector text will be "X values", for 1-4 - "valA, valB, valC, valD", for 0 - one of allStr option / text of "any"-option / allStrDefault option.
 	//When set to -1: always "X values"
 	'maxCntToShowListAsValStr': 3,
 	
@@ -268,7 +268,7 @@ grisel.defaultOptions = {
 	
 	//Animation:
 	//
-	//Duration in ms for open & close
+	//Duration in ms for open & close animations
 	'animatePopupDuration': [600, 400],
 	//Is animation elastic for open & close? If yes, some tricks will be applied for smoother animation
 	'isElasticPopupAnimation': [1, 0],

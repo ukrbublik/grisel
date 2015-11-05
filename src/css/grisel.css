@@ -8,7 +8,7 @@
  *
  * Requires: browser with CSS3 support (for flex), jQuery, jQuery easing plugin
  *
- * @version 2.2.5
+ * @version 2.2.6
  * @homepage https://github.com/ukrbublik/grisel
  * @author ukrbublik
  * @license MIT
@@ -82,7 +82,7 @@ height: 100%;
 width: 100%;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
-justify-content: center;
+-webkit-justify-content: center; justify-content: center;
 }
 .grisel-select-text span {
 white-space: nowrap;
@@ -260,7 +260,7 @@ float: none;
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
-align-items: center;
+-webkit-align-items: center; align-items: center;
 }
 .grisel-body .prch2-label.prch2 .prch2-text {
 -webkit-box-flex: 1; -moz-box-flex: 1; -webkit-flex: 1; -ms-flex: 1; flex: 1;
@@ -293,7 +293,7 @@ margin: -5px;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: vertical; -webkit-box-direction: normal; -webkit-flex-direction: column; -ms-flex-direction: column; flex-direction: column;
 /* to let elements occupy all heigt */
-justify-content: space-between;
+-webkit-justify-content: space-between; justify-content: space-between;
 }
 .grisel-row {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
@@ -323,7 +323,7 @@ display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-
 -webkit-box-flex: 0; -webkit-flex: none; -ms-flex: none; flex: none;
 /* width: ? %; - will be added by JS dynamically, see renderPageTo() */
 /* to let elements occupy all heigt */
-justify-content: flex-start;
+-webkit-justify-content: flex-start; justify-content: flex-start;
 }
 
 /* не работает? (пример: фильтр по Г, "Героев Сталинграда просп"), workaround - см. useRowsStyleForVerticalDirection */
@@ -391,7 +391,7 @@ background-position: -80px -160px;
 .grisel-pages-list {
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
-justify-content: center;
+-webkit-justify-content: center; justify-content: center;
 height: 16px;
 margin-top: 8px;
 }
@@ -547,7 +547,7 @@ border-bottom-right-radius: 4px;
 overflow: hidden;
 display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex;
 -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row; flex-direction: row;
-justify-content: space-around;
+-webkit-justify-content: space-around; justify-content: space-around;
 }
 .grisel-index .grisel-char {
 color: #fff;

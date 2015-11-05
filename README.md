@@ -68,7 +68,7 @@ Options list can contain special "any"-option, to be able to select all/any valu
 
 <h3>Options:</h3>
 <table>
-<tr><th>Name</th><th>Description</th><th>Default</th></tr>
+<tr><th>Key</th><th>Description</th><th>Default value</th></tr>
 
 <tr><td colspan='3'><b>General</b></td></tr>
 <tr><td>gridRows</td><td>Number of options rows in grid</td><td>5</td></tr>
@@ -81,7 +81,7 @@ Options list can contain special "any"-option, to be able to select all/any valu
 <tr><td>useRowsStyleForVerticalDirection</td><td>1 - force group by rows (not cols) in html for vertical direction (to make all elements in one row having equal height)<br>1 is highly recommended (also because of animation problems with cols)</td><td>true</td></tr>
 <tr><td>openOnHover</td><td>1 - open popup by hover on selector, 0 - open by click</td><td>false</td></tr>
 <tr><td>areInnerCtrlsFocuable</td><td>Add tabindex attribute for all controls (options, inputs, buttons) in popup?</td><td>false</td></tr>
-<tr><td>maxCntToShowListAsValStr</td><td>For example. When set to 4: for 5+ selected values selector text will be "X values", for 1-4 - "valA, valB, valC, valD", for 0 - one of allStr option / text of "any"-option / allStrDefault option.<br>When set to -1: always "X values"</td><td>3</td></tr>
+<tr><td>maxCntToShowListAsValStr</td><td>For example. When set to 4: for 5+ selected values selector text will be "X values", for 1-4 - "valA, valB, valC, valD", for 0 - one of allStr/anyStr/allStrDefault.<br>When set to -1: always "X values"</td><td>3</td></tr>
 
 <tr><td colspan='3'><b>Show/hide elements</b></td></tr>
 <tr><td>showPagesList</td><td></td><td>true</td></tr>
@@ -126,8 +126,8 @@ Options list can contain special "any"-option, to be able to select all/any valu
 
 <h3>Strings:</h3>
 <table>
-<tr><th>Keys</th><th>Description</th><th>Default value for english</th></tr>
-<tr><td>indexAll</td><td>First button in fisr char index, which clears filter by first char</td><td>'All'</td></tr>
+<tr><th>Key</th><th>Description</th><th>Default value for english</th></tr>
+<tr><td>indexAll</td><td>First button in index by first char, which clears filter by first char</td><td>'All'</td></tr>
 <tr><td>ctrlSaveSelection</td><td>Button that closes popup, like 'X' at bottom-right</td><td>'Save'</td></tr>
 <tr><td>ctrlGotoSelection</td><td>Button to goto page with selected option (for single-select)</td><td>'Go to selected'</td></tr>
 <tr><td>ctrlShowSelection</td><td>Button to show only selected options</td><td>'Show selected'</td></tr>
