@@ -67,4 +67,8 @@ to open, Esc to close. Popup will autoclose when looses focus.</li>
 <ul>
 <li>CSS fixes for WebKit.</li>
 </ul>
+<li><b>2015-11-05 - v2.2.7</b><br>
+<ul>
+<li>Added bower.json.</li>
+</ul>
 </ul>

@@ -8,7 +8,7 @@
  *
  * Requires: browser with CSS3 support (for flex), jQuery, jQuery easing plugin
  *
- * @version 2.2.6
+ * @version 2.2.7
  * @homepage https://github.com/ukrbublik/grisel
  * @author ukrbublik
  * @license MIT

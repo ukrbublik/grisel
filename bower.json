@@ -1,0 +1,52 @@
+{
+  "name": "grisel",
+  "description": "jQuery-based custom select control, represents options as paginated grid, features search and filter by first letter.",
+  "main": [
+    "src/css/prettyCheckboxes2.css",
+	"src/css/grisel.css",
+	"src/js/prettyCheckboxes2.js",
+	"src/js/grisel.js",
+	"src/images/arrow-down.gif",
+	"src/images/arrow-up.gif",
+	"src/images/btl-left.png",
+	"src/images/btl-left-hover.png",
+	"src/images/btl-right.png",
+	"src/images/btl-right-hover.png",
+	"src/images/checkbox.png",
+	"src/images/close.png",
+	"src/images/radio.png",
+	"src/images/ui-icons_ff7519_256x240.png"
+  ],
+  "dependencies": {
+    "jquery": ">=1.6",
+	"jquery.easing": ">=1.3"
+  },
+  "keywords": [
+	"multiselect",
+	"select",
+    "dropdown",
+	"form",
+	"control",
+    "jquery"
+  ],
+  "authors": [
+    {
+      "name": "Oblogin Denis",
+      "email": "ukrbublik@gmail.com",
+      "homepage": "https://github.com/ukrbublik"
+    }
+  ],
+  "homepage": "https://github.com/ukrbublik/grisel",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ukrbublik/grisel.git"
+  },
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
