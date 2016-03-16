@@ -19,8 +19,6 @@ Customizable. Has cool animations. Useful for big list of options.
 ```
 <script src="vendor/jquery-1.11.3.js"></script>
 <script src="vendor/jquery.easing.1.3.2.js"></script>
-<script src="src/js/prettyCheckboxes2.js"></script>
-<link type="text/css" rel="stylesheet" href="src/css/prettyCheckboxes2.css" />
 <script src="src/js/grisel.js"></script>
 <link type="text/css" rel="stylesheet" href="src/css/grisel.css" />
 ```

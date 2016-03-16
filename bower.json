@@ -2,9 +2,7 @@
   "name": "grisel",
   "description": "jQuery-based custom select control, represents options as paginated grid, features search and filter by first letter.",
   "main": [
-    "src/css/prettyCheckboxes2.css",
 	"src/css/grisel.css",
-	"src/js/prettyCheckboxes2.js",
 	"src/js/grisel.js",
 	"src/images/arrow-down.gif",
 	"src/images/arrow-up.gif",

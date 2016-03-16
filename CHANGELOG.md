@@ -71,4 +71,9 @@ to open, Esc to close. Popup will autoclose when looses focus.</li>
 <ul>
 <li>Added bower.json.</li>
 </ul>
+<li><b>2016-03-16 - v2.2.8</b><br>
+<ul>
+<li>prettyCheckboxes2.js is merged with grisel.js and prettyCheckboxes2.css with grisel.css</li>
+<li>Fixed page rendering in 'Show selected' mode</li>
+</ul>
 </ul>

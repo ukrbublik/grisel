@@ -1,6 +1,6 @@
 {
   "name": "grisel",
-  "version": "2.2.7",
+  "version": "2.2.8",
   "title": "grisel (GRId_SELect)",
   "description": "jQuery-based custom select control, represents options as paginated grid, features search and filter by first letter.",
   "keywords": [
