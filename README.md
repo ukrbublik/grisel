@@ -16,15 +16,15 @@ Customizable. Has cool animations. Useful for big list of options.
 
 <h3>Getting started:</h3>
 1) Include this JS/CSS:
-```
+<pre>
 <script src="vendor/jquery-1.11.3.js"></script>
 <script src="vendor/jquery.easing.1.3.2.js"></script>
 <script src="src/js/grisel.js"></script>
 <link type="text/css" rel="stylesheet" href="src/css/grisel.css" />
-```
+</pre>
 2) Add class "grisel" to &lt;select&gt;'s you want to convert.<br>
 3) Customize options. Example:
-```
+<pre>
 <script>
 grisel.defaultOptions = jQuery.extend(grisel.defaultOptions, {
 	//options to override, see list below
@@ -54,11 +54,11 @@ grisel.stringsBySelClass = {
 	//...
 };
 </script>
-```
-Also you can override options for particular &lt;select&gt; by using 'data-*'. Example:
-```
-<select class="grisel" data-div-popup-width='500'>...</select>
-```
+</pre>
+Also you can override options for particular &lt;select&gt; by using "data-*". Example:
+<code>
+ &lt;select class="grisel" data-div-popup-width="500"&gt;...&lt;/selec&gt;
+</code>
 
 <h3>Notes:</h3>
 Popup can be in extended view (with search and filter by first char) or compact - see options isExt, minPagesForExt.<br>
