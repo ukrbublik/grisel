@@ -4,7 +4,8 @@
 <b>grisel (GRId_SELect)</b> is a custom multi- or single-select control (over standard &lt;select&gt;).<br>
 Represents options as paginated grid.<br>
 Features search and filter by first letter.<br>
-Customizable. Has cool animations. Useful for big list of options.
+Customizable. Has cool animations. Useful for big list of options.<br>
+Built on top of jQuery.
 
 <!--
 <h3>Screenshot:</h3>
@@ -12,6 +13,10 @@ Customizable. Has cool animations. Useful for big list of options.
 -->
 
 <h3>How it looks:</h3>
+<ul>
+<li><a href="http://ukrbublik.github.io/grisel/demo/demo.html">Demo<a></li>
+<li><a href="https://dom-plus.ua/buy/flat/advanced#fs_street">Live example<a></li>
+</ul>
 <img src='http://fat.gfycat.com/DelightfulPoliteAardwolf.gif'  /><br>
 
 <h3>Getting started:</h3>
